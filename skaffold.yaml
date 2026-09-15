@@ -1,0 +1,50 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: agent-engine
+build:
+  local:
+    push: false
+  artifacts:
+    - image: agent-engine-api
+      docker:
+        dockerfile: apps/api/Dockerfile
+    - image: agent-engine-worker
+      docker:
+        dockerfile: apps/worker/Dockerfile
+manifests:
+  kustomize:
+    paths:
+      - infrastructure/kubernetes/local
+deploy:
+  kubectl: {}
+  statusCheckDeadlineSeconds: 600
+portForward:
+  - resourceType: service
+    resourceName: api
+    namespace: agent-engine-local
+    port: 3000
+    localPort: 3000
+  - resourceType: service
+    resourceName: temporal-ui
+    namespace: agent-engine-local
+    port: 8080
+    localPort: 8080
+  - resourceType: service
+    resourceName: postgres
+    namespace: agent-engine-local
+    port: 5432
+    localPort: 15432
+  - resourceType: service
+    resourceName: temporal-frontend
+    namespace: agent-engine-local
+    port: 7233
+    localPort: 7233
+profiles:
+  - name: local
+    activation:
+      - command: dev
+    manifests:
+      kustomize:
+        paths:
+          - infrastructure/kubernetes/local

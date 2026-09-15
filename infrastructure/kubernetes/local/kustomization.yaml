@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: agent-engine-local
+resources:
+  - ../base
+  - namespace.yaml
+  - postgres.yaml
+  - temporal.yaml
+configMapGenerator:
+  - name: engine-config
+    literals:
+      - TEMPORAL_ADDRESS=temporal-frontend:7233
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=agent-engine
+      - MODEL_PROVIDER=mock
+secretGenerator:
+  # Intentionally public, disposable local credentials. Never use in production.
+  - name: engine-secrets
+    literals:
+      - DATABASE_URL=postgresql://engine:engine-local-only@postgres:5432/agent_engine
+  - name: postgres-secrets
+    literals:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres-local-only
+      - POSTGRES_DB=agent_engine
+  - name: temporal-secrets
+    literals:
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal-local-only
