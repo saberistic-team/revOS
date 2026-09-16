@@ -9,6 +9,7 @@ import {
   agents,
   knowledge,
   skillVersions,
+  skills,
   tools,
   runSteps,
 } from "../../../database/src";
@@ -94,7 +95,11 @@ export function createActivities(
             },
             agent: { name: agent.name, instructions: agent.instructions },
             knowledge: await tx
-              .select({ name: knowledge.name, content: knowledge.content })
+              .select({
+                id: knowledge.id,
+                name: knowledge.name,
+                content: knowledge.content,
+              })
               .from(knowledge)
               .where(eq(knowledge.organizationId, task.organizationId)),
             tools: [],
@@ -122,7 +127,70 @@ export function createActivities(
               if (!definition.tools.some((t) => t.id === tool.id))
                 definition.tools.push(tool);
             }
-            definition.steps.push({ ...step, skill });
+            let catalog:
+              | import("../../../shared/src").CatalogSkill[]
+              | undefined;
+            if (
+              step.type === "agent_loop" ||
+              skill?.executionType === "agent"
+            ) {
+              const selectedIds =
+                step.type === "agent_loop"
+                  ? step.configuration.skillVersionIds
+                  : [skill!.id];
+              if (
+                !Array.isArray(selectedIds) ||
+                selectedIds.length === 0 ||
+                selectedIds.length > 20 ||
+                selectedIds.some((id) => typeof id !== "string")
+              )
+                throw ApplicationFailure.nonRetryable(
+                  "Agent step requires 1..20 pinned skillVersionIds",
+                );
+              catalog = [];
+              for (const id of [...new Set(selectedIds as string[])]) {
+                const [row] = await tx
+                  .select({ version: skillVersions, owner: skills })
+                  .from(skillVersions)
+                  .innerJoin(skills, eq(skillVersions.skillId, skills.id))
+                  .where(eq(skillVersions.id, id));
+                if (
+                  !row ||
+                  (row.owner.organizationId !== null &&
+                    row.owner.organizationId !== task.organizationId) ||
+                  row.version.executionType !== "agent"
+                )
+                  throw ApplicationFailure.nonRetryable(
+                    "Selected agent skill is missing or outside the organization",
+                  );
+                catalog.push({
+                  ...row.version,
+                  name: row.owner.name,
+                  description: row.owner.description,
+                });
+                const toolIds = row.version.configuration.allowedToolIds ?? [];
+                if (
+                  !Array.isArray(toolIds) ||
+                  toolIds.some((id) => typeof id !== "string")
+                )
+                  throw ApplicationFailure.nonRetryable(
+                    "allowedToolIds must be a list",
+                  );
+                for (const toolId of toolIds as string[]) {
+                  const [tool] = await tx
+                    .select()
+                    .from(tools)
+                    .where(eq(tools.id, toolId));
+                  if (!tool)
+                    throw ApplicationFailure.nonRetryable(
+                      "Allowed tool missing",
+                    );
+                  if (!definition.tools.some((t) => t.id === tool.id))
+                    definition.tools.push(tool);
+                }
+              }
+            }
+            definition.steps.push({ ...step, skill, catalog });
           }
           validate(
             definition.workflow.inputSchema,

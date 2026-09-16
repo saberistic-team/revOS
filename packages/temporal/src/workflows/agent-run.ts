@@ -16,6 +16,8 @@ import type {
   StepContext,
 } from "../../../shared/src";
 import { bindInput } from "../../../shared/src/bindings";
+import type { HumanAnswer } from "../../../shared/src/session";
+import { runAgentLoop } from "./agent-loop";
 const activities = proxyActivities<Activities>({
   startToCloseTimeout: "2 minutes",
   scheduleToCloseTimeout: "10 minutes",
@@ -25,18 +27,34 @@ const activities = proxyActivities<Activities>({
     maximumAttempts: 3,
   },
 });
+export const humanAnswer = defineSignal<[HumanAnswer]>("humanAnswer");
 export const humanReview = defineSignal<[Review]>("humanReview");
 export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
   let active: StepDefinition | undefined;
   let stepInput: Json = args.input;
+  const answers: Record<string, HumanAnswer> = Object.create(null);
+  setHandler(humanAnswer, (answer) => {
+    if (
+      active &&
+      answer.stepKey === active.key &&
+      typeof answer.questionId === "string" &&
+      typeof answer.answer === "string" &&
+      answer.answer.trim() &&
+      answer.answer.length <= 12000 &&
+      !(answer.questionId in answers)
+    )
+      answers[answer.questionId] = answer;
+  });
   const reviews: Record<string, Review> = Object.create(null);
   setHandler(humanReview, (review) => {
     if (
-      active?.type === "human_review" &&
+      (active?.type === "human_review" ||
+        active?.type === "agent_loop" ||
+        active?.skill?.executionType === "agent") &&
       review.stepKey === active.key &&
-      !(review.stepKey in reviews)
+      !((review.reviewId ?? review.stepKey) in reviews)
     )
-      reviews[review.stepKey] = review;
+      reviews[review.reviewId ?? review.stepKey] = review;
   });
   try {
     const definition = await activities.loadExecutionDefinition(args);
@@ -56,7 +74,31 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
         input: stepInput,
       });
       let output: Json;
-      if (step.type === "human_review") {
+      if (step.type === "agent_loop" || step.skill?.executionType === "agent") {
+        output = await runAgentLoop(
+          args.runId,
+          step,
+          stepInput,
+          async (reviewId) => {
+            const received = await condition(
+              () => reviewId in reviews,
+              "7 days",
+            );
+            if (!received)
+              throw ApplicationFailure.nonRetryable("Human review expired");
+            return reviews[reviewId];
+          },
+          async (questionId) => {
+            const received = await condition(
+              () => questionId in answers,
+              "7 days",
+            );
+            if (!received)
+              throw ApplicationFailure.nonRetryable("Human question expired");
+            return answers[questionId];
+          },
+        );
+      } else if (step.type === "human_review") {
         await activities.saveRunStep({
           runId: args.runId,
           workflowStepId: step.id,
@@ -69,11 +111,14 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
           throw ApplicationFailure.nonRetryable(
             "Human review rejected or expired",
           );
-        output = {
-          approved: true,
-          note: reviews[step.key].note ?? "",
-          value: stepInput,
-        };
+        output =
+          step.configuration.outputMode === "input"
+            ? stepInput
+            : {
+                approved: true,
+                note: reviews[step.key].note ?? "",
+                value: stepInput,
+              };
         await activities.markRunRunning(args.runId);
       } else if (step.type === "skill" && step.skill) {
         output = await activities.executeSkill({

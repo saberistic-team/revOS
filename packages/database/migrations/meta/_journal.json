@@ -15,6 +15,20 @@
       "when": 1789491547548,
       "tag": "0001_immutability",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789493771583,
+      "tag": "0002_wakeful_zaladane",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789495707042,
+      "tag": "0003_nervous_black_widow",
+      "breakpoints": true
     }
   ]
 }

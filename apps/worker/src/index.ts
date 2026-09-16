@@ -9,10 +9,13 @@ import {
 import { ToolRegistry } from "../../../packages/engine/src";
 import { modelProvider } from "../../../packages/engine/src/providers";
 import { registerDemoTools } from "./demo-tools";
+import { registerWebResearch } from "../../../packages/engine/src/web-research";
 import { pool } from "../../../packages/database/src";
+import { createSessionActivities } from "../../../packages/temporal/src/activities/sessions";
 async function main() {
   const registry = new ToolRegistry();
   registerDemoTools(registry);
+  registerWebResearch(registry);
   const connection = await connectWithRetry(() =>
     NativeConnection.connect(connectionOptions()),
   );
@@ -22,7 +25,10 @@ async function main() {
     taskQueue,
     workflowsPath:
       require.resolve("../../../packages/temporal/src/workflows/agent-run"),
-    activities: createActivities(registry, modelProvider()),
+    activities: {
+      ...createActivities(registry, modelProvider()),
+      ...createSessionActivities(registry),
+    },
   });
   console.log(
     `Worker ready: ${connectionOptions().address}, namespace=${namespace}, queue=${taskQueue}`,
@@ -36,5 +42,7 @@ async function main() {
 }
 main().catch((e) => {
   console.error(e);
-  process.exitCode = 1;
+  // A failed Worker.create can leave native connection handles alive. Exit so
+  // Kubernetes restarts the process instead of reporting an idle worker ready.
+  process.exit(1);
 });

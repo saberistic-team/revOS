@@ -1,5 +1,7 @@
 # Architecture
 
+See [Agent sessions and the playground](agent-sessions.md) for the implemented OpenAI SDK reasoning loop, model-selected skills, knowledge retrieval and session persistence. The original sequential execution path below remains supported.
+
 Code defines how the engine executes work. The database defines how a particular business works. Temporal provides durable execution.
 
 ```mermaid

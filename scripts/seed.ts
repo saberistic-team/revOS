@@ -121,31 +121,29 @@ export async function seed() {
           "All data is synthetic. No live research or outreach. Identity matches remain unverified.",
       })
       .onConflictDoNothing();
-    await tx
-      .insert(workflowVersions)
-      .values({
-        id: ids.version,
-        workflowId: ids.workflow,
-        version: 1,
-        goal: "Find evidence-backed real estate leads from obituary information",
-        sopMarkdown: sop,
-        inputSchema: {
-          type: "object",
-          required: ["obituaryText"],
-          properties: { obituaryText: { type: "string", minLength: 1 } },
-          additionalProperties: false,
+    await tx.insert(workflowVersions).values({
+      id: ids.version,
+      workflowId: ids.workflow,
+      version: 1,
+      goal: "Find evidence-backed real estate leads from obituary information",
+      sopMarkdown: sop,
+      inputSchema: {
+        type: "object",
+        required: ["obituaryText"],
+        properties: { obituaryText: { type: "string", minLength: 1 } },
+        additionalProperties: false,
+      },
+      outputSchema: {
+        type: "object",
+        required: ["synthetic", "reviewRequired", "conclusions"],
+        properties: {
+          synthetic: { const: true },
+          reviewRequired: { const: true },
+          conclusions: { type: "array" },
         },
-        outputSchema: {
-          type: "object",
-          required: ["synthetic", "reviewRequired", "conclusions"],
-          properties: {
-            synthetic: { const: true },
-            reviewRequired: { const: true },
-            conclusions: { type: "array" },
-          },
-        },
-        createdBy: "seed",
-      });
+      },
+      createdBy: "seed",
+    });
     const fixtures: {
       key: string;
       instructions: string;
@@ -239,43 +237,37 @@ export async function seed() {
       const skillId = `20000000-0000-4000-8000-${n}`,
         versionId = `30000000-0000-4000-8000-${n}`,
         stepId = `40000000-0000-4000-8000-${n}`;
-      await tx
-        .insert(skills)
-        .values({
-          id: skillId,
-          organizationId: ids.organization,
-          name: fixture.key,
-          slug: fixture.key,
-        });
-      await tx
-        .insert(skillVersions)
-        .values({
-          id: versionId,
-          skillId,
-          version: 1,
-          instructions: fixture.instructions,
-          executionType: fixture.tool ? "tool" : "llm",
-          inputSchema: objectSchema,
-          outputSchema: objectSchema,
-          configuration: fixture.tool
-            ? { toolId: ids.tool, syntheticResults: fixture.response }
-            : { mockResponse: fixture.response },
-        });
-      await tx
-        .insert(workflowSteps)
-        .values({
-          id: stepId,
-          workflowVersionId: ids.version,
-          key: fixture.key,
-          name: fixture.key,
-          position: index,
-          type: "skill",
-          skillVersionId: versionId,
-          configuration: {
-            inputFrom:
-              index === 0 ? "initial" : index === 4 ? "context" : "previous",
-          },
-        });
+      await tx.insert(skills).values({
+        id: skillId,
+        organizationId: ids.organization,
+        name: fixture.key,
+        slug: fixture.key,
+      });
+      await tx.insert(skillVersions).values({
+        id: versionId,
+        skillId,
+        version: 1,
+        instructions: fixture.instructions,
+        executionType: fixture.tool ? "tool" : "llm",
+        inputSchema: objectSchema,
+        outputSchema: objectSchema,
+        configuration: fixture.tool
+          ? { toolId: ids.tool, syntheticResults: fixture.response }
+          : { mockResponse: fixture.response },
+      });
+      await tx.insert(workflowSteps).values({
+        id: stepId,
+        workflowVersionId: ids.version,
+        key: fixture.key,
+        name: fixture.key,
+        position: index,
+        type: "skill",
+        skillVersionId: versionId,
+        configuration: {
+          inputFrom:
+            index === 0 ? "initial" : index === 4 ? "context" : "previous",
+        },
+      });
     }
     await tx
       .update(workflows)

@@ -9,6 +9,16 @@ Durable execution lives in Temporal.
 
 Application workloads run on Kubernetes.
 
+## OpenAI playground and durable agent sessions
+
+The [Agent Sessions guide](docs/agent-sessions.md) covers the playground at **http://localhost:3000**, model-selected skills, explicit knowledge retrieval, and durable per-turn/tool execution. Temporal UI remains at port 8080.
+
+After starting the stack, run `pnpm db:migrate` and `pnpm db:seed:agent`. Put your key in the Git-ignored `.env.openai.local` file, run `pnpm secrets:openai`, then open the playground. Its model reasoning is live; the included property tool returns clearly labeled synthetic data.
+
+## Workflow authoring
+
+Open **http://localhost:3000/builder** to create drafts, define inputs and outputs, arrange agent tasks/fixed skills/approval steps, manage skills and knowledge, test snapshots, and publish immutable versions. See the [Workflow Builder guide](docs/workflow-builder.md).
+
 ## Prerequisites
 
 - Docker running (Linux containers; arm64 and amd64 supported by the selected images)
@@ -149,3 +159,69 @@ Deleting the namespace deliberately discards its development data. Do not run th
 - [Day 1 validation and Week 1 direction](docs/day-1.md)
 
 `infrastructure/kubernetes/base` contains reusable API/Worker manifests. `local` adds PostgreSQL, the official Temporal auto-setup image, UI, local configuration and secrets. `production` is a placeholder referencing only the app base. Production will provide managed PostgreSQL, Temporal Cloud or a managed self-hosted Temporal installation, ingress, secrets, and observability. No production deployment is configured today.
+
+### OpenAI web research and customer discovery
+
+The worker registers `openai.web_research`, backed by the Agents SDK's hosted
+`webSearchTool`. Enable its catalog entry with `POST /builder/tools/enable`
+(`{"slug":"openai-web-research"}`), then grant it to individual skill versions.
+The API never receives the OpenAI key. The worker uses `OPENAI_API_KEY` and the
+optional `OPENAI_RESEARCH_MODEL` (default `gpt-4.1-mini`). Each research request is
+one durable Temporal tool activity. OpenAI manages searches inside that request;
+individual hosted searches are not separate Temporal activities. Public search
+metadata, cited passages, source links, and retrieval time are persisted. A retry
+before the result is checkpointed can incur another provider charge.
+
+`config/customer-opportunity-discovery.json` contains the reusable business
+configuration and clearly synthetic first input. From an empty catalog,
+`pnpm exec tsx scripts/create-customer-discovery.ts` authors the organization,
+agent, 13 skills, two knowledge items, and 12-step draft through the builder API,
+validates it, and starts a test. It does not approve or publish. The final human
+review passes the approved brief through unchanged (`outputMode: "input"`).
+After inspection and human approval, publish with the saved `revision` and
+`testedRunId`; the API promotes that exact successfully tested snapshot as
+Version 1. An unfinished or outdated test cannot be promoted through this path.
+
+The promotion integration test must run against an isolated database whose URL
+contains `discovery_verify`; it does not seed the live catalog.
+
+Skills can declare `requiredKnowledgeIds` and `requiredToolIds` as subsets of
+their allowed resources. The planner cannot complete such a skill until the
+knowledge is fetched and required tools have completed during that skill's
+selection. This is checked again by the activity policy. The discovery draft
+uses these requirements for its research stages and nonempty, field-specific
+stage schemas. It uses `gpt-4.1` for planning; the bounded hosted research helper
+uses the independently configured research model. Invalid model decisions are
+validated before checkpointing so activity retries can request a fresh result.
+
+### Reasoning timeouts and checkpoint recovery
+
+Each model generation has a 180-second deadline. Schema corrections receive a
+fresh deadline, with at most three generations per reasoning activity. Temporal
+allows ten minutes for that activity and keeps the existing two-minute budget
+for ordinary tool and bookkeeping activities. Cancellation still propagates to
+the model; model timeouts now identify the deadline and generation number.
+
+For a failed `reason` activity with no uncommitted tool action, inspect recovery:
+
+```sh
+pnpm exec tsx scripts/resume-failed-reasoning.ts RUN_ID
+```
+
+Add `--apply` to reset Temporal to the failed reasoning checkpoint and reopen
+only that run's failed session/step. The command requires both the app run and
+Temporal execution to be failed, checks the failed turn against stored decisions,
+and refuses recovery if later business activities exist. Completed decisions,
+research results, inputs, and workflow versions remain unchanged. The original
+Temporal executions retain their failure histories. A recovery record containing
+execution IDs and hashes of completed outputs is saved under `/tmp`.
+
+The decision payload budget scales with `maxOutputTokens` (eight bytes per token,
+minimum 16 KB, maximum 64 KB, and never above `maxContextBytes`). This allows
+longer structured final briefs without repeatedly forcing them below 16 KB.
+
+After a worker replacement, an administrator may add `--restart-running` to
+recover a stale running reasoning activity. This requires exactly one pending
+`reason` activity and rechecks the stored turn count under a session lock. It
+refuses to restart pending tool actions or reasoning that has already advanced.
+Resetting an in-flight model request may incur another provider charge.

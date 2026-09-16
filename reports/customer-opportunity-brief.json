@@ -1,0 +1,341 @@
+{
+  "lead_sources": [
+    {
+      "cost": "$75-$150/lead",
+      "evidence": [
+        {
+          "url": "https://buyrefileads.com/best-mortgage-lead-sources-brokers/?utm_source=openai",
+          "title": "Best Mortgage Lead Sources for Small Broker Shops"
+        }
+      ],
+      "confidence": "High for quality/automation; moderate for volume",
+      "source_name": "Exclusive Web Leads",
+      "source_type": "Inbound, Vendor-acquired",
+      "accessibility": "Vendor, CRM-delivered",
+      "estimated_volume": "Moderate—vendor dependent",
+      "estimated_quality": "High (pre-qualified/exclusive)",
+      "automation_potential": "High (CRM integration)"
+    },
+    {
+      "cost": "$0.10/property/row",
+      "evidence": [
+        {
+          "url": "https://www.tracerfy.com/real-estate-leads?utm_source=openai",
+          "title": "Real Estate Leads & Property Owner Data | Tracerfy"
+        }
+      ],
+      "confidence": "High for scale/access; unknown for conversion",
+      "source_name": "Real Estate Data Platforms",
+      "source_type": "Public/Third-Party Data",
+      "accessibility": "API/paid (e.g., Tracerfy)",
+      "estimated_volume": "Very high (national scale)",
+      "estimated_quality": "High (verified property-owner info)",
+      "automation_potential": "Very High (data integration)"
+    },
+    {
+      "cost": "$49–$69/lead",
+      "evidence": [
+        {
+          "url": "https://mortyleads.com/?utm_source=openai",
+          "title": "Morty Leads"
+        }
+      ],
+      "confidence": "High for ease/integration; unknown for total scale",
+      "source_name": "Mortgage Lead Generation Services",
+      "source_type": "Lead Vendor",
+      "accessibility": "Purchase via vendor, CRM-integration",
+      "estimated_volume": "Moderate, not disclosed",
+      "estimated_quality": "High (verified, consented)",
+      "automation_potential": "High (pipeline workflow)"
+    }
+  ],
+  "opportunities": [
+    {
+      "name": "Monetize Overlooked & Abandoned Leads",
+      "risks": "Insufficient overlooked lead volume, buyer mismatch, data access, compliance",
+      "effort": "Medium–High (data access, process integration, buyer match)",
+      "confidence": "Medium—supported by industry, but unproven for synthetic case.",
+      "description": "Identify, requalify, and surface leads ignored due to timing/data/incomplete info, route to buyers for incremental value.",
+      "measurability": "Strong if outcomes tracked.",
+      "required_data": "Sample ignored leads, outcome tracking, buyer appetite",
+      "time_to_value": "Moderate (pilot possible if historic/discarded data available)",
+      "customer_value": "Unlock incremental revenue from sunk-cost leads.",
+      "priority_score": 1,
+      "customer_capacity": "Unknown; must validate.",
+      "next_validation_step": "Pilot: Sample requalification and performance tracking",
+      "estimated_revenue_potential": "Unknown (if a fraction convert at standard rates, incremental revenue is material)"
+    },
+    {
+      "name": "Improve Qualification & Routing",
+      "risks": "Over-qualification reduces flow, requires process change/buy-in.",
+      "effort": "Low-Medium (analytics/process), higher if automating.",
+      "confidence": "Medium; best practice value, execution-dependent.",
+      "description": "Refine qualification logic/routing to maximize value from existing pipeline.",
+      "measurability": "Strong—before/after comparisons.",
+      "required_data": "Detailed lead journey/routing, outcome data.",
+      "time_to_value": "Fast with baseline pipeline.",
+      "customer_value": "Higher close rates, higher revenue per lead.",
+      "priority_score": 2,
+      "customer_capacity": "Unknown; capacity to absorb uplift not validated.",
+      "next_validation_step": "Audit current flows vs. outcomes.",
+      "estimated_revenue_potential": "Industry uplift 5–20% but actual data unknown."
+    },
+    {
+      "name": "Surface & Track Event-Based Opportunities",
+      "risks": "Compliance/privacy, low volume, buyer demand uncertain.",
+      "effort": "High (data acquisition, legal/compliance, integration)",
+      "confidence": "Medium-Low—high value per lead, but volume and conversion unproven.",
+      "description": "Acquire event-driven datasets (probate, foreclosure, etc.) and supply to buyers for time-sensitive action.",
+      "measurability": "Strong with proper tracking.",
+      "required_data": "Data supply, buyer demand, compliance.",
+      "time_to_value": "Slow–Moderate (depends on data sourcing)",
+      "customer_value": "Unique, premium opportunity access.",
+      "priority_score": 3,
+      "customer_capacity": "Unknown.",
+      "next_validation_step": "Source channel research, buyer interviews.",
+      "estimated_revenue_potential": "Premium pricing for high-quality events: $50–$200/lead per market sample; market size smaller."
+    }
+  ],
+  "discovery_gaps": {
+    "unanswered_questions": [
+      "Who exactly are the customer's clients/end-users?",
+      "Precise process for acquiring/qualifying leads?",
+      "How is revenue tracked/measured now?",
+      "How many leads are abandoned/ignored, and why?",
+      "What stack/tech/reporting is in place?"
+    ],
+    "assumptions_to_validate": [
+      "There is meaningful, monetizable value in overlooked leads.",
+      "Improved process beats simple lead generation in revenue uplift.",
+      "Customer has capacity for additional qualified lead volume.",
+      "Fee structure is justified by actual, measurable uplift."
+    ],
+    "next_customer_questions": [
+      "How do you currently define/track lead outcome success?",
+      "What methods are in place today for monetization (lead sale, referral, etc.)?",
+      "Where is pipeline leakage greatest?",
+      "What reporting/data access do you have for overlooked opportunities?"
+    ],
+    "data_requested_from_customer": [
+      "Sample of overlooked/discarded leads with outcomes.",
+      "Client/end-user list by segment.",
+      "Current lead conversion/revenue/monetization reports.",
+      "Tech stack, data/reporting environment.",
+      "Market estimate/value by lead/segment."
+    ]
+  },
+  "lead_lifecycle": {
+    "current_statuses": "Unknown. Likely includes qualified, unqualified, routed, closed, lost (standard in industry, not confirmed).",
+    "recommended_watch_conditions": "Flag if future event/market activity may convert, or buyer/routing criteria change.",
+    "what_happens_to_unclosed_leads": "Unknown—unclear if recycled, archived, or lost.",
+    "what_happens_to_unqualified_leads": "Unknown—presumed ignored/discarded.",
+    "conditions_that_could_make_a_lead_qualified_later": "Trigger events (probate, foreclosure), buyer appetite change, market updates, info improvement."
+  },
+  "customer_profile": {
+    "company": "Synthetic mortgage-related lead customer",
+    "industry": "Real estate / mortgage-related opportunities",
+    "what_they_do": "Presumed to engage in real estate/mortgage lead generation, qualification, monitoring, or routing, but not explicitly specified.",
+    "target_customer": "Unknown. Presumed US agents, brokers, lenders, investors.",
+    "known_constraints": "No real customer data supplied. Synthetic test—cannot verify actual process, tech, financials.",
+    "current_business_model": "Unknown. Presumed to seek incremental value from overlooked/abandoned leads."
+  },
+  "market_landscape": {
+    "affiliates": [
+      {
+        "name": "ReadyConnect Concierge/OpCity"
+      },
+      {
+        "name": "Redfin"
+      },
+      {
+        "name": "Rocket Homes"
+      },
+      {
+        "name": "Estately"
+      }
+    ],
+    "competitors": [
+      {
+        "name": "LeadSearch Pros",
+        "type": "Exclusive vendor",
+        "notes": "Sells exclusive mortgage leads.",
+        "source": "https://leadsearchpros.com/industries/mortgage-refinance-leads?utm_source=openai"
+      },
+      {
+        "name": "Loan Data Direct",
+        "type": "Lead list provider",
+        "notes": "Mortgage lead lists aged/seasoned; resell/delete.",
+        "source": "https://www.loandatadirect.com/?utm_source=openai"
+      },
+      {
+        "name": "Mortgage Leads Network",
+        "type": "Live/aged lead vendor",
+        "notes": "Flexible delivery, resells aged leads.",
+        "source": "https://mortgageleads.net/?utm_source=openai"
+      },
+      {
+        "name": "Landvoice",
+        "type": "Hidden/event data provider",
+        "notes": "Uncovers pre-foreclosure/probate via ATTOM data.",
+        "source": "https://www.attomdata.com/news/attom-insights/client-case-studies/landvoice-uses-attom-to-uncover-hidden-leads-for-the-real-estate-market/?utm_source=openai"
+      }
+    ],
+    "common_tools": {
+      "platforms": [
+        "CRM integration",
+        "Referral marketplaces",
+        "Lead scoring APIs",
+        "Automated follow-ups"
+      ]
+    },
+    "lead_vendors": [
+      {
+        "name": "Mortgage Leads Network"
+      },
+      {
+        "name": "LeadSearch Pros"
+      },
+      {
+        "name": "Loan Data Direct"
+      }
+    ],
+    "market_trends": {
+      "trends": [
+        "Pay-per-close and performance-linked comp rising",
+        "Focus on exclusive/live over aged leads",
+        "Deeper automation in routing/tracking",
+        "Probate/pre-foreclosure niche expansion"
+      ]
+    },
+    "best_practices": {
+      "practices": [
+        "Segment/qualify by event/intent",
+        "Track lifecycle (open, watch, lost)",
+        "Automate routing to best-fit buyers",
+        "Re-market aged/unclosed leads"
+      ]
+    },
+    "compensation_models": [
+      {
+        "model": "Referral fee",
+        "details": "30–40% commission on closed deals (ReadyConnect, Redfin)",
+        "segment": "Agent/affiliate networks"
+      },
+      {
+        "model": "Pay-per-lead (CPL)",
+        "details": "$10–$150/lead by quality/intent",
+        "segment": "Vendors"
+      },
+      {
+        "model": "Pay-per-close",
+        "details": "Paid only on closed deal, same as referral networks.",
+        "segment": "Referrals"
+      }
+    ],
+    "underserved_segments": [
+      "Probate/pre-foreclosure/event-driven",
+      "Aged/abandoned in major metros",
+      "Niche property/customer types"
+    ],
+    "existing_representatives": [
+      {
+        "name": "Redfin Referral Network",
+        "role": "Referral partner, 33–40% fee",
+        "source": "https://www.inman.com/2023/01/13/on-a-budget-10-lead-sources-with-no-upfront-costs/?utm_source=openai"
+      }
+    ],
+    "undercapitalized_opportunities": {
+      "opportunities": [
+        "Ignored leads later become viable",
+        "Small brokers lacking exclusive/live access",
+        "Markets where aged leads respond to reactivation"
+      ]
+    }
+  },
+  "recommended_offer": {
+    "offer": "Pilot engagement to identify, requalify, and route previously overlooked or abandoned real estate/mortgage leads for incremental monetization.",
+    "deliverable": "Tracked batch of 100–250 overlooked/non-closed leads requalified under updated criteria with outcome report (acceptance, routing, conversion).",
+    "problem_solved": "Sunk-value leads ignored by real estate/mortgage organizations are lost revenue; pilot seeks to unlock this value.",
+    "why_this_offer": "Focuses on the highest-probability overlooked value (abandoned leads), fast/measurable feedback, minimal commitment, and capacity test prior to automation.",
+    "implementation_scope": "Small pilot, manual/semi-automated, no new integration upfront, use existing reporting. Downstream buyers must be ready.",
+    "what_not_to_build_yet": "No custom CRM/integrations, no automated rerouting/event pipelines, no new app dev before pilot validation.",
+    "expected_customer_value": "Incremental revenue with low cost/risk. If pilot works, justifies further build and scale.",
+    "measurable_success_metric": "% of leads requalified, routed, accepted, converted; incremental revenue/referral from reclaimed leads."
+  },
+  "current_operations": {
+    "crm": null,
+    "sales_process": null,
+    "inbound_process": null,
+    "operational_gaps": "Entire operational picture is unknown—synthetic customer. Industry standard is CRM-based, automated follow-up, and AI/automation for reactivating aged leads; validated only generally, not for this specific case.",
+    "outbound_process": null,
+    "existing_software": null,
+    "follow_up_process": null,
+    "receptionist_or_front_desk": null,
+    "affiliate_or_referral_program": null
+  },
+  "compensation_options": [
+    {
+      "upside": "Predictable for provider, easy for customer.",
+      "downside": "Disincentive for performance; may be sunk if pilot fails.",
+      "alignment": "Baseline revenue, minimal performance alignment; best for non-outcome advisory.",
+      "structure": "Retainer",
+      "tracking_requirements": "Low—service availability only. Not outcome-tied."
+    },
+    {
+      "upside": "Immediate payments, clear for customer.",
+      "downside": "Low conversion risk, can overload customer.",
+      "alignment": "Volume-aligned, not conversion-aligned. Risk of focusing quantity over quality unless tight qualification.",
+      "structure": "Per Lead (Pay-Per-Lead, PPL)",
+      "tracking_requirements": "Delivery and definition tracking, capped batch. [launchleads.com]"
+    },
+    {
+      "upside": "Balances quality/volume, reduced payment for weak leads, can volume-cap.",
+      "downside": "Requires shared qualification agreement; capacity risk remains.",
+      "alignment": "Tied to pre-agreed quality, strong value alignment.",
+      "structure": "Per Qualified Lead (PPQL)",
+      "tracking_requirements": "Qualification process/audit. [launchleads.com]"
+    },
+    {
+      "upside": "De-risks customer, highest trust.",
+      "downside": "Longest revenue cycle, trust-dependent, reporting/attribution disputes common.",
+      "alignment": "Maximal outcome alignment. Provider only paid for actual deals.",
+      "structure": "Per Closed Deal (Pay-Per-Close)",
+      "tracking_requirements": "Reliable close data, attribution agreement. [leads.net]"
+    },
+    {
+      "upside": "Limits both sides' risk in uncertain outcomes.",
+      "downside": "Requires robust audit/tracking, challenging for small/opaque customers.",
+      "alignment": "Tight alignment to proven revenue; scalable for large deals.",
+      "structure": "Revenue Share",
+      "tracking_requirements": "Direct lead-to-revenue tracking. [leadgen-economy.com]"
+    },
+    {
+      "upside": "Provider floor, customer incentivized to report/performance.",
+      "downside": "Tracking complexity, must be clearly defined in contract.",
+      "alignment": "Balances risk and upside: e.g., modest fee plus per closed/accepted bonus.",
+      "structure": "Hybrid (Base + Performance)",
+      "tracking_requirements": "Full documentation/milestone clarity. [lightdrop.com]"
+    }
+  ],
+  "current_revenue_model": {
+    "unknowns": [
+      "Customer payment workflow (lead sale, referral, closure)",
+      "Pricing per lead/deal",
+      "Volume and conversion rate for overlooked leads"
+    ],
+    "known_unit_economics": "None—no customer-specific pricing, conversion rates, or margins known.",
+    "how_customer_gets_paid": "Unknown. Possibly by lead/closed deal/referral revenue, but unconfirmed.",
+    "existing_revenue_streams": "Unknown. No validated revenue streams referenced."
+  },
+  "ideal_lead_definition": {
+    "lead_definition": "A contact or opportunity relevant to a real estate/mortgage transaction with sufficient contact/property info and timely qualifying event/activity (e.g., probate, pre-foreclosure).",
+    "priority_factors": "Event triggers (probate, foreclosure, urgency), high property value, buyer alignment, conversion history.",
+    "capacity_constraints": "Unknown—should match buyer/agent ability to act without overload.",
+    "qualification_criteria": "Sufficient data for routing/contact, positive event/intent, fits current buyer/appetite, within focus geography.",
+    "disqualification_criteria": "Incomplete info, outside market/scope, explicit prior rejection, long-stale or blocked for legal/compliance.",
+    "price_or_value_thresholds": "Unknown—expect higher value for imminent/event-driven and proven conversion leads.",
+    "current_qualification_formula": "Not provided by customer.",
+    "recommended_qualification_formula": "Lead contains requisite info, recent/event trigger, aligns with current buyer and measurable outcome, or otherwise WATCH (future potential)."
+  },
+  "recommended_next_action": "Present findings, recommended pilot compensation (hybrid or per-qualified-lead for maximum outcome alignment), and discovery questions to the customer for validation before advancing beyond pilot."
+}

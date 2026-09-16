@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Engine · Playground</title>
+    <style>
+      :root {
+        font-family:
+          Inter,
+          ui-sans-serif,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: #24342f;
+        background: #f3f5f1;
+        font-synthesis: none;
+        --ink: #183b30;
+        --muted: #6c7a72;
+        --line: #dce3dc;
+        --accent: #2b6550;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+      button {
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        border-radius: 8px;
+        padding: 10px 14px;
+      }
+      button:hover {
+        background: #edf3ed;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      a {
+        color: var(--accent);
+      }
+      header {
+        height: 76px;
+        padding: 0 32px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .brand {
+        font-weight: 750;
+        letter-spacing: -0.6px;
+        font-size: 22px;
+      }
+      .brand span {
+        color: #90a398;
+        font-weight: 400;
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 13px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid #c9ddcd;
+        background: #f0f7ef;
+        border-radius: 30px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #2e6a45;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        background: #4f925f;
+        border-radius: 50%;
+      }
+      main {
+        max-width: 1600px;
+        margin: auto;
+        padding: 30px;
+      }
+      .intro {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 24px;
+      }
+      h1 {
+        font-size: 30px;
+        letter-spacing: -1px;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 0 0 16px;
+      }
+      h3 {
+        font-size: 14px;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 0;
+        line-height: 1.6;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 300px minmax(360px, 1fr) 350px;
+        gap: 20px;
+        align-items: start;
+      }
+      .panel {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        overflow: hidden;
+      }
+      .panel-head {
+        padding: 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .panel-body {
+        padding: 20px;
+      }
+      label,
+      .label {
+        display: block;
+        font-size: 11px;
+        font-weight: 650;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+      select {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fafbf9;
+        color: var(--ink);
+      }
+      textarea {
+        width: 100%;
+        resize: vertical;
+        min-height: 190px;
+        line-height: 1.65;
+        background: #fafbf9;
+        color: #2a4939;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 12px;
+      }
+      .field {
+        margin-bottom: 20px;
+      }
+      .primary {
+        width: 100%;
+        background: var(--ink);
+        color: white;
+        border-color: var(--ink);
+        font-weight: 650;
+      }
+      .primary:hover {
+        background: #2b5844;
+      }
+      .run-item {
+        display: block;
+        text-align: left;
+        width: 100%;
+        margin-bottom: 8px;
+        padding: 10px;
+        font-size: 12px;
+      }
+      .run-item.selected {
+        border-color: var(--accent);
+        background: #edf4ee;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+      .status {
+        text-transform: capitalize;
+        font-size: 12px;
+        font-weight: 650;
+        color: var(--accent);
+      }
+      .status.failed,
+      .error {
+        color: #a43636;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid var(--line);
+      }
+      .stat {
+        padding: 18px;
+        border-right: 1px solid var(--line);
+      }
+      .stat:last-child {
+        border-right: 0;
+      }
+      .stat strong {
+        font-size: 23px;
+        display: block;
+        margin-bottom: 4px;
+      }
+      .stat span {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .empty {
+        padding: 65px 28px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .empty-symbol {
+        display: block;
+        font-size: 32px;
+        color: #93ad9b;
+        margin-bottom: 15px;
+      }
+      .empty h3 {
+        color: var(--ink);
+        font-size: 17px;
+      }
+      .empty p {
+        max-width: 330px;
+        margin: auto;
+        font-size: 13px;
+      }
+      .event {
+        position: relative;
+        padding: 18px 20px 18px 53px;
+        border-bottom: 1px solid #edf0eb;
+      }
+      .event:before {
+        content: attr(data-turn);
+        position: absolute;
+        left: 18px;
+        top: 20px;
+        border: 1px solid #c9d8ce;
+        background: #f3f7f2;
+        border-radius: 50%;
+        width: 23px;
+        height: 23px;
+        text-align: center;
+        line-height: 21px;
+        font-size: 11px;
+        color: var(--accent);
+      }
+      .event h3 {
+        margin-bottom: 5px;
+      }
+      .event p {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      details {
+        margin-top: 10px;
+      }
+      summary {
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--accent);
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font:
+          11px/1.65 ui-monospace,
+          SFMono-Regular,
+          monospace;
+        background: #f5f7f3;
+        border: 1px solid #e4e9e1;
+        padding: 12px;
+        border-radius: 7px;
+        margin: 10px 0 0;
+        max-height: 360px;
+        overflow: auto;
+      }
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--line);
+        overflow: auto;
+        padding: 0 12px;
+      }
+      .tabs button {
+        border: 0;
+        border-radius: 0;
+        padding: 14px 9px;
+        font-size: 12px;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
+      }
+      .tabs button.active {
+        border-bottom-color: var(--accent);
+        color: var(--accent);
+        font-weight: 650;
+      }
+      .asset {
+        padding: 14px 0;
+        border-bottom: 1px solid #edf0eb;
+      }
+      .asset:last-child {
+        border: 0;
+      }
+      .asset p {
+        font-size: 12px;
+      }
+      .asset .tag {
+        font-size: 10px;
+        padding: 3px 6px;
+        border-radius: 4px;
+        background: #edf3ec;
+        color: #45694c;
+        white-space: nowrap;
+      }
+      .asset .unused {
+        background: #f1f1ee;
+        color: #7d847e;
+      }
+      .history-event {
+        padding: 9px 0;
+        border-bottom: 1px solid #edf0eb;
+        font-size: 12px;
+      }
+      .history-event span {
+        color: #8a958d;
+        font-size: 10px;
+      }
+      .review {
+        padding: 20px;
+        background: #fff9e9;
+        border-top: 1px solid #e8ddbf;
+      }
+      .review textarea {
+        min-height: 65px;
+        background: white;
+      }
+      .review .row {
+        margin-top: 10px;
+      }
+      .output {
+        padding: 20px;
+        background: #f5faf4;
+        border-top: 1px solid var(--line);
+      }
+      .error {
+        padding: 12px 0;
+        font-size: 13px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .run-id {
+        font:
+          11px ui-monospace,
+          monospace;
+        color: var(--muted);
+        overflow-wrap: anywhere;
+        margin-top: 6px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      footer {
+        margin-top: 22px;
+        color: #819087;
+        font-size: 11px;
+      }
+      .refresh-note {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      @media (max-width: 1200px) {
+        .layout {
+          grid-template-columns: 270px 1fr;
+        }
+        .inspector {
+          grid-column: 1/-1;
+        }
+      }
+      @media (max-width: 720px) {
+        header {
+          padding: 0 18px;
+        }
+        .header-right a {
+          display: none;
+        }
+        main {
+          padding: 20px 14px;
+        }
+        .layout {
+          display: flex;
+          flex-direction: column;
+        }
+        .panel {
+          width: 100%;
+        }
+        .intro {
+          display: block;
+        }
+        .refresh-note {
+          margin-top: 10px;
+        }
+        h1 {
+          font-size: 26px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">Agent Engine <span>/ Playground</span></div>
+      <div class="header-right">
+        <a href="/builder">Workflows & library</a>
+        <span class="badge"><span class="dot"></span>Durable execution</span
+        ><a href="http://localhost:8080" target="_blank" rel="noopener"
+          >Temporal UI ↗</a
+        >
+      </div>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <h1>See how your agent works.</h1>
+          <p class="muted">
+            Give it a task. Follow the skills it selects, the tools it calls,
+            and the evidence it retrieves.
+          </p>
+        </div>
+        <span class="refresh-note" id="connection">Loading workflows…</span>
+      </div>
+      <div class="layout">
+        <aside class="panel">
+          <div class="panel-head">
+            <h2 style="margin: 0">Start an execution</h2>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="workflow">Workflow</label
+              ><select id="workflow" aria-label="Workflow">
+                <option>Loading…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="input">Task input · JSON</label
+              ><textarea id="input" spellcheck="false">
+{
+  "personName": "Jordan Example",
+  "location": "Example County",
+  "synthetic": true
+}</textarea
+              >
+            </div>
+            <p class="muted" id="model" style="margin-bottom: 16px"></p>
+            <button class="primary" id="start" disabled>Run workflow →</button>
+            <p class="error" role="alert" id="error"></p>
+            <details>
+              <summary>Workflow instructions</summary>
+              <pre id="sop">Choose a workflow to see its SOP.</pre>
+            </details>
+          </div>
+          <div class="panel-head"><h2 style="margin: 0">Recent runs</h2></div>
+          <div class="panel-body" id="recent">
+            <p class="muted">Runs will appear here.</p>
+          </div>
+        </aside>
+        <section class="panel">
+          <div class="panel-head">
+            <div class="row">
+              <h2 style="margin: 0">Execution timeline</h2>
+              <span class="status" id="status">Ready</span>
+            </div>
+            <div class="run-id" id="run-id">
+              Each model turn and action has a durable checkpoint.
+            </div>
+          </div>
+          <div class="panel-body">
+            <label for="session-select">Inspect step session</label
+            ><select id="session-select"></select>
+            <div id="step-status"></div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <strong id="turn-count">—</strong><span>MODEL TURNS</span>
+            </div>
+            <div class="stat">
+              <strong id="tool-count">—</strong><span>TOOL CALLS</span>
+            </div>
+            <div class="stat">
+              <strong id="knowledge-count">—</strong
+              ><span>KNOWLEDGE FETCHED</span>
+            </div>
+          </div>
+          <div id="timeline" aria-live="polite">
+            <div class="empty">
+              <span class="empty-symbol">◎</span>
+              <h3>From instructions to execution</h3>
+              <p>
+                Start a run to watch model decisions become durable Temporal
+                activities.
+              </p>
+            </div>
+          </div>
+          <div class="review hidden" id="human-question">
+            <h3>The agent has a question</h3>
+            <p id="question-text"></p>
+            <div id="question-options" class="row"></div>
+            <textarea
+              id="human-answer"
+              aria-label="Your answer"
+              placeholder="Reply to the agent…"
+              maxlength="12000"
+            ></textarea>
+            <button id="send-answer">Send reply & continue →</button>
+            <p id="answer-status" class="muted" role="status"></p>
+          </div>
+          <div class="review hidden" id="review">
+            <h3>Human review requested</h3>
+            <p class="muted" id="review-request"></p>
+            <textarea
+              id="review-note"
+              placeholder="Add a note for the agent"
+              aria-label="Review note"
+            ></textarea>
+            <div class="row">
+              <button id="reject">Reject</button
+              ><button id="approve">Approve & continue →</button>
+            </div>
+          </div>
+          <div class="output hidden" id="output-panel">
+            <h3>Final result</h3>
+            <pre id="output"></pre>
+          </div>
+        </section>
+        <aside class="panel inspector">
+          <div class="panel-head">
+            <h2 style="margin: 0">Session inspector</h2>
+            <p class="muted" style="margin-top: 7px">
+              Pinned configuration and actual usage
+            </p>
+          </div>
+          <nav class="tabs" aria-label="Session inspector">
+            <button class="active" data-tab="skills">Skills</button
+            ><button data-tab="tools">Tools</button
+            ><button data-tab="knowledge">Knowledge</button
+            ><button data-tab="history">Temporal</button>
+          </nav>
+          <div class="panel-body" id="inspector">
+            <p class="muted">Select a run to inspect its session.</p>
+          </div>
+        </aside>
+      </div>
+      <footer>
+        The model proposes actions. The engine validates them. Temporal executes
+        and checkpoints each activity. Tool data in the sample workflow is
+        synthetic.
+      </footer>
+    </main>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let selectedRun = null,
+        session = null,
+        selectedSessionId = null,
+        pendingHumanQuestion = null,
+        run = null,
+        tab = "skills",
+        workflows = [],
+        history = null,
+        polling = false;
+      async function api(path, body) {
+        const response = await fetch(
+          path,
+          body
+            ? {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+              }
+            : undefined,
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Request failed");
+        return data;
+      }
+      function node(tag, text, className) {
+        const e = document.createElement(tag);
+        if (text !== undefined) e.textContent = text;
+        if (className) e.className = className;
+        return e;
+      }
+      function details(label, value) {
+        const d = node("details");
+        d.append(
+          node("summary", label),
+          node(
+            "pre",
+            typeof value === "string" ? value : JSON.stringify(value, null, 2),
+          ),
+        );
+        return d;
+      }
+      function empty(text) {
+        const e = node("p", text, "muted");
+        $("inspector").replaceChildren(e);
+      }
+      async function recent() {
+        const list = await api("/workflows/" + $("workflow").value + "/runs");
+        $("recent").replaceChildren();
+        if (!list.length) {
+          $("recent").append(node("p", "No executions yet.", "muted"));
+          return;
+        }
+        for (const r of list) {
+          const b = node(
+            "button",
+            undefined,
+            "run-item" + (r.id === selectedRun ? " selected" : ""),
+          );
+          b.append(
+            node(
+              "span",
+              r.status + " · " + new Date(r.createdAt).toLocaleTimeString(),
+            ),
+            node("div", r.id.slice(0, 8), "run-id"),
+          );
+          b.onclick = () => chooseRun(r.id);
+          $("recent").append(b);
+        }
+      }
+      async function workflowChanged(resetInput = true) {
+        const w = workflows.find((w) => w.id === $("workflow").value);
+        $("sop").textContent = w?.version?.sopMarkdown || "";
+        const modes = [
+          ...new Set(
+            (w?.steps || [])
+              .filter((s) => s.type !== "human_review")
+              .map((s) =>
+                s.configuration.provider === "openai"
+                  ? "OpenAI · " + (s.configuration.model || "configured model")
+                  : s.configuration.provider === "mock"
+                    ? "Offline test fixture"
+                    : "Existing worker configuration",
+              ),
+          ),
+        ];
+        $("model").textContent = modes.length
+          ? modes.join(" / ")
+          : "Human approval workflow";
+        $("start").disabled = !w?.currentVersionId;
+        if (resetInput && w?.version?.inputSchema?.properties)
+          $("input").value = JSON.stringify(
+            Object.fromEntries(
+              Object.entries(w.version.inputSchema.properties).map(([k, p]) => [
+                k,
+                p.type === "boolean"
+                  ? false
+                  : ["number", "integer"].includes(p.type)
+                    ? 0
+                    : "",
+              ]),
+            ),
+            null,
+            2,
+          );
+        await recent();
+      }
+      let loadingWorkflows = false;
+      async function init() {
+        if (loadingWorkflows) return;
+        loadingWorkflows = true;
+        const previousSelection = $("workflow").value;
+        try {
+          const list = await api("/workflows");
+          const definitions = await Promise.all(
+            list.map((w) => api("/workflows/" + w.id)),
+          );
+          const params = new URLSearchParams(location.search);
+          workflows = definitions.filter(
+            (w) => !!w.currentVersionId || w.id === params.get("workflow"),
+          );
+          $("workflow").replaceChildren();
+          for (const w of workflows) {
+            const option = node("option", w.name);
+            option.value = w.id;
+            $("workflow").append(option);
+          }
+          $("start").disabled = !workflows.length;
+          $("connection").textContent = workflows.length
+            ? "Connected · updates every 2 seconds"
+            : "No published workflows yet";
+          const preferred = previousSelection || params.get("workflow");
+          if (workflows.some((w) => w.id === preferred))
+            $("workflow").value = preferred;
+          if (workflows.length)
+            await workflowChanged(
+              !previousSelection || previousSelection !== $("workflow").value,
+            );
+          if (params.get("run") && !selectedRun)
+            await chooseRun(params.get("run"));
+        } catch (e) {
+          $("error").textContent = e.message;
+          $("connection").textContent = "Connection unavailable";
+        } finally {
+          loadingWorkflows = false;
+        }
+      }
+      async function chooseRun(id) {
+        selectedRun = id;
+        selectedSessionId = null;
+        run = null;
+        history = null;
+        session = null;
+        await refresh();
+        await recent();
+      }
+      async function refresh() {
+        if (!selectedRun || polling) return;
+        polling = true;
+        try {
+          const id = selectedRun;
+          const current = await api("/runs/" + id);
+          const list = await api("/runs/" + id + "/sessions");
+          list.sort(
+            (a, b) =>
+              (current.executionDefinition?.steps.findIndex(
+                (s) => s.id === a.workflowStepId,
+              ) ?? 0) -
+              (current.executionDefinition?.steps.findIndex(
+                (s) => s.id === b.workflowStepId,
+              ) ?? 0),
+          );
+          const chosen =
+            list.find((s) => s.id === selectedSessionId) || list.at(-1);
+          const detail = chosen ? await api("/sessions/" + chosen.id) : null;
+          $("session-select").replaceChildren();
+          for (const item of list) {
+            const o = node(
+              "option",
+              (current.executionDefinition?.steps.find(
+                (s) => s.id === item.workflowStepId,
+              )?.name || item.id) +
+                " · " +
+                item.status,
+            );
+            o.value = item.id;
+            $("session-select").append(o);
+          }
+          if (chosen) $("session-select").value = chosen.id;
+          $("step-status").replaceChildren();
+          for (const step of current.steps) {
+            const line = node("details");
+            line.append(node("summary", step.key + " · " + step.status));
+            line.append(
+              details("Input", step.input),
+              details("Result", step.output),
+            );
+            $("step-status").append(line);
+          }
+          if (id !== selectedRun) return;
+          run = current;
+          session = detail;
+          const pending = (await api("/runs/" + id + "/question")).question;
+          if (id !== selectedRun) return;
+          if (pending?.questionId !== pendingHumanQuestion?.questionId) {
+            $("human-answer").value = "";
+            $("answer-status").textContent = "";
+            $("send-answer").disabled = false;
+          }
+          pendingHumanQuestion = pending;
+          $("human-question").classList.toggle("hidden", !pending);
+          $("question-text").textContent = pending?.question || "";
+          $("question-options").replaceChildren();
+          for (const option of pending?.options || []) {
+            const b = node("button", option);
+            b.onclick = () => {
+              $("human-answer").value = option;
+            };
+            $("question-options").append(b);
+          }
+          $("status").textContent = run.status;
+          $("status").className = "status " + run.status;
+          $("run-id").textContent =
+            "Run " + run.id + (session ? " · Session " + session.id : "");
+          renderTimeline();
+          if (tab === "history")
+            history = await api("/runs/" + id + "/history");
+          renderInspector();
+          $("connection").textContent = [
+            "completed",
+            "failed",
+            "cancelled",
+          ].includes(run.status)
+            ? "Execution " + run.status
+            : "Live · last checked " + new Date().toLocaleTimeString();
+        } catch (e) {
+          $("error").textContent = e.message;
+        } finally {
+          polling = false;
+        }
+      }
+      const titles = {
+        select_skill: "Selected skill",
+        fetch_knowledge: "Fetched knowledge",
+        call_tool: "Called tool",
+        complete_skill: "Completed skill",
+        request_review: "Requested human review",
+        ask_human: "Asked a human",
+        final: "Produced final answer",
+      };
+      function targetName(t) {
+        return (
+          session?.snapshot.catalog.find((s) => s.id === t)?.name ||
+          session?.snapshot.definition.tools.find((s) => s.id === t)?.name ||
+          session?.snapshot.definition.knowledge.find((s) => s.id === t)
+            ?.name ||
+          t ||
+          ""
+        );
+      }
+      function renderTimeline() {
+        const turns = session?.turns || [];
+        const count = turns.filter(
+          (t) => t.decision.action === "call_tool" && t.outcome,
+        ).length;
+        const fetched = turns.filter(
+          (t) => t.decision.action === "fetch_knowledge" && t.outcome,
+        ).length;
+        $("turn-count").textContent = turns.length;
+        $("tool-count").textContent = count;
+        $("knowledge-count").textContent = fetched;
+        const root = $("timeline");
+        root.replaceChildren();
+        if (!turns.length) {
+          const e = node("div", undefined, "empty");
+          e.append(
+            node(
+              "h3",
+              run.status === "failed"
+                ? "Execution failed"
+                : "Preparing the agent…",
+            ),
+            node(
+              "p",
+              run.error ||
+                "Loading the pinned workflow, skill catalog, and session.",
+            ),
+          );
+          root.append(e);
+        }
+        for (const t of turns) {
+          const e = node("article", undefined, "event");
+          e.dataset.turn = t.turn + 1;
+          const title =
+            (titles[t.decision.action] || t.decision.action) +
+            (t.decision.target ? " · " + targetName(t.decision.target) : "");
+          e.append(node("h3", title), node("p", t.decision.summary));
+          let payload;
+          try {
+            payload = JSON.parse(t.decision.payload);
+          } catch {
+            payload = t.decision.payload;
+          }
+          e.append(details("Input / proposed output", payload));
+          if (t.decision.action === "ask_human") {
+            e.append(node("p", payload.question));
+            if (t.outcome)
+              e.append(node("p", "Human: " + t.outcome.result.answer));
+          }
+          if (t.outcome) {
+            const result = t.outcome.result;
+            if (
+              Array.isArray(result?.citations) &&
+              typeof result.summary === "string"
+            ) {
+              const cited = node("div");
+              for (const passage of result.passages || [
+                { text: result.summary, annotations: [] },
+              ]) {
+                const p = node("p");
+                p.style.whiteSpace = "pre-wrap";
+                let cursor = 0;
+                for (const a of [...passage.annotations].sort(
+                  (a, b) => a.start_index - b.start_index,
+                )) {
+                  if (
+                    !/^https?:\/\//i.test(a.url) ||
+                    !Number.isInteger(a.start_index) ||
+                    !Number.isInteger(a.end_index) ||
+                    a.start_index < cursor ||
+                    a.end_index > passage.text.length
+                  )
+                    continue;
+                  p.append(
+                    document.createTextNode(
+                      passage.text.slice(cursor, a.start_index),
+                    ),
+                  );
+                  const link = node("a", "[" + (a.title || "Source") + "]");
+                  link.href = a.url;
+                  link.target = "_blank";
+                  link.rel = "noopener noreferrer";
+                  p.append(link);
+                  cursor = a.end_index;
+                }
+                p.append(document.createTextNode(passage.text.slice(cursor)));
+                cited.append(p);
+              }
+              for (const source of result.citations) {
+                if (!/^https?:\/\//i.test(source.url)) continue;
+                const link = node("a", source.title || source.url);
+                link.href = source.url;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                const p = node("p");
+                p.append(link);
+                cited.append(p);
+              }
+              e.append(cited);
+            }
+            e.append(details("Recorded result", result));
+          } else
+            e.append(
+              node(
+                "p",
+                run.status === "failed"
+                  ? "Action did not complete"
+                  : "Awaiting execution or review",
+                "muted",
+              ),
+            );
+          root.append(e);
+        }
+        if (run.error) root.append(node("p", run.error, "error"));
+        $("output-panel").classList.toggle(
+          "hidden",
+          run.status !== "completed",
+        );
+        $("output").textContent = JSON.stringify(run.output, null, 2);
+        $("review").classList.toggle(
+          "hidden",
+          run.status !== "waiting" || !!pendingHumanQuestion,
+        );
+        const waitingStep = run.steps.find((s) => s.status === "waiting");
+        $("review-request").textContent = waitingStep
+          ? waitingStep.key +
+            " — Review this step’s input above before approving."
+          : turns.at(-1)?.decision.summary || "";
+      }
+      function asset(name, label, used, body) {
+        const box = node("div", undefined, "asset"),
+          row = node("div", undefined, "row");
+        row.append(
+          node("h3", name),
+          node("span", label, "tag" + (used ? "" : " unused")),
+        );
+        box.append(row);
+        if (body) box.append(body);
+        return box;
+      }
+      function renderInspector() {
+        if (!session && tab !== "history") {
+          empty("The session catalog appears when execution starts.");
+          return;
+        }
+        const root = $("inspector");
+        root.replaceChildren();
+        const turns = session?.turns || [],
+          snapshot = session?.snapshot;
+        if (tab === "skills") {
+          for (const skill of snapshot.catalog) {
+            const selected = turns.some(
+              (t) =>
+                t.decision.action === "select_skill" &&
+                t.decision.target === skill.id &&
+                t.outcome,
+            );
+            const done = turns.some(
+              (t) =>
+                t.decision.action === "complete_skill" &&
+                t.decision.target === skill.id &&
+                t.outcome,
+            );
+            const box = asset(
+              skill.name,
+              done ? "Completed" : selected ? "Selected" : "Available",
+              selected,
+              node(
+                "p",
+                "Version " + skill.version + " · " + skill.description,
+                "muted",
+              ),
+            );
+            box.append(
+              details("Pinned instructions", skill.instructions),
+              details("Input / output contracts", {
+                input: skill.inputSchema,
+                output: skill.outputSchema,
+              }),
+            );
+            root.append(box);
+          }
+        }
+        if (tab === "tools") {
+          const allowed = new Set(
+            snapshot.catalog.flatMap(
+              (s) => s.configuration.allowedToolIds || [],
+            ),
+          );
+          for (const tool of snapshot.definition.tools.filter((t) =>
+            allowed.has(t.id),
+          )) {
+            const calls = turns.filter(
+              (t) =>
+                t.decision.action === "call_tool" &&
+                t.decision.target === tool.id &&
+                t.outcome,
+            ).length;
+            root.append(
+              asset(
+                tool.name || tool.handler,
+                calls ? calls + " calls" : "Available",
+                calls > 0,
+                details("Tool contract", {
+                  handler: tool.handler,
+                  input: tool.inputSchema,
+                  output: tool.outputSchema,
+                }),
+              ),
+            );
+          }
+        }
+        if (tab === "knowledge") {
+          const allowed = new Set(
+            snapshot.catalog.flatMap(
+              (s) => s.configuration.allowedKnowledgeIds || [],
+            ),
+          );
+          for (const item of snapshot.definition.knowledge.filter((k) =>
+            allowed.has(k.id),
+          )) {
+            const fetched = turns.some(
+              (t) =>
+                t.decision.action === "fetch_knowledge" &&
+                t.decision.target === item.id &&
+                t.outcome,
+            );
+            root.append(
+              asset(
+                item.name,
+                fetched ? "Fetched" : "Available",
+                fetched,
+                details(
+                  fetched
+                    ? "Content supplied to model"
+                    : "Preview · not yet supplied to model",
+                  item.content,
+                ),
+              ),
+            );
+          }
+          if (!root.childNodes.length)
+            root.append(
+              node("p", "No knowledge is allowed by these skills.", "muted"),
+            );
+        }
+        if (tab === "history") {
+          if (!history) {
+            empty("Loading Temporal events…");
+            return;
+          }
+          root.append(
+            node(
+              "p",
+              history.total +
+                " events" +
+                (history.truncated ? " · latest 200 shown" : ""),
+              "muted",
+            ),
+          );
+          for (const e of history.events) {
+            const row = node("div", undefined, "history-event");
+            row.append(node("span", "#" + e.id + " "), node("strong", e.type));
+            if (e.activity) row.append(node("p", e.activity, "muted"));
+            if (e.scheduledEventId)
+              row.append(
+                node("span", " · scheduled event #" + e.scheduledEventId),
+              );
+            root.append(row);
+          }
+        }
+      }
+      $("start").onclick = async () => {
+        try {
+          $("error").textContent = "";
+          const input = JSON.parse($("input").value);
+          $("start").disabled = true;
+          const created = await api(
+            "/workflows/" + $("workflow").value + "/runs",
+            { input },
+          );
+          await chooseRun(created.id);
+        } catch (e) {
+          $("error").textContent = e.message;
+        } finally {
+          $("start").disabled = !workflows.find(
+            (w) => w.id === $("workflow").value,
+          )?.currentVersionId;
+        }
+      };
+      $("workflow").onchange = () =>
+        workflowChanged().catch((e) => ($("error").textContent = e.message));
+      for (const button of document.querySelectorAll("[data-tab]"))
+        button.onclick = async () => {
+          tab = button.dataset.tab;
+          for (const b of document.querySelectorAll("[data-tab]"))
+            b.classList.toggle("active", b === button);
+          try {
+            if (tab === "history" && selectedRun)
+              history = await api("/runs/" + selectedRun + "/history");
+            renderInspector();
+          } catch (e) {
+            empty(e.message);
+          }
+        };
+      async function review(approved) {
+        if (!run || run.status !== "waiting") return;
+        try {
+          const waiting = run.steps.find((s) => s.status === "waiting");
+          const step = run.executionDefinition.steps.find(
+            (s) => s.key === waiting?.key,
+          );
+          if (!step) return;
+          const sessions = await api("/runs/" + selectedRun + "/sessions");
+          const pending = sessions.find(
+            (s) => s.workflowStepId === step.id && s.status === "waiting",
+          );
+          await api("/runs/" + selectedRun + "/review", {
+            stepKey: step.key,
+            ...(pending?.reviewId ? { reviewId: pending.reviewId } : {}),
+            approved,
+            note: $("review-note").value,
+          });
+          await refresh();
+        } catch (e) {
+          $("error").textContent = e.message;
+        }
+      }
+      $("session-select").onchange = () => {
+        selectedSessionId = $("session-select").value;
+        void refresh();
+      };
+      $("send-answer").onclick = async () => {
+        if (!pendingHumanQuestion || $("send-answer").disabled) return;
+        const answer = $("human-answer").value.trim();
+        if (!answer) {
+          $("answer-status").textContent = "Enter a reply first.";
+          return;
+        }
+        $("send-answer").disabled = true;
+        try {
+          await api("/runs/" + selectedRun + "/answer", {
+            questionId: pendingHumanQuestion.questionId,
+            answer,
+          });
+          $("answer-status").textContent =
+            "Reply sent. The agent is continuing…";
+          await refresh();
+        } catch (e) {
+          $("answer-status").textContent = e.message;
+          $("send-answer").disabled = false;
+        }
+      };
+      $("approve").onclick = () => review(true);
+      $("reject").onclick = () => review(false);
+      setInterval(() => {
+        if (
+          selectedRun &&
+          (!run || !["completed", "failed", "cancelled"].includes(run.status))
+        )
+          void refresh();
+      }, 2000);
+      window.addEventListener("focus", () => void init());
+      void init();
+    </script>
+  </body>
+</html>

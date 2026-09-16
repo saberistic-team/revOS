@@ -1,0 +1,251 @@
+{
+  "stats": {
+    "status": "waiting",
+    "completedAgentStages": 11,
+    "sessions": 11,
+    "selectedSkills": 12,
+    "knowledgeFetches": 22,
+    "researchCalls": 5,
+    "citationLinks": 34,
+    "schemaCorrections": 4,
+    "temporalResearchActivities": 5,
+    "finalSchemaValid": true,
+    "temporalKnowledgeActivities": 22,
+    "temporalHistoryEvents": 1043
+  },
+  "runId": "f95edd1c-3512-455a-a05c-aff88ac8bd13",
+  "workflowId": "1bf05ba5-a2a8-484f-a754-af2a647c4ef0",
+  "research": [
+    {
+      "query": "What are the highest-quality and most commonly used lead sources in the US real estate and mortgage industry, including their expected volume, typical cost, quality, accessibility, and whether API or automation-friendly acquisition is possible? Include evidence from recent industry reports and vendor sites.",
+      "citations": [
+        {
+          "url": "https://buyrefileads.com/best-mortgage-lead-sources-brokers/?utm_source=openai",
+          "title": "Best Mortgage Lead Sources for Small Broker Shops"
+        },
+        {
+          "url": "https://www.tracerfy.com/real-estate-leads?utm_source=openai",
+          "title": "Real Estate Leads & Property Owner Data | Tracerfy"
+        },
+        {
+          "url": "https://www.tracerfy.com/lead-builder-api?utm_source=openai",
+          "title": "Real Estate Lead Generation API | Tracerfy"
+        },
+        {
+          "url": "https://mortyleads.com/?utm_source=openai",
+          "title": "Morty Leads"
+        },
+        {
+          "url": "https://ileads.com/qualify-inbound?utm_source=openai",
+          "title": "Inbound mortgage lead qualification by API | iLeads"
+        },
+        {
+          "url": "https://vleadreferral.com/?utm_source=openai",
+          "title": "VLEAD Referral — The Real Estate Lead Generation OS"
+        },
+        {
+          "url": "https://realestateleads.motiveflow.co/?utm_source=openai",
+          "title": "Real Estate Leads by MotiveFlow"
+        }
+      ],
+      "retrievedAt": "2026-09-15T20:41:38.747Z",
+      "searches": [
+        {
+          "id": "ws_0733926306e3d809006aa9ad7c9fd487d2bd526dd9cdc9f1ba",
+          "action": {
+            "type": "search",
+            "query": "What are the highest-quality and most commonly used lead sources in the US real estate and mortgage industry, including their expected volume, typical cost, quality, accessibility, and whether API or automation-friendly acquisition is possible? Include evidence from recent industry reports and vendor sites.",
+            "queries": [
+              "What are the highest-quality and most commonly used lead sources in the US real estate and mortgage industry, including their expected volume, typical cost, quality, accessibility, and whether API or automation-friendly acquisition is possible? Include evidence from recent industry reports and vendor sites."
+            ]
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "query": "Who are the major competitors, brokers, affiliates, lead vendors, and referral partners in the US real estate and mortgage lead market, and what are common compensation models and rates for sales representatives and brokers? What happens to leads that are never closed or funded? Cite sources from 2023-2024.",
+      "citations": [
+        {
+          "url": "https://leadsearchpros.com/industries/mortgage-refinance-leads?utm_source=openai",
+          "title": "Exclusive Mortgage Leads - Purchase, Refi & HELOC | Lead Search Pros"
+        },
+        {
+          "url": "https://www.loandatadirect.com/?utm_source=openai",
+          "title": "Mortgage Lead Lists, Loan Marketing Data, VA Refinance Lists | Loan Data Direct"
+        },
+        {
+          "url": "https://mortgageleads.net/?utm_source=openai",
+          "title": "Mortgage Leads | Real-Time, Live Transfer & Aged Leads"
+        },
+        {
+          "url": "https://www.attomdata.com/news/attom-insights/client-case-studies/landvoice-uses-attom-to-uncover-hidden-leads-for-the-real-estate-market/?utm_source=openai",
+          "title": "Landvoice Uses ATTOM to Uncover Hidden Real Estate Leads | ATTOM"
+        },
+        {
+          "url": "https://www.inman.com/2023/01/13/on-a-budget-10-lead-sources-with-no-upfront-costs/?utm_source=openai",
+          "title": "10 No-Upfront-Cost Lead Sources For Real Estate Agents | Inman Real Estate News"
+        },
+        {
+          "url": "https://amorealty.com/pay-per-close-real-estate-leads-with-no-upfront-fees?utm_source=openai",
+          "title": "Pay Per Close Real Estate Leads with No Upfront Fees"
+        },
+        {
+          "url": "https://brokeragegrowth.com/guides/real-estate-lead-generation-companies?utm_source=openai",
+          "title": "Real Estate Lead Generation Companies Compared (2026) | Brokerage Growth"
+        },
+        {
+          "url": "https://mortgageleads.net/aged-leads/?utm_source=openai",
+          "title": "Aged Mortgage & Foreclosure Leads"
+        }
+      ],
+      "retrievedAt": "2026-09-15T20:43:16.493Z",
+      "searches": [
+        {
+          "id": "ws_0a43324feb98144b006aa9adddbe6c87d2b82edfa384935ac2",
+          "action": {
+            "type": "search",
+            "query": "Who are the major competitors, brokers, affiliates, lead vendors, and referral partners in the US real estate and mortgage lead market, and what are common compensation models and rates for sales representatives and brokers? What happens to leads that are never closed or funded? Cite sources from 2023-2024.",
+            "queries": [
+              "Who are the major competitors, brokers, affiliates, lead vendors, and referral partners in the US real estate and mortgage lead market, and what are common compensation models and rates for sales representatives and brokers? What happens to leads that are never closed or funded? Cite sources from 2023-2024."
+            ]
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "query": "How do real estate and mortgage lead-gen companies typically handle inbound and outbound opportunities, sales pipeline, CRM usage, follow-up processes, and automation? What are best practices for capturing underutilized value (e.g., overlooked/abandoned leads or event-driven leads), and which software tools (CRM, AI receptionist, automated follow-up) create measurable uplift in conversion or revenue according to recent market evidence? Cite leading vendors or authoritative sources, 2022–2024.",
+      "citations": [
+        {
+          "url": "https://www.techradar.com/best/the-best-crm-for-real-estate?utm_source=openai",
+          "title": "Best CRM for real estate of 2026"
+        },
+        {
+          "url": "https://www.techradar.com/reviews/boomtown-crm-review?utm_source=openai",
+          "title": "BoomTown CRM review 2026"
+        },
+        {
+          "url": "https://www.techradar.com/reviews/brivity-crm-review?utm_source=openai",
+          "title": "Brivity CRM review 2026"
+        },
+        {
+          "url": "https://www.pipelinepilot.dev/blog/real-estate-lead-follow-up-automation?utm_source=openai",
+          "title": "Real Estate Lead Follow-Up Automation [Playbook]"
+        },
+        {
+          "url": "https://www.konvex-ai.com/results?utm_source=openai",
+          "title": "Client Results — Konvex AI Receptionist Outcomes"
+        },
+        {
+          "url": "https://robotalker.com/blogs/real-estate-automated-calling-lead-generation-follow-up?utm_source=openai",
+          "title": "Real Estate Automated Calling for Lead Generation and Follow-Up"
+        },
+        {
+          "url": "https://www.robinflow.com/blog/ai-follow-up-tools-ranked-99-beats-499?utm_source=openai",
+          "title": "We Ranked 4 AI Follow-Up Tools. The $99 One Outconverted $499. — RobinFlow"
+        }
+      ],
+      "retrievedAt": "2026-09-15T20:45:04.530Z",
+      "searches": [
+        {
+          "id": "ws_0179e0790922830b006aa9ae4ab1b887d2b9333722528afad6",
+          "action": {
+            "type": "search",
+            "query": "How do real estate and mortgage lead-gen companies typically handle inbound and outbound opportunities, sales pipeline, CRM usage, follow-up processes, and automation? What are best practices for capturing underutilized value (e.g., overlooked/abandoned leads or event-driven leads), and which software tools (CRM, AI receptionist, automated follow-up) create measurable uplift in conversion or revenue according to recent market evidence? Cite leading vendors or authoritative sources, 2022\\u20132024.",
+            "queries": [
+              "How do real estate and mortgage lead-gen companies typically handle inbound and outbound opportunities, sales pipeline, CRM usage, follow-up processes, and automation? What are best practices for capturing underutilized value (e.g., overlooked/abandoned leads or event-driven leads), and which software tools (CRM, AI receptionist, automated follow-up) create measurable uplift in conversion or revenue according to recent market evidence? Cite leading vendors or authoritative sources, 2022\\u20132024."
+            ]
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "query": "Real estate and mortgage lead generation US market: 2024 market size, recent trends, most common technology platforms, key shifts in compensation models, and evidence for underserved or undercapitalized lead segments (e.g., probate, pre-foreclosure, aged leads). Include data on boom/bust patterns and major regulatory/economic changes affecting lead vendors, agents, or affiliates.",
+      "citations": [
+        {
+          "url": "https://www.marketgrowthreports.com/market-reports/real-estate-lead-generation-software-market-120413?utm_source=openai",
+          "title": "Real Estate Lead Generation Software Market Trends | Report [2035]"
+        },
+        {
+          "url": "https://dataintelo.com/report/global-real-estate-lead-generation-software-market?utm_source=openai",
+          "title": "Real Estate Lead Generation Software Market Research Report 2034"
+        },
+        {
+          "url": "https://www.realestatenews.com/2024/04/04/understanding-online-lead-generation-in-the-age-of-ai?utm_source=openai",
+          "title": "Understanding online lead generation in the age of AI"
+        },
+        {
+          "url": "https://www.probatedata.com/blog/the-most-profitable-real-estate-lead-types-for-investors-2026-data-2?utm_source=openai",
+          "title": "The Most Profitable Real Estate Lead Types for… | ProbateData"
+        },
+        {
+          "url": "https://leadsuitenow.com/blog/real-estate-investor-lead-generation-2026?utm_source=openai",
+          "title": "Real Estate Investor Lead Generation: Find Motivated Sellers in 2026 | LeadsuiteNow"
+        },
+        {
+          "url": "https://ispeedtolead.com/blog/distressed-property-lead-sources/?utm_source=openai",
+          "title": "Distressed Property Lead Sources: Pre-Foreclosure, Tax Delinquent, Probate, Code Violation, and Vacant - iSpeedToLead"
+        },
+        {
+          "url": "https://leadsearchpros.com/blog/mortgage-lead-generation-high-rate?utm_source=openai",
+          "title": "Mortgage Lead Generation in a High-Rate Environment: The 2026 LO Playbook — Lead Search Pros"
+        },
+        {
+          "url": "https://dataintelo.com/report/mortgage-lead-management-market?utm_source=openai",
+          "title": "Mortgage Lead Management Market Research Report 2034"
+        }
+      ],
+      "retrievedAt": "2026-09-15T20:47:11.440Z",
+      "searches": [
+        {
+          "id": "ws_0aaaa664bd4c17b3006aa9aec9cd2887d2831c2085b05b88de",
+          "action": {
+            "type": "search",
+            "query": "Real estate and mortgage lead generation US market: 2024 market size, recent trends, most common technology platforms, key shifts in compensation models, and evidence for underserved or undercapitalized lead segments (e.g., probate, pre-foreclosure, aged leads). Include data on boom/bust patterns and major regulatory/economic changes affecting lead vendors, agents, or affiliates.",
+            "queries": [
+              "Real estate and mortgage lead generation US market: 2024 market size, recent trends, most common technology platforms, key shifts in compensation models, and evidence for underserved or undercapitalized lead segments (e.g., probate, pre-foreclosure, aged leads). Include data on boom/bust patterns and major regulatory/economic changes affecting lead vendors, agents, or affiliates."
+            ]
+          },
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "query": "What are the most common compensation models for organizations that surface, requalify, and route overlooked or abandoned real estate and mortgage leads? How do these models ensure measurable alignment, attribution, and cap excess volume, and what are the best practices for structuring pay-per-lead, pay-per-qualified-lead, pay-per-close, revenue share, and hybrid approaches in this segment? Please cite authoritative sources from 2023–2024.",
+      "citations": [
+        {
+          "url": "https://www.launchleads.com/buyers-guides/pricing-models-explained/?utm_source=openai",
+          "title": "Lead Gen Pricing Models Explained — Retainer vs PPL vs PPM vs Commission"
+        },
+        {
+          "url": "https://leads.net/blog/real-estate/do-real-estate-leads-pay-after-closing/?utm_source=openai",
+          "title": "Do Real Estate Leads Pay After Closing? What to Know"
+        },
+        {
+          "url": "https://www.leadgen-economy.com/blog/lead-gen-revenue-share-vs-fixed-fee-partnerships/?utm_source=openai",
+          "title": "Revenue Share vs Fixed Fee Lead Partnerships"
+        },
+        {
+          "url": "https://www.lightdrop.com/pulse/aligned-incentives-why-performance-based-agency-models-work?utm_source=openai",
+          "title": "Aligned Incentives: Why Performance-Based Agency Models Work | Lightdrop"
+        }
+      ],
+      "retrievedAt": "2026-09-15T20:56:03.435Z",
+      "searches": [
+        {
+          "id": "ws_0abafa9557046702006aa9b0de215887d29f6ba3a56f487d1e",
+          "action": {
+            "type": "search",
+            "query": "What are the most common compensation models for organizations that surface, requalify, and route overlooked or abandoned real estate and mortgage leads? How do these models ensure measurable alignment, attribution, and cap excess volume, and what are the best practices for structuring pay-per-lead, pay-per-qualified-lead, pay-per-close, revenue share, and hybrid approaches in this segment? Please cite authoritative sources from 2023\\u20132024.",
+            "queries": [
+              "What are the most common compensation models for organizations that surface, requalify, and route overlooked or abandoned real estate and mortgage leads? How do these models ensure measurable alignment, attribution, and cap excess volume, and what are the best practices for structuring pay-per-lead, pay-per-qualified-lead, pay-per-close, revenue share, and hybrid approaches in this segment? Please cite authoritative sources from 2023\\u20132024."
+            ]
+          },
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}

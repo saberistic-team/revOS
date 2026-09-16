@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Agent Engine · Workflow Builder</title>
+    <style>
+      :root {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color: #193c32;
+        background: #f4f6f3;
+        font-size: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      header {
+        height: 72px;
+        padding: 0 32px;
+        background: white;
+        border-bottom: 1px solid #dce4dc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      a {
+        color: #28634e;
+        text-decoration: none;
+      }
+      nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        background: white;
+        border: 1px solid #ced9d1;
+        border-radius: 7px;
+        padding: 9px 14px;
+        color: #244e3e;
+      }
+      button:hover {
+        background: #edf3ed;
+      }
+      button.primary {
+        background: #246148;
+        color: white;
+        border-color: #246148;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid #ccd8cf;
+        border-radius: 6px;
+        padding: 10px;
+        background: white;
+        color: #213b31;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 90px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin: 16px 0 7px;
+      }
+      h1 {
+        font-size: 28px;
+        letter-spacing: -0.7px;
+        margin: 0 0 8px;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      h3 {
+        font-size: 15px;
+        margin: 0;
+      }
+      p {
+        line-height: 1.6;
+      }
+      .muted {
+        color: #64766c;
+        font-size: 13px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 270px minmax(0, 1fr);
+        max-width: 1500px;
+        margin: auto;
+        min-height: calc(100vh - 72px);
+      }
+      aside {
+        padding: 26px 20px;
+        border-right: 1px solid #dce4dc;
+      }
+      main {
+        padding: 30px;
+        min-width: 0;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .between {
+        justify-content: space-between;
+      }
+      .panel {
+        background: white;
+        border: 1px solid #dce4dc;
+        border-radius: 11px;
+        padding: 22px;
+        margin: 18px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .item {
+        display: block;
+        text-align: left;
+        width: 100%;
+        margin: 10px 0;
+        padding: 14px;
+      }
+      .item.active {
+        border-color: #27644b;
+        background: #edf4ee;
+      }
+      .tag {
+        display: inline-block;
+        border-radius: 20px;
+        background: #e9f0e9;
+        color: #3c604c;
+        padding: 4px 9px;
+        font-size: 12px;
+      }
+      .error {
+        color: #9f3030;
+        white-space: pre-wrap;
+      }
+      .notice {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #f4f6f3;
+        padding: 10px 0;
+        min-height: 38px;
+      }
+      details {
+        margin-top: 14px;
+      }
+      summary {
+        cursor: pointer;
+        color: #42694e;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+        background: #f3f6f2;
+        padding: 12px;
+      }
+      .check {
+        display: flex;
+        align-items: start;
+        gap: 8px;
+        font-weight: 400;
+        margin: 9px 0;
+      }
+      .check input {
+        width: auto;
+        margin-top: 3px;
+      }
+      .step {
+        border-left: 3px solid #649376;
+      }
+      .small {
+        font-size: 12px;
+        padding: 5px 9px;
+      }
+      .fields {
+        display: grid;
+        grid-template-columns: 1fr 120px 80px 40px;
+        gap: 8px;
+        margin: 8px 0;
+      }
+      .fields input[type="checkbox"] {
+        width: auto;
+      }
+      dialog {
+        border: 1px solid #d0dcd0;
+        border-radius: 12px;
+        padding: 26px;
+        max-width: 720px;
+        width: 90vw;
+        max-height: 90vh;
+      }
+      dialog::backdrop {
+        background: #17352666;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .actions {
+        position: sticky;
+        bottom: 0;
+        background: #f4f6f3ed;
+        padding: 15px 0;
+        backdrop-filter: blur(8px);
+        border-top: 1px solid #dae3d9;
+      }
+      .library-card {
+        margin: 12px 0;
+        padding: 18px;
+        border: 1px solid #dce4dc;
+        background: white;
+        border-radius: 9px;
+      }
+      @media (max-width: 850px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          border-right: 0;
+          border-bottom: 1px solid #ddd;
+        }
+        main {
+          padding: 20px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        header {
+          padding: 16px;
+          height: auto;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .fields {
+          grid-template-columns: 1fr 90px 55px 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Agent Engine <span class="muted">/ Build</span></strong>
+      <nav>
+        <button id="nav-workflows">Workflows</button
+        ><button id="nav-library">Library</button><a href="/">Runs ↗</a>
+      </nav>
+    </header>
+    <div class="layout">
+      <aside>
+        <label for="org">Organization</label
+        ><select id="org"></select>
+        <div class="row" style="margin-top: 20px">
+          <h2>Workflows</h2>
+          <button id="new" class="small">+ New</button>
+        </div>
+        <div id="workflow-list"></div>
+        <p class="muted">
+          Drafts stay editable. Published versions and test snapshots stay
+          fixed.
+        </p>
+      </aside>
+      <main>
+        <div id="message" class="notice" role="status" aria-live="polite"></div>
+        <section id="workspace">
+          <h1>Build a workflow.</h1>
+          <p class="muted">Choose a workflow or create one to get started.</p>
+        </section>
+        <section id="library" class="hidden"></section>
+      </main>
+    </div>
+    <dialog id="modal">
+      <div id="modal-content"></div>
+      <button id="close-modal" style="margin-top: 16px">Close</button>
+    </dialog>
+    <script>
+      const $ = (id) => document.getElementById(id),
+        E = (tag, text, cls) => {
+          const e = document.createElement(tag);
+          if (text !== undefined) e.textContent = text;
+          if (cls) e.className = cls;
+          return e;
+        };
+      let catalog,
+        listing = [],
+        current = null,
+        dirty = false,
+        busy = false,
+        view = "workflows";
+      const pretty = (v) => JSON.stringify(v, null, 2);
+      function say(text, error = false) {
+        $("message").textContent = text;
+        $("message").className = "notice" + (error ? " error" : "");
+      }
+      async function api(path, body, method) {
+        const r = await fetch(path, {
+          method: method || (body ? "POST" : "GET"),
+          headers: body ? { "Content-Type": "application/json" } : {},
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const d = await r.json();
+        if (!r.ok) throw Error(d.error || d.message || "Request failed");
+        return d;
+      }
+      function action(fn) {
+        return async () => {
+          if (busy) return;
+          const invalid = document.querySelector(
+            "textarea:invalid, input:invalid",
+          );
+          if (invalid) {
+            invalid.reportValidity();
+            return;
+          }
+          busy = true;
+          const controls = Array.from(
+            document.querySelectorAll("input,textarea,select"),
+          ).map((n) => [n, n.disabled]);
+          controls.forEach(([n]) => (n.disabled = true));
+          try {
+            await fn();
+          } catch (e) {
+            say(e.message, true);
+          } finally {
+            controls.forEach(([n, wasDisabled]) => (n.disabled = wasDisabled));
+            busy = false;
+          }
+        };
+      }
+      function button(text, fn, cls) {
+        const b = E("button", text, cls);
+        b.type = "button";
+        b.onclick = () => {
+          if (!busy) return fn();
+        };
+        return b;
+      }
+      function changed() {
+        dirty = true;
+        say("Unsaved draft changes");
+      }
+      function field(root, label, value, onChange, type = "text") {
+        const id = "f-" + crypto.randomUUID();
+        const l = E("label", label);
+        l.htmlFor = id;
+        root.append(l);
+        const n = E(type === "textarea" ? "textarea" : "input");
+        n.id = id;
+        if (type !== "textarea") n.type = type;
+        n.value = value ?? "";
+        n.oninput = () => {
+          onChange(n.type === "number" ? Number(n.value) : n.value);
+          if (!$("modal").contains(n)) changed();
+        };
+        root.append(n);
+        return n;
+      }
+      function select(root, label, value, options, onChange) {
+        const id = "f-" + crypto.randomUUID(),
+          l = E("label", label);
+        l.htmlFor = id;
+        const n = E("select");
+        n.id = id;
+        for (const [v, t] of options) {
+          const o = E("option", t);
+          o.value = v;
+          n.append(o);
+        }
+        n.value = value;
+        n.onchange = () => {
+          onChange(n.value);
+          changed();
+        };
+        root.append(l, n);
+        return n;
+      }
+      function details(root, label, value) {
+        const d = E("details");
+        d.append(
+          E("summary", label),
+          E("pre", typeof value === "string" ? value : pretty(value)),
+        );
+        root.append(d);
+      }
+      function orgSkills() {
+        return catalog.skills.filter(
+          (s) =>
+            s.executionType === "agent" &&
+            (!s.organizationId || s.organizationId === $("org").value),
+        );
+      }
+      function capability(root, s) {
+        const d = E("details");
+        d.append(
+          E(
+            "summary",
+            `${s.name} · v${s.version} — instructions & permissions`,
+          ),
+          E("p", s.instructions, "muted"),
+        );
+        const toolNames = (s.configuration.allowedToolIds || []).map(
+          (id) => catalog.tools.find((t) => t.id === id)?.name || id,
+        );
+        const knowledgeNames = (s.configuration.allowedKnowledgeIds || []).map(
+          (id) => catalog.knowledge.find((k) => k.id === id)?.name || id,
+        );
+        d.append(
+          E("p", "Tools: " + (toolNames.join(", ") || "None")),
+          E("p", "Knowledge: " + (knowledgeNames.join(", ") || "None")),
+        );
+        details(d, "Input / output requirements", {
+          input: s.inputSchema,
+          output: s.outputSchema,
+        });
+        root.append(d);
+      }
+      async function reloadList() {
+        listing = await api("/builder/workflows");
+        renderList();
+      }
+      function renderList() {
+        const root = $("workflow-list");
+        root.replaceChildren();
+        for (const item of listing.filter(
+          (i) => i.workflow.organizationId === $("org").value,
+        )) {
+          const w = item.workflow,
+            d = item.draft;
+          const b = button(
+            "",
+            action(() => open(w.id)),
+            "item" + (current?.workflow.id === w.id ? " active" : ""),
+          );
+          b.append(
+            E("strong", d?.definition.name || w.name),
+            E(
+              "div",
+              w.currentVersionId
+                ? d && d.publishedRevision !== d.revision
+                  ? "Published · draft changes"
+                  : "Published"
+                : "Draft",
+              "muted",
+            ),
+          );
+          root.append(b);
+        }
+        if (!root.childNodes.length)
+          root.append(E("p", "No workflows yet.", "muted"));
+      }
+      async function open(id) {
+        if (dirty) await save();
+        current = await api("/builder/workflows/" + id);
+        dirty = false;
+        view = "workflows";
+        showView();
+        render();
+        renderList();
+      }
+      function showView() {
+        $("workspace").classList.toggle("hidden", view !== "workflows");
+        $("library").classList.toggle("hidden", view !== "library");
+      }
+      async function save() {
+        if (!current || !dirty) return;
+        const definition = current.draft.definition;
+        current = {
+          ...current,
+          ...(await api(
+            "/builder/workflows/" + current.workflow.id,
+            {
+              revision: current.draft.revision,
+              definition: current.draft.definition,
+            },
+            "PUT",
+          )),
+        };
+        current.draft.definition = definition;
+        dirty = false;
+        say("Draft saved · revision " + current.draft.revision);
+        await reloadList();
+      }
+      function schemas(root, title, object, key) {
+        const panel = E("div", "", "panel");
+        panel.append(
+          E("h2", title),
+          E(
+            "p",
+            "Add fields below, or use the advanced JSON schema editor for nested structures.",
+            "muted",
+          ),
+        );
+        const schema = object[key];
+        const simple =
+          schema.type === "object" &&
+          Object.values(schema.properties || {}).every(
+            (p) =>
+              p &&
+              ["string", "number", "integer", "boolean"].includes(p.type) &&
+              Object.keys(p).every((k) => ["type", "description"].includes(k)),
+          ) &&
+          Object.keys(schema).every((k) =>
+            ["type", "properties", "required", "additionalProperties"].includes(
+              k,
+            ),
+          );
+        if (simple) {
+          const fields = Object.entries(schema.properties || {}).map(
+            ([name, p]) => ({
+              name,
+              type: p.type,
+              required: (schema.required || []).includes(name),
+              description: p.description,
+            }),
+          );
+          const list = E("div");
+          const sync = () => {
+            const names = fields.map((f) => f.name);
+            if (
+              names.some((n) => !n.trim()) ||
+              new Set(names).size !== names.length
+            ) {
+              say("Field names must be nonempty and unique.", true);
+              return false;
+            }
+            object[key] = {
+              type: "object",
+              properties: Object.fromEntries(
+                fields.map((f) => [
+                  f.name,
+                  {
+                    type: f.type,
+                    ...(f.description ? { description: f.description } : {}),
+                  },
+                ]),
+              ),
+              required: fields.filter((f) => f.required).map((f) => f.name),
+              additionalProperties: schema.additionalProperties ?? false,
+            };
+            changed();
+            return true;
+          };
+          const draw = () => {
+            list.replaceChildren();
+            for (const f of fields) {
+              const row = E("div", "", "fields");
+              const name = E("input");
+              name.setAttribute("aria-label", "Field name");
+              name.value = f.name;
+              name.onchange = () => {
+                const old = f.name;
+                f.name = name.value.trim();
+                if (!sync()) {
+                  f.name = old;
+                  name.value = old;
+                } else json.value = pretty(object[key]);
+              };
+              const type = E("select");
+              type.setAttribute("aria-label", "Field type");
+              for (const t of ["string", "number", "integer", "boolean"]) {
+                const o = E("option", t);
+                o.value = t;
+                type.append(o);
+              }
+              type.value = f.type;
+              type.onchange = () => {
+                f.type = type.value;
+                sync();
+                json.value = pretty(object[key]);
+              };
+              const required = E("label", "Required", "check");
+              const check = E("input");
+              check.type = "checkbox";
+              check.checked = f.required;
+              check.onchange = () => {
+                f.required = check.checked;
+                sync();
+                json.value = pretty(object[key]);
+              };
+              required.prepend(check);
+              row.append(
+                name,
+                type,
+                required,
+                button(
+                  "×",
+                  () => {
+                    fields.splice(fields.indexOf(f), 1);
+                    sync();
+                    json.value = pretty(object[key]);
+                    draw();
+                  },
+                  "small",
+                ),
+              );
+              list.append(row);
+            }
+          };
+          panel.append(
+            list,
+            button(
+              "+ Field",
+              () => {
+                let i = fields.length + 1;
+                while (fields.some((f) => f.name === "field_" + i)) i++;
+                fields.push({
+                  name: "field_" + i,
+                  type: "string",
+                  required: true,
+                });
+                sync();
+                json.value = pretty(object[key]);
+                draw();
+              },
+              "small",
+            ),
+          );
+          queueMicrotask(draw);
+        }
+        const advanced = E("details");
+        advanced.append(E("summary", "Advanced JSON schema"));
+        const json = E("textarea");
+        json.value = pretty(schema);
+        json.rows = 9;
+        json.onchange = () => {
+          try {
+            const v = JSON.parse(json.value);
+            if (!v || Array.isArray(v) || typeof v !== "object")
+              throw Error("Schema must be an object");
+            object[key] = v;
+            changed();
+          } catch (e) {
+            json.setCustomValidity(e.message);
+            json.reportValidity();
+          }
+        };
+        json.oninput = () => {
+          try {
+            const v = JSON.parse(json.value);
+            if (!v || Array.isArray(v) || typeof v !== "object")
+              throw Error("Schema must be an object");
+            object[key] = v;
+            json.setCustomValidity("");
+            changed();
+          } catch (e) {
+            json.setCustomValidity(e.message);
+          }
+        };
+        advanced.append(json);
+        panel.append(advanced);
+        root.append(panel);
+      }
+      function newStep(type) {
+        return {
+          key: "step_" + crypto.randomUUID().slice(0, 8),
+          name:
+            type === "agent_loop"
+              ? "Agent task"
+              : type === "skill"
+                ? "Fixed skill"
+                : "Human approval",
+          type,
+          skillVersionId: null,
+          configuration: {
+            inputFrom: "previous",
+            ...(type !== "human_review"
+              ? {
+                  provider: "openai",
+                  model: "gpt-4.1-mini",
+                  goal: "",
+                  skillVersionIds: [],
+                  maxTurns: 12,
+                  maxToolCalls: 8,
+                  maxSkillSelections: 4,
+                  allowHumanReview: false,
+                  allowHumanQuestions: true,
+                  outputSchema: { type: "object" },
+                }
+              : {}),
+          },
+        };
+      }
+      function render() {
+        if (!current) return;
+        const root = $("workspace"),
+          d = current.draft.definition;
+        root.replaceChildren();
+        const heading = E("div", "", "row between");
+        heading.append(
+          E("h1", d.name),
+          E("span", "Draft · revision " + current.draft.revision, "tag"),
+        );
+        root.append(
+          heading,
+          E(
+            "p",
+            "Define the process, choose available capabilities, then test a saved snapshot.",
+            "muted",
+          ),
+        );
+        const meta = E("div", "", "panel");
+        const grid = E("div", "", "grid");
+        field(grid, "Workflow name", d.name, (v) => (d.name = v));
+        select(
+          grid,
+          "Agent",
+          d.agentId,
+          catalog.agents
+            .filter((a) => a.organizationId === current.workflow.organizationId)
+            .map((a) => [a.id, a.name]),
+          (v) => (d.agentId = v),
+        );
+        meta.append(grid);
+        field(meta, "Description", d.description, (v) => (d.description = v));
+        field(meta, "Goal", d.goal, (v) => (d.goal = v), "textarea");
+        field(
+          meta,
+          "Instructions / process",
+          d.instructions,
+          (v) => (d.instructions = v),
+          "textarea",
+        );
+        root.append(meta);
+        const contracts = E("div", "", "grid");
+        schemas(contracts, "Starting inputs", d, "inputSchema");
+        schemas(contracts, "Final result", d, "outputSchema");
+        root.append(contracts);
+        root.append(
+          E("h2", "Workflow steps"),
+          E(
+            "p",
+            "Steps run in order. Agent tasks choose from their skill catalog; fixed skills always run the selected skill.",
+            "muted",
+          ),
+        );
+        d.steps.forEach((s, index) => {
+          const p = E("div", "", "panel step");
+          const top = E("div", "", "row between");
+          top.append(E("h2", `${index + 1}. ${s.name}`));
+          const controls = E("div", "", "row");
+          const move = (delta) => {
+            [d.steps[index], d.steps[index + delta]] = [
+              d.steps[index + delta],
+              d.steps[index],
+            ];
+            changed();
+            render();
+          };
+          const up = button("↑", () => move(-1), "small"),
+            down = button("↓", () => move(1), "small");
+          up.disabled = index === 0;
+          down.disabled = index === d.steps.length - 1;
+          controls.append(
+            up,
+            down,
+            button(
+              "Remove",
+              () => {
+                d.steps.splice(index, 1);
+                changed();
+                render();
+              },
+              "small",
+            ),
+          );
+          top.append(controls);
+          p.append(top);
+          const g = E("div", "", "grid");
+          field(g, "Step name", s.name, (v) => (s.name = v));
+          select(
+            g,
+            "Input comes from",
+            s.configuration.inputFrom || "previous",
+            [
+              ["previous", "Previous step result"],
+              ["initial", "Original workflow input"],
+              ["context", "All prior results"],
+              ...d.steps.slice(0, index).map((p) => ["steps." + p.key, p.name]),
+            ],
+            (v) => (s.configuration.inputFrom = v),
+          );
+          p.append(g);
+          if (s.type !== "human_review") {
+            s.configuration.provider = "openai";
+            field(
+              p,
+              "Step goal",
+              s.configuration.goal || "",
+              (v) => (s.configuration.goal = v),
+              "textarea",
+            );
+            const available = orgSkills();
+            if (s.type === "skill") {
+              select(
+                p,
+                "Required skill version",
+                s.skillVersionId || "",
+                [
+                  ["", "Choose a skill"],
+                  ...available.map((c) => [c.id, `${c.name} · v${c.version}`]),
+                ],
+                (v) => {
+                  s.skillVersionId = v || null;
+                  render();
+                },
+              );
+              const chosen = available.find((c) => c.id === s.skillVersionId);
+              if (chosen) capability(p, chosen);
+            } else {
+              p.append(E("label", "Skills the model may choose"));
+              for (const skill of available) {
+                const l = E("label", "", "check"),
+                  c = E("input");
+                c.type = "checkbox";
+                c.checked = (s.configuration.skillVersionIds || []).includes(
+                  skill.id,
+                );
+                c.onchange = () => {
+                  const ids = new Set(s.configuration.skillVersionIds || []);
+                  c.checked ? ids.add(skill.id) : ids.delete(skill.id);
+                  s.configuration.skillVersionIds = [...ids];
+                  changed();
+                };
+                l.append(c, E("span", `${skill.name} · v${skill.version}`));
+                p.append(l);
+                capability(p, skill);
+              }
+              if (!available.length)
+                p.append(
+                  E(
+                    "p",
+                    "Create an agent skill in the Library first.",
+                    "muted",
+                  ),
+                );
+            }
+            const limits = E("details");
+            limits.append(E("summary", "Model, limits, and step result"));
+            field(
+              limits,
+              "OpenAI model",
+              s.configuration.model || "gpt-4.1-mini",
+              (v) => (s.configuration.model = v),
+            );
+            for (const [k, label, def] of [
+              ["maxTurns", "Maximum model turns", 12],
+              ["maxToolCalls", "Maximum tool calls", 8],
+              ["maxSkillSelections", "Maximum skill selections", 4],
+            ])
+              field(
+                limits,
+                label,
+                s.configuration[k] || def,
+                (v) => (s.configuration[k] = v),
+                "number",
+              );
+            const l = E(
+                "label",
+                "Allow the model to request human approval",
+                "check",
+              ),
+              c = E("input");
+            c.type = "checkbox";
+            c.checked = !!s.configuration.allowHumanReview;
+            c.onchange = () => {
+              s.configuration.allowHumanReview = c.checked;
+              changed();
+            };
+            l.prepend(c);
+            limits.append(l);
+            const askLabel = E(
+                "label",
+                "Allow the model to ask humans questions",
+                "check",
+              ),
+              askCheck = E("input");
+            askCheck.type = "checkbox";
+            askCheck.checked = s.configuration.allowHumanQuestions !== false;
+            askCheck.onchange = () => {
+              s.configuration.allowHumanQuestions = askCheck.checked;
+              changed();
+            };
+            askLabel.prepend(askCheck);
+            limits.append(askLabel);
+
+            if (!s.configuration.outputSchema)
+              s.configuration.outputSchema = { type: "object" };
+            schemas(limits, "Step result", s.configuration, "outputSchema");
+            p.append(limits);
+          } else {
+            select(
+              p,
+              "Approved result",
+              s.configuration.outputMode || "review",
+              [
+                ["review", "Approval with input and note"],
+                ["input", "Original input, unchanged"],
+              ],
+              (v) => (s.configuration.outputMode = v),
+            );
+            p.append(
+              E(
+                "p",
+                "The run pauses here. A reviewer sees this step’s input and approves or rejects it in Runs. Approval returns { approved, note, value }, where value is the input.",
+                "muted",
+              ),
+            );
+          }
+          root.append(p);
+        });
+        const add = E("div", "", "row");
+        for (const [t, label] of [
+          ["agent_loop", "+ Agent task"],
+          ["skill", "+ Fixed skill"],
+          ["human_review", "+ Human approval"],
+        ])
+          add.append(
+            button(label, () => {
+              d.steps.push(newStep(t));
+              changed();
+              render();
+            }),
+          );
+        root.append(add);
+        const test = E("div", "", "panel");
+        test.append(
+          E("h2", "Try this draft"),
+          E(
+            "p",
+            "Test runs use a fixed snapshot of this draft. Publishing is a separate action. OpenAI calls use your configured worker key.",
+            "muted",
+          ),
+        );
+        const input = E("textarea");
+        input.id = "test-input";
+        input.value =
+          sessionStorage.getItem("test:" + current.workflow.id) ||
+          pretty(
+            Object.fromEntries(
+              Object.entries(d.inputSchema.properties || {}).map(([k, p]) => [
+                k,
+                p.type === "boolean"
+                  ? false
+                  : ["number", "integer"].includes(p.type)
+                    ? 0
+                    : "",
+              ]),
+            ),
+          );
+        input.oninput = () =>
+          sessionStorage.setItem("test:" + current.workflow.id, input.value);
+        test.append(input);
+        root.append(test);
+        const actions = E("div", "", "actions row");
+        actions.append(
+          button("Save draft", action(save)),
+          button(
+            "Validate",
+            action(async () => {
+              await save();
+              await api(`/builder/workflows/${current.workflow.id}/validate`, {
+                revision: current.draft.revision,
+              });
+              say("Valid: steps, schemas, agent, and permissions checked.");
+            }),
+          ),
+          button(
+            "Test draft",
+            action(async () => {
+              const input = JSON.parse($("test-input").value);
+              await save();
+              const r = await api(
+                `/builder/workflows/${current.workflow.id}/test`,
+                { revision: current.draft.revision, input },
+              );
+              location.href = `/?workflow=${current.workflow.id}&run=${r.run.id}`;
+            }),
+            "primary",
+          ),
+          button(
+            "Publish version",
+            action(async () => {
+              await save();
+              const r = await api(
+                `/builder/workflows/${current.workflow.id}/publish`,
+                { revision: current.draft.revision },
+              );
+              await open(current.workflow.id);
+              await reloadList();
+              say(
+                "Published version " +
+                  (r.version || "") +
+                  ". Existing runs retain their original versions.",
+              );
+            }),
+          ),
+          button(
+            "Duplicate",
+            action(async () => {
+              await save();
+              const r = await api("/builder/workflows", {
+                organizationId: current.workflow.organizationId,
+                name: d.name + " copy",
+                duplicateId: current.workflow.id,
+              });
+              await reloadList();
+              await open(r.workflow.id);
+            }),
+          ),
+        );
+        root.append(actions);
+        const versions = E("details");
+        versions.append(
+          E("summary", "Version history · includes test snapshots"),
+        );
+        for (const v of current.versions || [])
+          versions.append(
+            E(
+              "p",
+              `Version ${v.version} · ${new Date(v.createdAt).toLocaleString()}${v.id === current.workflow.currentVersionId ? " · Current published version" : ""}`,
+            ),
+          );
+        root.append(versions);
+      }
+      function checkedList(root, label, items, selected, onChange) {
+        root.append(E("label", label));
+        for (const item of items) {
+          const l = E("label", "", "check"),
+            c = E("input");
+          c.type = "checkbox";
+          c.checked = selected.includes(item.id);
+          c.onchange = () => {
+            const next = new Set(selected);
+            c.checked ? next.add(item.id) : next.delete(item.id);
+            selected = [...next];
+            onChange(selected);
+          };
+          l.append(c, E("span", item.name));
+          root.append(l);
+        }
+      }
+      function modal(title) {
+        const root = $("modal-content");
+        root.replaceChildren(E("h2", title));
+        $("modal").showModal();
+        return root;
+      }
+      function editSkill(s) {
+        const root = modal(
+          s ? "Create a new skill version" : "New agent skill",
+        );
+        const b = {
+          organizationId: $("org").value,
+          ...(s ? { skillId: s.skillId } : {}),
+          name: s?.name || "",
+          description: s?.description || "",
+          instructions: s?.instructions || "",
+          inputSchema: s?.inputSchema || { type: "object" },
+          outputSchema: s?.outputSchema || { type: "object" },
+          configuration: structuredClone(
+            s?.configuration || { allowedToolIds: [], allowedKnowledgeIds: [] },
+          ),
+        };
+        const name = field(root, "Name", b.name, (v) => (b.name = v));
+        name.disabled = !!s;
+        const description = field(
+          root,
+          "Description",
+          b.description,
+          (v) => (b.description = v),
+        );
+        description.disabled = !!s;
+        field(
+          root,
+          "Instructions",
+          b.instructions,
+          (v) => (b.instructions = v),
+          "textarea",
+        );
+        for (const key of ["inputSchema", "outputSchema"]) {
+          const n = field(
+            root,
+            key === "inputSchema" ? "Input JSON schema" : "Output JSON schema",
+            pretty(b[key]),
+            () => {},
+            "textarea",
+          );
+          n.oninput = () => {
+            n.setCustomValidity("");
+            try {
+              b[key] = JSON.parse(n.value);
+            } catch {
+              n.setCustomValidity("Enter valid JSON");
+            }
+          };
+        }
+        checkedList(
+          root,
+          "Allowed tools",
+          catalog.tools,
+          b.configuration.allowedToolIds || [],
+          (v) => (b.configuration.allowedToolIds = v),
+        );
+        checkedList(
+          root,
+          "Allowed knowledge",
+          catalog.knowledge.filter(
+            (k) => k.organizationId === b.organizationId,
+          ),
+          b.configuration.allowedKnowledgeIds || [],
+          (v) => (b.configuration.allowedKnowledgeIds = v),
+        );
+        root.append(
+          E(
+            "p",
+            "Existing workflows keep their pinned skill versions. Select the new version in a draft to adopt changes.",
+            "muted",
+          ),
+        );
+        root.append(
+          button(
+            "Save skill version",
+            action(async () => {
+              if (
+                !Array.from(root.querySelectorAll("textarea")).every((n) =>
+                  n.reportValidity(),
+                )
+              )
+                return;
+              await api("/builder/skills", b);
+              catalog = await api("/builder/catalog");
+              $("modal").close();
+              renderLibrary();
+              say("Skill version saved.");
+            }),
+            "primary",
+          ),
+        );
+      }
+      function editKnowledge(k) {
+        const root = modal(k ? "Edit knowledge" : "Add knowledge");
+        const b = {
+          ...(k ? { id: k.id } : {}),
+          organizationId: $("org").value,
+          name: k?.name || "",
+          content: k?.content || "",
+        };
+        field(root, "Name", b.name, (v) => (b.name = v));
+        field(
+          root,
+          "Content",
+          b.content,
+          (v) => (b.content = v),
+          "textarea",
+        ).rows = 12;
+        root.append(
+          E(
+            "p",
+            "New runs fetch the updated content. Runs with an existing execution snapshot retain their original content.",
+            "muted",
+          ),
+        );
+        root.append(
+          button(
+            "Save knowledge",
+            action(async () => {
+              await api("/builder/knowledge", b);
+              catalog = await api("/builder/catalog");
+              $("modal").close();
+              renderLibrary();
+              say("Knowledge saved.");
+            }),
+            "primary",
+          ),
+        );
+      }
+      function renderLibrary() {
+        const root = $("library");
+        root.replaceChildren(
+          E("h1", "Capability library"),
+          E(
+            "p",
+            "Manage agent skills and reference knowledge. Tools are registered integrations provided by the engine.",
+            "muted",
+          ),
+        );
+        const top = E("div", "", "row");
+        top.append(
+          button("+ Agent skill", () => editSkill(), "primary"),
+          button("+ Knowledge", () => editKnowledge()),
+        );
+        root.append(top, E("h2", "Skills"));
+        for (const s of orgSkills()) {
+          const c = E("div", "", "library-card");
+          c.append(
+            E("h3", `${s.name} · v${s.version}`),
+            E("p", s.description, "muted"),
+          );
+          capability(c, s);
+          if (s.organizationId === $("org").value)
+            c.append(button("New version", () => editSkill(s), "small"));
+          root.append(c);
+        }
+        root.append(E("h2", "Knowledge"));
+        for (const k of catalog.knowledge.filter(
+          (k) => k.organizationId === $("org").value,
+        )) {
+          const c = E("div", "", "library-card");
+          c.append(E("h3", k.name));
+          details(c, "Read content", k.content);
+          c.append(button("Edit", () => editKnowledge(k), "small"));
+          root.append(c);
+        }
+        root.append(E("h2", "Registered tools"));
+        for (const t of catalog.tools) {
+          const c = E("div", "", "library-card");
+          c.append(E("h3", t.name), E("p", t.description, "muted"));
+          details(c, "Integration contract", {
+            handler: t.handler,
+            input: t.inputSchema,
+            output: t.outputSchema,
+          });
+          root.append(c);
+        }
+      }
+      $("new").onclick = action(async () => {
+        if (dirty) await save();
+        const r = await api("/builder/workflows", {
+          organizationId: $("org").value,
+          name: "Untitled workflow",
+        });
+        await reloadList();
+        await open(r.workflow.id);
+      });
+      $("nav-workflows").onclick = () => {
+        view = "workflows";
+        showView();
+        render();
+      };
+      $("nav-library").onclick = () => {
+        view = "library";
+        showView();
+        renderLibrary();
+      };
+      $("org").onchange = action(async () => {
+        if (dirty) await save();
+        current = null;
+        $("workspace").replaceChildren(E("h1", "Choose or create a workflow."));
+        renderList();
+        renderLibrary();
+      });
+      $("close-modal").onclick = () => $("modal").close();
+      window.addEventListener("beforeunload", (e) => {
+        if (dirty) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+      (async () => {
+        try {
+          catalog = await api("/builder/catalog");
+          for (const org of catalog.organizations) {
+            const o = E("option", org.name);
+            o.value = org.id;
+            $("org").append(o);
+          }
+          await reloadList();
+          const id = new URLSearchParams(location.search).get("workflow");
+          if (id) await open(id);
+        } catch (e) {
+          say(e.message, true);
+        }
+      })();
+    </script>
+  </body>
+</html>

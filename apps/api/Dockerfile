@@ -20,5 +20,7 @@ WORKDIR /app
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/packages/database/migrations ./packages/database/migrations
+COPY --from=build --chown=node:node /app/apps/api/src/playground.html ./dist/apps/api/src/playground.html
+COPY --from=build --chown=node:node /app/apps/api/src/builder.html ./dist/apps/api/src/builder.html
 USER node
 CMD ["node", "dist/apps/api/src/index.js"]

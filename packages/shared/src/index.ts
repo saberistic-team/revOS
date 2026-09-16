@@ -21,7 +21,7 @@ export interface ToolDefinition {
 export interface SkillDefinition {
   id: string;
   instructions: string;
-  executionType: "llm" | "tool";
+  executionType: "llm" | "tool" | "agent";
   inputSchema: Json;
   outputSchema: Json;
   configuration: Record<string, Json>;
@@ -31,9 +31,10 @@ export interface StepDefinition {
   key: string;
   name: string;
   position: number;
-  type: "skill" | "human_review";
+  type: "skill" | "human_review" | "agent_loop";
   configuration: Record<string, Json>;
   skill?: SkillDefinition;
+  catalog?: CatalogSkill[];
 }
 export interface ExecutionDefinition {
   workflow: {
@@ -45,7 +46,7 @@ export interface ExecutionDefinition {
     outputSchema: Json;
   };
   agent: { name: string; instructions: string };
-  knowledge: { name: string; content: string }[];
+  knowledge: { id?: string; name: string; content: string }[];
   tools: ToolDefinition[];
   steps: StepDefinition[];
 }
@@ -71,6 +72,7 @@ export interface Review {
   stepKey: string;
   approved: boolean;
   note?: string;
+  reviewId?: string;
 }
 export interface Activities {
   loadExecutionDefinition(input: AgentRunInput): Promise<ExecutionDefinition>;
@@ -97,4 +99,10 @@ export interface Activities {
     error: string;
     cancelled: boolean;
   }): Promise<void>;
+}
+
+export interface CatalogSkill extends SkillDefinition {
+  name: string;
+  description: string;
+  version: number;
 }

@@ -1,0 +1,2530 @@
+{
+  "name": "Customer Opportunity Discovery",
+  "agentName": "Customer Opportunity Strategist",
+  "agentInstructions": "You are a business discovery and opportunity research agent.\n\nYour job is not to immediately propose software or automation.\n\nYour first responsibility is to understand how the customer makes money, what they consider valuable, how they define a good lead or opportunity, what resources and constraints they already have, and where value is currently being lost.\n\nThink commercially.\n\nPrioritize measurable outcomes.\n\nPrefer opportunities where:\n\n- customer value is clear\n- success can be measured\n- time to value is short\n- the customer has capacity to act on the result\n- there is a realistic way for us to participate economically\n\nDo not research everything equally.\n\nFollow an 80/20 approach.\n\nAt each stage ask:\n\n> What information would most change our understanding of where the economic value is?\n\nDistinguish:\n\n- known facts\n- customer claims\n- assumptions\n- external evidence\n- unanswered questions\n\nDo not present assumptions as facts.\n\nWhen there is insufficient information, identify the highest-value questions to ask the customer.\n",
+  "instructions": "Select the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+  "goal": "Understand where money is being left on the table; produce a Customer Opportunity Brief recommending the highest-value measurable engagement, why to focus there, and evidence that would prove or disprove it. Work only on the current ordered stage. Human approval is required before discovery is complete.",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "customer_name",
+      "initial_problem"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "customer_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "company_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "industry": {
+        "type": "string",
+        "minLength": 1
+      },
+      "website": {
+        "type": "string",
+        "minLength": 1
+      },
+      "initial_problem": {
+        "type": "string",
+        "minLength": 1
+      },
+      "conversation_notes": {
+        "type": "string",
+        "minLength": 1
+      },
+      "known_lead_type": {
+        "type": "string",
+        "minLength": 1
+      },
+      "known_revenue_model": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additional_context": {
+        "type": "string",
+        "minLength": 1
+      },
+      "existing_tools": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "existing_data_available": {
+        "type": "boolean"
+      }
+    }
+  },
+  "outputSchema": {
+    "title": "Customer Opportunity Brief",
+    "type": "object",
+    "required": [
+      "customer_profile",
+      "current_revenue_model",
+      "ideal_lead_definition",
+      "lead_lifecycle",
+      "lead_sources",
+      "current_operations",
+      "market_landscape",
+      "opportunities",
+      "recommended_offer",
+      "compensation_options",
+      "discovery_gaps",
+      "recommended_next_action"
+    ],
+    "properties": {
+      "customer_profile": {
+        "type": "object",
+        "required": [
+          "company",
+          "industry",
+          "what_they_do",
+          "target_customer",
+          "current_business_model",
+          "known_constraints"
+        ],
+        "properties": {
+          "company": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "industry": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "what_they_do": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "target_customer": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "current_business_model": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "known_constraints": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "current_revenue_model": {
+        "type": "object",
+        "required": [
+          "existing_revenue_streams",
+          "how_customer_gets_paid",
+          "known_unit_economics",
+          "unknowns"
+        ],
+        "properties": {
+          "existing_revenue_streams": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "how_customer_gets_paid": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "known_unit_economics": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "unknowns": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ideal_lead_definition": {
+        "type": "object",
+        "required": [
+          "lead_definition",
+          "qualification_criteria",
+          "disqualification_criteria",
+          "priority_factors",
+          "price_or_value_thresholds",
+          "capacity_constraints",
+          "current_qualification_formula",
+          "recommended_qualification_formula"
+        ],
+        "properties": {
+          "lead_definition": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "qualification_criteria": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "disqualification_criteria": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "priority_factors": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "price_or_value_thresholds": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "capacity_constraints": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "current_qualification_formula": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "recommended_qualification_formula": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "lead_lifecycle": {
+        "type": "object",
+        "required": [
+          "current_statuses",
+          "what_happens_to_unqualified_leads",
+          "what_happens_to_unclosed_leads",
+          "conditions_that_could_make_a_lead_qualified_later",
+          "recommended_watch_conditions"
+        ],
+        "properties": {
+          "current_statuses": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "what_happens_to_unqualified_leads": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "what_happens_to_unclosed_leads": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "conditions_that_could_make_a_lead_qualified_later": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "recommended_watch_conditions": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "lead_sources": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "source_name",
+            "source_type",
+            "estimated_volume",
+            "estimated_quality",
+            "accessibility",
+            "automation_potential",
+            "cost",
+            "evidence",
+            "confidence"
+          ],
+          "properties": {
+            "source_name": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "source_type": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "estimated_volume": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "estimated_quality": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "accessibility": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "automation_potential": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "cost": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "evidence": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "confidence": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "current_operations": {
+        "type": "object",
+        "required": [
+          "crm",
+          "inbound_process",
+          "outbound_process",
+          "receptionist_or_front_desk",
+          "follow_up_process",
+          "sales_process",
+          "existing_software",
+          "affiliate_or_referral_program",
+          "operational_gaps"
+        ],
+        "properties": {
+          "crm": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "inbound_process": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "outbound_process": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "receptionist_or_front_desk": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "follow_up_process": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "sales_process": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "existing_software": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "affiliate_or_referral_program": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "operational_gaps": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "market_landscape": {
+        "type": "object",
+        "required": [
+          "competitors",
+          "existing_representatives",
+          "lead_vendors",
+          "affiliates",
+          "compensation_models",
+          "market_trends",
+          "best_practices",
+          "common_tools",
+          "underserved_segments",
+          "undercapitalized_opportunities"
+        ],
+        "properties": {
+          "competitors": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "existing_representatives": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "lead_vendors": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "affiliates": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "compensation_models": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "market_trends": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "best_practices": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "common_tools": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "underserved_segments": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "undercapitalized_opportunities": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "opportunities": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "description",
+            "customer_value",
+            "estimated_revenue_potential",
+            "confidence",
+            "effort",
+            "time_to_value",
+            "measurability",
+            "customer_capacity",
+            "risks",
+            "required_data",
+            "next_validation_step",
+            "priority_score"
+          ],
+          "properties": {
+            "name": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "description": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "customer_value": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "estimated_revenue_potential": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "confidence": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "effort": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "time_to_value": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "measurability": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "customer_capacity": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "risks": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "required_data": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "next_validation_step": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "priority_score": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "recommended_offer": {
+        "type": "object",
+        "required": [
+          "offer",
+          "problem_solved",
+          "deliverable",
+          "measurable_success_metric",
+          "expected_customer_value",
+          "implementation_scope",
+          "why_this_offer",
+          "what_not_to_build_yet"
+        ],
+        "properties": {
+          "offer": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "problem_solved": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "deliverable": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "measurable_success_metric": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "expected_customer_value": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "implementation_scope": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "why_this_offer": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "what_not_to_build_yet": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "compensation_options": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "structure",
+            "alignment",
+            "upside",
+            "downside",
+            "tracking_requirements"
+          ],
+          "properties": {
+            "structure": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "alignment": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "upside": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "downside": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            },
+            "tracking_requirements": {
+              "type": [
+                "string",
+                "number",
+                "array",
+                "object",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "discovery_gaps": {
+        "type": "object",
+        "required": [
+          "unanswered_questions",
+          "data_requested_from_customer",
+          "assumptions_to_validate",
+          "next_customer_questions"
+        ],
+        "properties": {
+          "unanswered_questions": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "data_requested_from_customer": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "assumptions_to_validate": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "next_customer_questions": {
+            "type": [
+              "string",
+              "number",
+              "array",
+              "object",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "recommended_next_action": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "skills": [
+    {
+      "name": "understand_customer",
+      "description": "Understand the Customer \u2014 understand customer",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nBuild a concise model of who the customer is, what they do, who they serve, how they currently make money, what problem they are asking us to solve, and what constraints they have.\n\nThe agent should identify missing information rather than guess.\n\nOutput should include:\n\n- customer profile\n- existing revenue streams\n- known constraints\n- critical unanswered questions\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "map_revenue_model",
+      "description": "Understand the Customer \u2014 map revenue model",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nBuild a concise model of who the customer is, what they do, who they serve, how they currently make money, what problem they are asking us to solve, and what constraints they have.\n\nThe agent should identify missing information rather than guess.\n\nOutput should include:\n\n- customer profile\n- existing revenue streams\n- known constraints\n- critical unanswered questions\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "identify_value_opportunities",
+      "description": "Find the Economic Value \u2014 identify value opportunities",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nDetermine where the customer appears to create, lose, or leave economic value unrealized.\n\nAsk questions such as:\n\n- Where are the low-hanging fruits?\n- What would the customer offer themselves if they were in our position?\n- What activities directly lead to revenue?\n- Where do opportunities fall through?\n- What is expensive or inefficient?\n- Which problems could produce measurable financial outcomes?\n\nUse the 80/20 rule.\n\nDo not explore every possibility equally.\n\nOutput:\n\nA ranked list of preliminary value opportunities.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "define_ideal_lead",
+      "description": "Define the Ideal Lead or Opportunity \u2014 define ideal lead",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nDefine precisely what counts as a valuable lead or opportunity for this customer.\n\nDetermine:\n\n- qualification criteria\n- priority factors\n- disqualifiers\n- price/value thresholds\n- capacity constraints\n- timing\n- conditions that make a lead more valuable\n- customer's current qualification formula\n\nIf they do not have a clear qualification formula, propose one.\n\nInclude future qualification conditions.\n\nExample:\n\nA lead may not qualify today but should become a WATCH lead if a certain event, price, status, ownership condition, or market condition could make it valuable later.\n\nOutput:\n\nIdeal Lead Definition + Qualification Model.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "design_qualification_model",
+      "description": "Define the Ideal Lead or Opportunity \u2014 design qualification model",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nDefine precisely what counts as a valuable lead or opportunity for this customer.\n\nDetermine:\n\n- qualification criteria\n- priority factors\n- disqualifiers\n- price/value thresholds\n- capacity constraints\n- timing\n- conditions that make a lead more valuable\n- customer's current qualification formula\n\nIf they do not have a clear qualification formula, propose one.\n\nInclude future qualification conditions.\n\nExample:\n\nA lead may not qualify today but should become a WATCH lead if a certain event, price, status, ownership condition, or market condition could make it valuable later.\n\nOutput:\n\nIdeal Lead Definition + Qualification Model.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "discover_lead_sources",
+      "description": "Map Lead and Opportunity Sources \u2014 discover lead sources",
+      "instructions": "FIRST fetch both allowed knowledge references. Then call OpenAI Web Research with one focused external research question and wait for its cited result. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nIdentify where relevant opportunities originate.\n\nConsider:\n\n- inbound channels\n- outbound sources\n- public data\n- industry databases\n- referrals\n- affiliate networks\n- lead vendors\n- representatives\n- existing customer data\n- websites\n- events\n- public records\n- marketplaces\n\nDetermine:\n\n- source quality\n- expected volume\n- accessibility\n- cost\n- scraping potential\n- API availability\n- automation potential\n\nOutput:\n\nRanked lead-source map.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.\nUse the registered OpenAI Web Research tool for external research; use one focused query, at most two only if materially necessary. Preserve source URLs alongside claims in the step output. A website audit requires a provided real website; do not invent a customer website. For compensation check relevant jurisdictional constraints using authoritative sources, and flag unresolved applicability. Do not claim a commercial arrangement is permitted without evidence.",
+      "research": true
+    },
+    {
+      "name": "analyze_market_participants",
+      "description": "Understand Existing Market Participants \u2014 analyze market participants",
+      "instructions": "FIRST fetch both allowed knowledge references. Then call OpenAI Web Research with one focused external research question and wait for its cited result. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nUnderstand who currently participates in this market.\n\nResearch:\n\n- competitors\n- sales representatives\n- brokers\n- affiliates\n- lead vendors\n- referral partners\n- other intermediaries\n\nQuestions:\n\n- How are they compensated?\n- What are common rates?\n- What do successful reps capitalize on?\n- What is being undercapitalized?\n- What happens to leads that are never funded, never closed, rejected, or abandoned?\n- Could we match or beat the existing economics?\n- Could we fulfill opportunities current participants ignore?\n\nOutput:\n\nMarket participant and compensation analysis.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.\nUse the registered OpenAI Web Research tool for external research; use one focused query, at most two only if materially necessary. Preserve source URLs alongside claims in the step output. A website audit requires a provided real website; do not invent a customer website. For compensation check relevant jurisdictional constraints using authoritative sources, and flag unresolved applicability. Do not claim a commercial arrangement is permitted without evidence.",
+      "research": true
+    },
+    {
+      "name": "audit_customer_operations",
+      "description": "Audit Current Operations and Digital Footprint \u2014 audit customer operations",
+      "instructions": "FIRST fetch both allowed knowledge references. Then call OpenAI Web Research with one focused external research question and wait for its cited result. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nUnderstand how the customer currently handles opportunities.\n\nReview where available:\n\n- website\n- digital footprint\n- referral program\n- CRM\n- inbound lead process\n- outbound process\n- receptionist/front desk\n- sales pipeline\n- follow-up process\n- analytics\n- reporting\n- automation\n- software tools\n\nExplicitly determine:\n\n- whether they have inbound lead sources\n- whether those sources can be improved\n- whether they have a CRM\n- whether a lightweight/scrap CRM would create value\n- whether an AI receptionist or follow-up system would create value\n\nDo not recommend these tools automatically.\n\nOnly recommend them where they connect to an economic opportunity.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.\nUse the registered OpenAI Web Research tool for external research; use one focused query, at most two only if materially necessary. Preserve source URLs alongside claims in the step output. A website audit requires a provided real website; do not invent a customer website. For compensation check relevant jurisdictional constraints using authoritative sources, and flag unresolved applicability. Do not claim a commercial arrangement is permitted without evidence.",
+      "research": true
+    },
+    {
+      "name": "analyze_market_trends",
+      "description": "Analyze Market and Trends \u2014 analyze market trends",
+      "instructions": "FIRST fetch both allowed knowledge references. Then call OpenAI Web Research with one focused external research question and wait for its cited result. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nUnderstand the wider market sufficiently to identify timing or structural opportunities.\n\nResearch:\n\n- market size\n- recent trends\n- boom/bust conditions\n- seasonal patterns\n- technology adoption\n- best practices\n- common software\n- changing customer behavior\n- regulatory or economic factors where relevant\n\nDo not create an exhaustive market research report.\n\nFocus on facts that materially affect opportunity selection.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.\nUse the registered OpenAI Web Research tool for external research; use one focused query, at most two only if materially necessary. Preserve source URLs alongside claims in the step output. A website audit requires a provided real website; do not invent a customer website. For compensation check relevant jurisdictional constraints using authoritative sources, and flag unresolved applicability. Do not claim a commercial arrangement is permitted without evidence.",
+      "research": true
+    },
+    {
+      "name": "identify_revenue_streams",
+      "description": "Identify Potential Revenue Streams \u2014 identify revenue streams",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nIdentify potential ways our platform/service could create value and participate economically.\n\nConsider possibilities such as:\n\n- generating leads\n- enriching leads\n- qualifying leads\n- monitoring WATCH leads\n- follow-up\n- CRM\n- receptionist agent\n- research\n- referral marketplace\n- matching leads with representatives\n- fulfilling unclosed leads\n- closing opportunities ourselves\n- affiliate fees\n- lead fees\n- success fees\n- revenue share\n\nDo not assume all are good ideas.\n\nRank them.\n\nOutput:\n\nPotential Revenue Streams with evidence, effort, expected value, and measurability.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "prioritize_opportunities",
+      "description": "Prioritize Opportunities \u2014 prioritize opportunities",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nRank all identified opportunities.\n\nUse factors similar to:\n\n- customer value\n- revenue potential\n- confidence\n- measurability\n- time to value\n- implementation effort\n- customer capacity\n- competitive difficulty\n\nUse an approximate conceptual score:\n\nOpportunity Score =\n(value \u00d7 confidence \u00d7 measurability)\n\u00f7\n(effort \u00d7 time_to_value)\n\nDo not treat this as mathematically precise.\n\nUse it as a prioritization framework.\n\nReturn:\n\n1. Highest-priority opportunity\n2. Second-best opportunity\n3. Opportunities to watch\n4. Opportunities to ignore for now\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "design_offer",
+      "description": "Design the Offer \u2014 design offer",
+      "instructions": "FIRST fetch both allowed knowledge references. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nTurn the highest-priority opportunity into a concrete offer.\n\nAnswer:\n\n- What exactly should we provide?\n- What measurable deliverable should the customer receive?\n- How does this create revenue or save money?\n- What should we NOT build yet?\n- What customer data do we need?\n- What is the smallest useful engagement?\n\nAlso consider:\n\n> Tell me how to sell to you.\n\nGenerate recommendations for:\n\n- positioning\n- pitch\n- proof needed\n- best communication channel\n- follow-up timing\n- what to do if customer does not respond\n\nOutput:\n\nRecommended Offer.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.",
+      "research": false
+    },
+    {
+      "name": "design_compensation_model",
+      "description": "Design Incentives and Compensation \u2014 design compensation model",
+      "instructions": "FIRST fetch both allowed knowledge references. Then call OpenAI Web Research with one focused external research question and wait for its cited result. Only after these recorded actions, complete this skill with substantive findings.\n\nType:\n\nAgent task\n\nGoal:\n\nDetermine how our compensation can align with delivering measurable results.\n\nEvaluate:\n\n- retainer\n- per lead\n- per qualified lead\n- per closed deal\n- revenue share\n- hybrid\n\nAsk:\n\n- Can the result be measured reliably?\n- Can attribution be tracked?\n- Is there a cap on the customer's ability to close opportunities?\n- Would we generate more opportunities than the customer can handle?\n- Does it make sense for the platform to route excess opportunities elsewhere?\n- Could the platform eventually participate directly in closing?\n\nOutput:\n\nRecommended compensation structure and alternatives.\n\n\nSelect the appropriate pinned skills yourself. Fetch the relevant allowed knowledge before completing work. Distinguish known facts, customer claims, assumptions, external evidence with source URLs and dates, and unanswered questions. Do not invent customer metrics, compensation rates, integrations, or source access. Use 80/20 research. Limit each intermediate result to about 700 words. Use ask_human only when an answer is necessary to proceed; otherwise prioritize gaps for the final brief. For a clearly synthetic test, missing customer information should remain unknown, not trigger a request for nonexistent real customer data. Complete the selected skill before producing the step final result. No outreach or changes to customer systems.\nUse the registered OpenAI Web Research tool for external research; use one focused query, at most two only if materially necessary. Preserve source URLs alongside claims in the step output. A website audit requires a provided real website; do not invent a customer website. For compensation check relevant jurisdictional constraints using authoritative sources, and flag unresolved applicability. Do not claim a commercial arrangement is permitted without evidence.\nAfter analyzing compensation, synthesize ALL previous stage outputs and the original customer input into the final Customer Opportunity Brief matching the supplied final output schema. Evaluate fixed fee, recurring retainer, per lead, per qualified lead, per closed deal, revenue share, and hybrid. Include customer-data provenance and cited external evidence within relevant fields. State what would prove/disprove the first priority. Keep the entire JSON under 12000 characters. No extra top-level keys.",
+      "research": true
+    }
+  ],
+  "steps": [
+    {
+      "key": "understand_customer",
+      "name": "Understand the Customer",
+      "skills": [
+        "understand_customer",
+        "map_revenue_model"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nBuild a concise model of who the customer is, what they do, who they serve, how they currently make money, what problem they are asking us to solve, and what constraints they have.\n\nThe agent should identify missing information rather than guess.\n\nOutput should include:\n\n- customer profile\n- existing revenue streams\n- known constraints\n- critical unanswered questions\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "customer_profile",
+          "current_revenue_model",
+          "discovery_gaps"
+        ],
+        "properties": {
+          "customer_profile": {
+            "type": "object",
+            "required": [
+              "company",
+              "industry",
+              "what_they_do",
+              "target_customer",
+              "current_business_model",
+              "known_constraints"
+            ],
+            "properties": {
+              "company": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "industry": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "what_they_do": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "target_customer": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "current_business_model": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "known_constraints": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "current_revenue_model": {
+            "type": "object",
+            "required": [
+              "existing_revenue_streams",
+              "how_customer_gets_paid",
+              "known_unit_economics",
+              "unknowns"
+            ],
+            "properties": {
+              "existing_revenue_streams": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "how_customer_gets_paid": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "known_unit_economics": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "unknowns": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "discovery_gaps": {
+            "type": "object",
+            "required": [
+              "unanswered_questions",
+              "data_requested_from_customer",
+              "assumptions_to_validate",
+              "next_customer_questions"
+            ],
+            "properties": {
+              "unanswered_questions": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "data_requested_from_customer": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "assumptions_to_validate": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "next_customer_questions": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "identify_value_opportunities",
+      "name": "Find the Economic Value",
+      "skills": [
+        "identify_value_opportunities"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nDetermine where the customer appears to create, lose, or leave economic value unrealized.\n\nAsk questions such as:\n\n- Where are the low-hanging fruits?\n- What would the customer offer themselves if they were in our position?\n- What activities directly lead to revenue?\n- Where do opportunities fall through?\n- What is expensive or inefficient?\n- Which problems could produce measurable financial outcomes?\n\nUse the 80/20 rule.\n\nDo not explore every possibility equally.\n\nOutput:\n\nA ranked list of preliminary value opportunities.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "opportunities"
+        ],
+        "properties": {
+          "opportunities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "customer_value",
+                "estimated_revenue_potential",
+                "confidence",
+                "effort",
+                "time_to_value",
+                "measurability",
+                "customer_capacity",
+                "risks",
+                "required_data",
+                "next_validation_step",
+                "priority_score"
+              ],
+              "properties": {
+                "name": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "description": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "customer_value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "estimated_revenue_potential": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "effort": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "time_to_value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "measurability": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "customer_capacity": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "risks": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "required_data": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "next_validation_step": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "priority_score": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "define_ideal_lead",
+      "name": "Define the Ideal Lead or Opportunity",
+      "skills": [
+        "define_ideal_lead",
+        "design_qualification_model"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nDefine precisely what counts as a valuable lead or opportunity for this customer.\n\nDetermine:\n\n- qualification criteria\n- priority factors\n- disqualifiers\n- price/value thresholds\n- capacity constraints\n- timing\n- conditions that make a lead more valuable\n- customer's current qualification formula\n\nIf they do not have a clear qualification formula, propose one.\n\nInclude future qualification conditions.\n\nExample:\n\nA lead may not qualify today but should become a WATCH lead if a certain event, price, status, ownership condition, or market condition could make it valuable later.\n\nOutput:\n\nIdeal Lead Definition + Qualification Model.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "ideal_lead_definition",
+          "lead_lifecycle"
+        ],
+        "properties": {
+          "ideal_lead_definition": {
+            "type": "object",
+            "required": [
+              "lead_definition",
+              "qualification_criteria",
+              "disqualification_criteria",
+              "priority_factors",
+              "price_or_value_thresholds",
+              "capacity_constraints",
+              "current_qualification_formula",
+              "recommended_qualification_formula"
+            ],
+            "properties": {
+              "lead_definition": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "qualification_criteria": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "disqualification_criteria": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "priority_factors": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "price_or_value_thresholds": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "capacity_constraints": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "current_qualification_formula": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "recommended_qualification_formula": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "lead_lifecycle": {
+            "type": "object",
+            "required": [
+              "current_statuses",
+              "what_happens_to_unqualified_leads",
+              "what_happens_to_unclosed_leads",
+              "conditions_that_could_make_a_lead_qualified_later",
+              "recommended_watch_conditions"
+            ],
+            "properties": {
+              "current_statuses": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "what_happens_to_unqualified_leads": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "what_happens_to_unclosed_leads": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "conditions_that_could_make_a_lead_qualified_later": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "recommended_watch_conditions": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "discover_lead_sources",
+      "name": "Map Lead and Opportunity Sources",
+      "skills": [
+        "discover_lead_sources"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nIdentify where relevant opportunities originate.\n\nConsider:\n\n- inbound channels\n- outbound sources\n- public data\n- industry databases\n- referrals\n- affiliate networks\n- lead vendors\n- representatives\n- existing customer data\n- websites\n- events\n- public records\n- marketplaces\n\nDetermine:\n\n- source quality\n- expected volume\n- accessibility\n- cost\n- scraping potential\n- API availability\n- automation potential\n\nOutput:\n\nRanked lead-source map.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "lead_sources"
+        ],
+        "properties": {
+          "lead_sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "source_name",
+                "source_type",
+                "estimated_volume",
+                "estimated_quality",
+                "accessibility",
+                "automation_potential",
+                "cost",
+                "evidence",
+                "confidence"
+              ],
+              "properties": {
+                "source_name": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "source_type": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "estimated_volume": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "estimated_quality": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "accessibility": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "automation_potential": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "cost": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "analyze_market_participants",
+      "name": "Understand Existing Market Participants",
+      "skills": [
+        "analyze_market_participants"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nUnderstand who currently participates in this market.\n\nResearch:\n\n- competitors\n- sales representatives\n- brokers\n- affiliates\n- lead vendors\n- referral partners\n- other intermediaries\n\nQuestions:\n\n- How are they compensated?\n- What are common rates?\n- What do successful reps capitalize on?\n- What is being undercapitalized?\n- What happens to leads that are never funded, never closed, rejected, or abandoned?\n- Could we match or beat the existing economics?\n- Could we fulfill opportunities current participants ignore?\n\nOutput:\n\nMarket participant and compensation analysis.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "market_landscape"
+        ],
+        "properties": {
+          "market_landscape": {
+            "type": "object",
+            "required": [
+              "competitors",
+              "existing_representatives",
+              "lead_vendors",
+              "affiliates",
+              "compensation_models",
+              "market_trends",
+              "best_practices",
+              "common_tools",
+              "underserved_segments",
+              "undercapitalized_opportunities"
+            ],
+            "properties": {
+              "competitors": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "existing_representatives": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "lead_vendors": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "affiliates": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "compensation_models": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "market_trends": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "best_practices": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "common_tools": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "underserved_segments": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "undercapitalized_opportunities": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "audit_customer_operations",
+      "name": "Audit Current Operations and Digital Footprint",
+      "skills": [
+        "audit_customer_operations"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nUnderstand how the customer currently handles opportunities.\n\nReview where available:\n\n- website\n- digital footprint\n- referral program\n- CRM\n- inbound lead process\n- outbound process\n- receptionist/front desk\n- sales pipeline\n- follow-up process\n- analytics\n- reporting\n- automation\n- software tools\n\nExplicitly determine:\n\n- whether they have inbound lead sources\n- whether those sources can be improved\n- whether they have a CRM\n- whether a lightweight/scrap CRM would create value\n- whether an AI receptionist or follow-up system would create value\n\nDo not recommend these tools automatically.\n\nOnly recommend them where they connect to an economic opportunity.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "current_operations"
+        ],
+        "properties": {
+          "current_operations": {
+            "type": "object",
+            "required": [
+              "crm",
+              "inbound_process",
+              "outbound_process",
+              "receptionist_or_front_desk",
+              "follow_up_process",
+              "sales_process",
+              "existing_software",
+              "affiliate_or_referral_program",
+              "operational_gaps"
+            ],
+            "properties": {
+              "crm": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "inbound_process": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "outbound_process": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "receptionist_or_front_desk": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "follow_up_process": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "sales_process": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "existing_software": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "affiliate_or_referral_program": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "operational_gaps": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "analyze_market_trends",
+      "name": "Analyze Market and Trends",
+      "skills": [
+        "analyze_market_trends"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nUnderstand the wider market sufficiently to identify timing or structural opportunities.\n\nResearch:\n\n- market size\n- recent trends\n- boom/bust conditions\n- seasonal patterns\n- technology adoption\n- best practices\n- common software\n- changing customer behavior\n- regulatory or economic factors where relevant\n\nDo not create an exhaustive market research report.\n\nFocus on facts that materially affect opportunity selection.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "market_landscape"
+        ],
+        "properties": {
+          "market_landscape": {
+            "type": "object",
+            "required": [
+              "competitors",
+              "existing_representatives",
+              "lead_vendors",
+              "affiliates",
+              "compensation_models",
+              "market_trends",
+              "best_practices",
+              "common_tools",
+              "underserved_segments",
+              "undercapitalized_opportunities"
+            ],
+            "properties": {
+              "competitors": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "existing_representatives": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "lead_vendors": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "affiliates": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "compensation_models": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "market_trends": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "best_practices": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "common_tools": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "underserved_segments": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "undercapitalized_opportunities": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "identify_revenue_streams",
+      "name": "Identify Potential Revenue Streams",
+      "skills": [
+        "identify_revenue_streams"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nIdentify potential ways our platform/service could create value and participate economically.\n\nConsider possibilities such as:\n\n- generating leads\n- enriching leads\n- qualifying leads\n- monitoring WATCH leads\n- follow-up\n- CRM\n- receptionist agent\n- research\n- referral marketplace\n- matching leads with representatives\n- fulfilling unclosed leads\n- closing opportunities ourselves\n- affiliate fees\n- lead fees\n- success fees\n- revenue share\n\nDo not assume all are good ideas.\n\nRank them.\n\nOutput:\n\nPotential Revenue Streams with evidence, effort, expected value, and measurability.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "opportunities"
+        ],
+        "properties": {
+          "opportunities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "customer_value",
+                "estimated_revenue_potential",
+                "confidence",
+                "effort",
+                "time_to_value",
+                "measurability",
+                "customer_capacity",
+                "risks",
+                "required_data",
+                "next_validation_step",
+                "priority_score"
+              ],
+              "properties": {
+                "name": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "description": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "customer_value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "estimated_revenue_potential": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "effort": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "time_to_value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "measurability": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "customer_capacity": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "risks": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "required_data": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "next_validation_step": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "priority_score": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "prioritize_opportunities",
+      "name": "Prioritize Opportunities",
+      "skills": [
+        "prioritize_opportunities"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nRank all identified opportunities.\n\nUse factors similar to:\n\n- customer value\n- revenue potential\n- confidence\n- measurability\n- time to value\n- implementation effort\n- customer capacity\n- competitive difficulty\n\nUse an approximate conceptual score:\n\nOpportunity Score =\n(value \u00d7 confidence \u00d7 measurability)\n\u00f7\n(effort \u00d7 time_to_value)\n\nDo not treat this as mathematically precise.\n\nUse it as a prioritization framework.\n\nReturn:\n\n1. Highest-priority opportunity\n2. Second-best opportunity\n3. Opportunities to watch\n4. Opportunities to ignore for now\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "opportunities"
+        ],
+        "properties": {
+          "opportunities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "customer_value",
+                "estimated_revenue_potential",
+                "confidence",
+                "effort",
+                "time_to_value",
+                "measurability",
+                "customer_capacity",
+                "risks",
+                "required_data",
+                "next_validation_step",
+                "priority_score"
+              ],
+              "properties": {
+                "name": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "description": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "customer_value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "estimated_revenue_potential": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "effort": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "time_to_value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "measurability": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "customer_capacity": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "risks": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "required_data": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "next_validation_step": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                },
+                "priority_score": {
+                  "type": [
+                    "string",
+                    "number",
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "design_offer",
+      "name": "Design the Offer",
+      "skills": [
+        "design_offer"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nTurn the highest-priority opportunity into a concrete offer.\n\nAnswer:\n\n- What exactly should we provide?\n- What measurable deliverable should the customer receive?\n- How does this create revenue or save money?\n- What should we NOT build yet?\n- What customer data do we need?\n- What is the smallest useful engagement?\n\nAlso consider:\n\n> Tell me how to sell to you.\n\nGenerate recommendations for:\n\n- positioning\n- pitch\n- proof needed\n- best communication channel\n- follow-up timing\n- what to do if customer does not respond\n\nOutput:\n\nRecommended Offer.\n\nReturn all required output schema fields; consolidate completed skill findings without discarding them. Use explicit unknown values where data is unavailable.",
+      "final": false,
+      "outputSchema": {
+        "type": "object",
+        "required": [
+          "recommended_offer"
+        ],
+        "properties": {
+          "recommended_offer": {
+            "type": "object",
+            "required": [
+              "offer",
+              "problem_solved",
+              "deliverable",
+              "measurable_success_metric",
+              "expected_customer_value",
+              "implementation_scope",
+              "why_this_offer",
+              "what_not_to_build_yet"
+            ],
+            "properties": {
+              "offer": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "problem_solved": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "deliverable": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "measurable_success_metric": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "expected_customer_value": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "implementation_scope": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "why_this_offer": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              },
+              "what_not_to_build_yet": {
+                "type": [
+                  "string",
+                  "number",
+                  "array",
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "key": "design_compensation_model",
+      "name": "Design Incentives and Compensation",
+      "skills": [
+        "design_compensation_model"
+      ],
+      "goal": "Type:\n\nAgent task\n\nGoal:\n\nDetermine how our compensation can align with delivering measurable results.\n\nEvaluate:\n\n- retainer\n- per lead\n- per qualified lead\n- per closed deal\n- revenue share\n- hybrid\n\nAsk:\n\n- Can the result be measured reliably?\n- Can attribution be tracked?\n- Is there a cap on the customer's ability to close opportunities?\n- Would we generate more opportunities than the customer can handle?\n- Does it make sense for the platform to route excess opportunities elsewhere?\n- Could the platform eventually participate directly in closing?\n\nOutput:\n\nRecommended compensation structure and alternatives.\n Assemble the final Customer Opportunity Brief from all preceding steps; keep JSON under 12000 characters.",
+      "final": true
+    }
+  ],
+  "knowledge": [
+    {
+      "name": "Discovery Principles",
+      "content": "Content should include:\n\n- Search for economic value before proposing technology.\n- Prefer measurable outcomes.\n- Use 80/20 research.\n- Explicitly identify unknowns.\n- Customer-provided revenue and conversion data is more valuable than generic market assumptions.\n- Do not over-research once the likely opportunity becomes clear.\n- Look for leads/opportunities currently being ignored, rejected, abandoned, or undercapitalized.\n- Incentives should align us with customer outcomes where tracking is possible."
+    },
+    {
+      "name": "Lead Qualification Principles",
+      "content": "Include:\n\n- Define what a lead means for this customer.\n- Qualification must be customer-specific.\n- Separate qualified, watch, not-qualified, and disqualified.\n- Capture events that could change qualification later.\n- Capacity matters: generating more leads than the customer can process may destroy value.\n- Qualification should improve as closed/won/lost data becomes available."
+    }
+  ],
+  "testInput": {
+    "customer_name": "Synthetic mortgage-related lead customer",
+    "industry": "Real estate / mortgage-related opportunities",
+    "initial_problem": "Find the best measurable economic opportunity: lead generation, qualification, monitoring, routing, or closing. Obituary events are one possible source, not a predetermined solution.",
+    "known_lead_type": "Potential real estate or mortgage-related opportunity; qualification is not yet defined.",
+    "conversation_notes": "Generalized test only. Some opportunities may qualify later after a timing, property, price, ownership, or market event. Investigate overlooked or unclosed opportunities and existing market participants. No verified revenue, conversion, property, customer, or lead records are supplied.",
+    "additional_context": "SYNTHETIC TEST. Assume US geography only as a research scope assumption, not a verified customer fact. Do not invent a company, website, individual obituary, property ownership, rates, volumes, prices, CRM, licensing, or customer capacity. Record unknowns and highest-value next questions. All dollar scenarios must be explicitly hypothetical. Make a bounded conditional recommendation, with validation criteria, rather than blocking on absent real customer data. No outreach or personal-data collection."
+  }
+}

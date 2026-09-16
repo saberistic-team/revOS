@@ -27,8 +27,12 @@ export const status = pgEnum("execution_status", [
   "failed",
   "cancelled",
 ]);
-export const stepType = pgEnum("step_type", ["skill", "human_review"]);
-export const executionType = pgEnum("execution_type", ["llm", "tool"]);
+export const stepType = pgEnum("step_type", [
+  "skill",
+  "human_review",
+  "agent_loop",
+]);
+export const executionType = pgEnum("execution_type", ["llm", "tool", "agent"]);
 export const organizations = pgTable("organization", {
   id: id(),
   name: text("name").notNull(),
@@ -141,7 +145,7 @@ export const workflowSteps = pgTable(
     uniqueIndex("step_key").on(t.workflowVersionId, t.key),
     check(
       "step_skill_required",
-      sql`(${t.type} = 'skill' AND ${t.skillVersionId} IS NOT NULL) OR (${t.type} = 'human_review' AND ${t.skillVersionId} IS NULL)`,
+      sql`(${t.type} = 'skill' AND ${t.skillVersionId} IS NOT NULL) OR (${t.type}::text IN ('human_review', 'agent_loop') AND ${t.skillVersionId} IS NULL)`,
     ),
   ],
 );
@@ -232,4 +236,67 @@ export const corrections = pgTable("correction", {
   reason: text("reason").notNull(),
   metadata: schema("metadata"),
   createdAt: created(),
+});
+
+export const reasoningSessions = pgTable(
+  "reasoning_session",
+  {
+    id: id(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => runs.id),
+    workflowStepId: uuid("workflow_step_id")
+      .notNull()
+      .references(() => workflowSteps.id),
+    input: schema("input"),
+    snapshot: jsonb("snapshot")
+      .$type<import("../../shared/src/session").SessionSnapshot>()
+      .notNull(),
+    status: status("status").notNull().default("running"),
+    output: jsonb("output").$type<Json>(),
+    error: text("error"),
+    reviewId: text("review_id"),
+    createdAt: created(),
+    updatedAt: updated(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (t) => [uniqueIndex("reasoning_session_step").on(t.runId, t.workflowStepId)],
+);
+export const reasoningTurns = pgTable(
+  "reasoning_turn",
+  {
+    id: id(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => reasoningSessions.id),
+    turn: integer("turn").notNull(),
+    request: jsonb("request")
+      .$type<import("../../shared/src/session").ReasonRequest>()
+      .notNull(),
+    decision: jsonb("decision")
+      .$type<import("../../shared/src/session").AgentDecision>()
+      .notNull(),
+    outcome: jsonb("outcome").$type<{
+      state: import("../../shared/src/session").SessionState;
+      result: Json;
+    }>(),
+    createdAt: created(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("reasoning_turn_once").on(t.sessionId, t.turn),
+    check("positive_turn", sql`${t.turn} >= 0`),
+  ],
+);
+
+export const workflowDrafts = pgTable("workflow_draft", {
+  workflowId: uuid("workflow_id")
+    .primaryKey()
+    .references(() => workflows.id),
+  revision: integer("revision").notNull().default(1),
+  publishedRevision: integer("published_revision"),
+  definition: jsonb("definition")
+    .$type<import("../../shared/src/builder").WorkflowDraft>()
+    .notNull(),
+  updatedAt: updated(),
 });

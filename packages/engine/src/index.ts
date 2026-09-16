@@ -10,12 +10,22 @@ export { bindInput } from "../../shared/src/bindings";
 export type ToolHandler = (
   input: Json,
   configuration: Record<string, Json>,
+  context?: { idempotencyKey: string; signal?: AbortSignal },
 ) => Promise<Json>;
 export class ToolRegistry {
   private handlers = new Map<string, ToolHandler>();
-  register(name: string, handler: ToolHandler) {
+  private retrySafe = new Set<string>();
+  isRetrySafe(name: string) {
+    return this.retrySafe.has(name);
+  }
+  register(
+    name: string,
+    handler: ToolHandler,
+    options?: { retrySafe: boolean },
+  ) {
     if (this.handlers.has(name)) throw new Error(`Duplicate tool: ${name}`);
     this.handlers.set(name, handler);
+    if (options?.retrySafe) this.retrySafe.add(name);
   }
   resolve(name: string): ToolHandler {
     const handler = this.handlers.get(name);
