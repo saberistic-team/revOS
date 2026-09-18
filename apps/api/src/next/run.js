@@ -716,9 +716,11 @@ async function renderExecution(ctx, params) {
       }
       const workflowId =
         run.executionDefinition?.workflow?.id || params.get("workflow");
-      const workflow =
-        detailCache.get(workflowId) || (await api("/workflows/" + workflowId));
-      detailCache.set(workflowId, workflow);
+      const workflow = workflowId
+        ? detailCache.get(workflowId) ||
+          (await api("/workflows/" + workflowId))
+        : null;
+      if (workflowId) detailCache.set(workflowId, workflow);
       const definitions = run.executionDefinition?.steps || [];
       if (
         selectedStep !== "all" &&
@@ -756,7 +758,7 @@ async function renderExecution(ctx, params) {
       );
       if (!live(ctx)) return;
       const relatedRuns =
-        !engagement && view === "history"
+        !engagement && view === "history" && workflowId
           ? await api("/workflows/" + workflowId + "/runs")
           : [];
       if (!live(ctx)) return;
@@ -777,7 +779,7 @@ async function renderExecution(ctx, params) {
         relatedRuns,
       };
       const stageName =
-        engagement?.stages[selectedStage]?.name || workflow.name;
+        engagement?.stages[selectedStage]?.name || workflow?.name;
       const label = [
         run.executionDefinition?.customer?.name,
         stageName,
@@ -787,7 +789,7 @@ async function renderExecution(ctx, params) {
         .join(" · ");
       setContext({
         scope: "run",
-        organizationId: workflow.organizationId,
+        organizationId: workflow?.organizationId,
         label,
         workflowId,
         runId,
@@ -1946,7 +1948,10 @@ function renderHistory(root, data) {
               {},
               link(
                 run.id === data.run.id ? "Current run" : "Open run",
-                runUrl({ run: run.id, workflow: data.workflow.id }),
+                runUrl({
+                  run: run.id,
+                  workflow: data.workflow?.id,
+                }),
               ),
               muted(time(run.createdAt)),
             ),
@@ -2127,7 +2132,7 @@ async function renderBuild(ctx, params) {
       }
       if (build.run_id && !runCache)
         runCache = await api("/runs/" + build.run_id);
-      if (runCache && !workflowCache)
+      if (runCache && !workflowCache && runCache.executionDefinition?.workflow?.id)
         workflowCache = await api(
           "/workflows/" + runCache.executionDefinition.workflow.id,
         );

@@ -18,6 +18,10 @@ providers:
       - product-fd704145-edb4-4cd9-a833-270d716b2c8d-preview
     labelSelector: revos.product
     allowExternalNameServices: false
+    # Local ClusterIP controller: publish a stable endpoint on managed Ingresses
+    # so ArgoCD can assess Ingress health as Healthy.
+    ingressEndpoint:
+      ip: 127.0.0.1
     publishedService:
       enabled: false
 service:

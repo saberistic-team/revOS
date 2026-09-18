@@ -40,6 +40,16 @@ portForward:
     namespace: agent-engine-local
     port: 7233
     localPort: 7233
+  - resourceType: service
+    resourceName: forgejo
+    namespace: agent-engine-local
+    port: 3000
+    localPort: 3001
+  - resourceType: service
+    resourceName: openhands-web
+    namespace: agent-engine-local
+    port: 3000
+    localPort: 3003
 profiles:
   - name: local
     activation:
