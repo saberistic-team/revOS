@@ -1,0 +1,9 @@
+ARG OPENHANDS_BASE=agent-engine-openhands:platform-budget-v2
+FROM ${OPENHANDS_BASE}
+USER root
+RUN useradd -m -u 61100 kelos && mkdir -p /home/kelos/.local/bin && chown -R 61100:61100 /home/kelos
+COPY --chmod=755 apps/openhands/kelos_entrypoint.py /kelos_entrypoint.sh
+ENV PYTHONPATH=/opt
+ENV PATH=/home/kelos/.local/bin:$PATH
+USER 61100
+WORKDIR /workspace

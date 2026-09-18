@@ -34,6 +34,9 @@ export const stepType = pgEnum("step_type", [
 ]);
 export const executionType = pgEnum("execution_type", ["llm", "tool", "agent"]);
 export const organizations = pgTable("organization", {
+  kind: text("kind").notNull().default("customer"),
+  domain: text("domain").unique(),
+  aliases: jsonb("aliases").$type<string[]>().notNull().default([]),
   id: id(),
   name: text("name").notNull(),
   createdAt: created(),
@@ -186,6 +189,12 @@ export const tasks = pgTable("task", {
   createdAt: created(),
 });
 export const runs = pgTable("run", {
+  customerOrganizationId: uuid("customer_organization_id").references(
+    () => organizations.id,
+  ),
+  organizationResolution: jsonb("organization_resolution").$type<
+    Record<string, any>
+  >(),
   id: id(),
   taskId: uuid("task_id")
     .notNull()
@@ -298,5 +307,209 @@ export const workflowDrafts = pgTable("workflow_draft", {
   definition: jsonb("definition")
     .$type<import("../../shared/src/builder").WorkflowDraft>()
     .notNull(),
+  updatedAt: updated(),
+});
+
+export const artifactJobs = pgTable("artifact_job", {
+  id: id(),
+  sourceKey: text("source_key").notNull().unique(),
+  runId: uuid("run_id")
+    .notNull()
+    .references(() => runs.id),
+  workflowStepId: uuid("workflow_step_id")
+    .notNull()
+    .references(() => workflowSteps.id),
+  sessionId: uuid("session_id").references(() => reasoningSessions.id),
+  turn: integer("turn"),
+  skillVersionId: uuid("skill_version_id").references(() => skillVersions.id),
+  title: text("title").notNull(),
+  sourceHash: text("source_hash").notNull(),
+  sourceOutput: jsonb("source_output").$type<Json>().notNull(),
+  settings: jsonb("settings")
+    .$type<import("../../shared/src/outputs").OutputSettings>()
+    .notNull(),
+  state: text("state").notNull().default("pending"),
+  error: text("error"),
+  summary: text("summary"),
+  providerFiles:
+    jsonb("provider_files").$type<
+      { containerId: string; fileId: string; filename: string }[]
+    >(),
+  createdAt: created(),
+  updatedAt: updated(),
+});
+export const artifactFiles = pgTable("artifact_file", {
+  id: id(),
+  jobId: uuid("job_id")
+    .notNull()
+    .references(() => artifactJobs.id),
+  filename: text("filename").notNull(),
+  mimeType: text("mime_type").notNull(),
+  byteSize: integer("byte_size").notNull(),
+  sha256: text("sha256").notNull(),
+  contentBase64: text("content_base64").notNull(),
+  createdAt: created(),
+});
+
+export const kbDocuments = pgTable("kb_document", {
+  id: id(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  title: text("title").notNull(),
+  category: text("category").notNull(),
+  content: text("content").notNull(),
+  evidence: text("evidence").notNull().default("unverified"),
+  relatedIds: jsonb("related_ids").$type<string[]>().notNull().default([]),
+  provenance: jsonb("provenance").$type<any>().notNull().default({}),
+  revision: integer("revision").notNull().default(1),
+  fileSha: text("file_sha"),
+  commitSha: text("commit_sha"),
+  updatedAt: updated(),
+  createdAt: created(),
+});
+export const workspaceChanges = pgTable("workspace_change", {
+  id: id(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  sourceKey: text("source_key").notNull().unique(),
+  kind: text("kind").notNull(),
+  targetId: uuid("target_id").notNull(),
+  title: text("title").notNull(),
+  reason: text("reason").notNull(),
+  body: jsonb("body").$type<any>().notNull(),
+  before: jsonb("before").$type<any>(),
+  baseRevision: integer("base_revision").notNull().default(0),
+  provenance: jsonb("provenance").$type<any>().notNull().default({}),
+  state: text("state").notNull().default("proposed"),
+  error: text("error"),
+  commitSha: text("commit_sha"),
+  createdAt: created(),
+  updatedAt: updated(),
+});
+export const workspaceThreads = pgTable("workspace_thread", {
+  id: id(),
+  scope: text("scope")
+    .$type<"run" | "library" | "knowledge">()
+    .notNull()
+    .default("knowledge"),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  title: text("title").notNull(),
+  createdAt: created(),
+});
+export const workspaceMessages = pgTable("workspace_message", {
+  id: id(),
+  threadId: uuid("thread_id")
+    .notNull()
+    .references(() => workspaceThreads.id),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  metadata: jsonb("metadata").$type<any>().notNull().default({}),
+  createdAt: created(),
+});
+export const workspaceJobs = pgTable("workspace_job", {
+  id: id(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  kind: text("kind").notNull(),
+  payload: jsonb("payload").$type<any>().notNull(),
+  state: text("state").notNull().default("pending"),
+  result: jsonb("result").$type<any>(),
+  error: text("error"),
+  createdAt: created(),
+  updatedAt: updated(),
+});
+
+export const engagementTemplates = pgTable("engagement_template", {
+  id: id(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: text("name").notNull(),
+  stages: jsonb("stages")
+    .$type<{ name: string; workflowId: string }[]>()
+    .notNull(),
+  revision: integer("revision").notNull().default(1),
+  createdAt: created(),
+});
+export const engagements = pgTable("engagement", {
+  id: id(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  customerOrganizationId: uuid("customer_organization_id").references(
+    () => organizations.id,
+  ),
+  name: text("name").notNull(),
+  state: text("state").notNull().default("running"),
+  stages: jsonb("stages").notNull(),
+  input: schema("input"),
+  stageIndex: integer("stage_index").notNull().default(0),
+  error: text("error"),
+  createdAt: created(),
+  updatedAt: updated(),
+});
+export const engagementAttempts = pgTable(
+  "engagement_attempt",
+  {
+    id: id(),
+    engagementId: uuid("engagement_id")
+      .notNull()
+      .references(() => engagements.id),
+    stageIndex: integer("stage_index").notNull(),
+    revision: integer("revision").notNull(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => runs.id),
+    state: text("state").notNull().default("running"),
+    output: jsonb("output"),
+    feedback: text("feedback"),
+    decisionBy: text("decision_by"),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    createdAt: created(),
+  },
+  (t) => [
+    uniqueIndex("engagement_attempt_revision").on(
+      t.engagementId,
+      t.stageIndex,
+      t.revision,
+    ),
+    uniqueIndex("engagement_attempt_run").on(t.runId),
+  ],
+);
+export const runFeedback = pgTable("run_feedback", {
+  id: id(),
+  runId: uuid("run_id")
+    .notNull()
+    .references(() => runs.id),
+  content: text("content").notNull(),
+  source: text("source").notNull().default("operator"),
+  createdAt: created(),
+});
+export const codeBuilds = pgTable("code_build", {
+  id: id(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  runId: uuid("run_id").references(() => runs.id),
+  sourceKey: text("source_key").notNull().unique(),
+  parentId: uuid("parent_id"),
+  brief: text("brief").notNull(),
+  state: text("state").notNull().default("pending"),
+  result: jsonb("result").$type<any>(),
+  error: text("error"),
+  createdAt: created(),
+  updatedAt: updated(),
+});
+export const productMetadata = pgTable("product_metadata", {
+  productId: uuid("product_id").primaryKey().references(() => codeBuilds.id),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  revision: integer("revision").notNull().default(1),
   updatedAt: updated(),
 });

@@ -22,5 +22,16 @@ COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/packages/database/migrations ./packages/database/migrations
 COPY --from=build --chown=node:node /app/apps/api/src/playground.html ./dist/apps/api/src/playground.html
 COPY --from=build --chown=node:node /app/apps/api/src/builder.html ./dist/apps/api/src/builder.html
+COPY --from=build --chown=node:node /app/apps/api/src/output-view.js ./dist/apps/api/src/output-view.js
+COPY --from=build --chown=node:node /app/apps/api/src/output-view.css ./dist/apps/api/src/output-view.css
+COPY --from=build --chown=node:node /app/apps/api/src/knowledge.html ./dist/apps/api/src/knowledge.html
+COPY --from=build --chown=node:node /app/apps/api/src/knowledge.js ./dist/apps/api/src/knowledge.js
+COPY --from=build --chown=node:node /app/apps/api/src/knowledge.css ./dist/apps/api/src/knowledge.css
+COPY --from=build --chown=node:node /app/apps/api/src/section-assistant.js ./dist/apps/api/src/section-assistant.js
+COPY --from=build --chown=node:node /app/apps/api/src/section-assistant.css ./dist/apps/api/src/section-assistant.css
+COPY --from=build --chown=node:node /app/apps/api/src/engagement-ui.js ./dist/apps/api/src/engagement-ui.js
+COPY --from=build --chown=node:node /app/apps/api/src/engagements.css ./dist/apps/api/src/engagements.css
+COPY --from=build --chown=node:node /app/apps/api/src/next ./dist/apps/api/src/next
+COPY --from=build --chown=node:node /app/apps/api/src/customer-portal ./dist/apps/api/src/customer-portal
 USER node
 CMD ["node", "dist/apps/api/src/index.js"]

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Agent Engine · Organizations</title>
+    <link rel="stylesheet" href="/knowledge.css" />
+  </head>
+  <body>
+    <!-- APP_HEADER -->
+    <main>
+      <div class="intro">
+        <div>
+          <p class="eyebrow">ORGANIZATIONS</p>
+          <h1>Understand. Correct. Build.</h1>
+          <p>
+            Turn research and conversations into a shared, versioned
+            understanding, with products you can try and improve.
+          </p>
+        </div>
+        <label>Organization<select id="organization"></select></label>
+      </div>
+      <div id="notice" role="status" aria-live="polite"></div>
+      <div class="layout">
+        <aside class="documents">
+          <div class="section-title">
+            <h2>Knowledge</h2>
+            <button id="new-note">+ Capture</button>
+          </div>
+          <input
+            id="search"
+            aria-label="Search knowledge"
+            placeholder="Search findings, leads, decisions…"
+          />
+          <div id="doc-list"></div>
+          <details>
+            <summary>Bring in workflow results</summary>
+            <label>Completed results<select id="import-run"></select></label
+            ><button id="import">Import step & skill results</button>
+            <p class="muted">
+              Copies saved findings and source references. Imported research is
+              not marked customer-confirmed.
+            </p>
+          </details>
+        </aside>
+        <section class="workspace">
+          <nav class="view-tabs" aria-label="Organization views">
+            <button data-view="products">Products</button><button data-view="report">Report</button
+            ><button data-view="map">Mind map</button
+            ><button data-view="capture">Capture</button
+            ><button data-view="changes">Changes</button
+            ><button data-view="repository">Repository</button>
+          </nav>
+          <div id="main-view"></div>
+        </section>
+        <aside class="assistant">
+          <div class="assistant-header">
+            <div class="section-title">
+              <h2>Organization assistant</h2>
+              <button id="new-chat">New chat</button>
+            </div>
+            <p class="muted">
+              Explore products and previews, start new builds, explain findings, and capture corrections for this organization.
+            </p>
+            <details class="assistant-settings">
+              <summary>Conversation</summary>
+              <label>Conversation<select id="thread"></select></label>
+            </details>
+            <label>Product context<select id="product-context"><option value="">Organization overview</option></select></label><p id="assistant-context" class="muted"></p>
+            <div class="quick-actions">
+              <button
+                data-prompt="Walk me through this document one section at a time. Start with its main finding, explain the evidence, and ask one question to check my understanding, with products you can try and improve."
+              >
+                Walk me through it</button
+              ><button
+                data-prompt="What important knowledge is missing? Ask me focused questions to fill the gaps."
+              >
+                Fill knowledge gaps</button
+              ><button
+                data-prompt="Help me correct this document. Ask which finding or assumption should change."
+              >
+                Collect a correction
+              </button>
+            </div>
+          </div>
+          <div
+            id="messages"
+            role="log"
+            aria-label="Assistant conversation"
+            aria-live="polite"
+            tabindex="0"
+          ></div>
+          <div class="assistant-composer">
+            <button id="latest-messages" type="button" hidden>
+              New messages ↓
+            </button>
+            <form id="chat-form">
+              <label for="chat-input">Ask, explain, or correct</label
+              ><textarea
+                id="chat-input"
+                rows="4"
+                maxlength="12000"
+                placeholder="What does this mean? We actually serve consignors…"
+              ></textarea>
+              <div class="actions">
+                <button type="button" id="dictate">Dictate</button
+                ><button type="submit" id="send" class="primary">Send</button>
+              </div>
+            </form>
+            <p class="muted">
+              Review proposed notes and corrections in Changes before adding
+              them to this organization’s knowledge.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <script src="/knowledge.js"></script>
+  </body>
+</html>

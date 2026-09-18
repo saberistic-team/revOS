@@ -1,3 +1,4 @@
+import { MeteredOpenAIProvider } from "./model-usage";
 import { Agent, Runner, webSearchTool } from "@openai/agents";
 import { z } from "zod";
 import { ToolRegistry } from "./index";
@@ -99,7 +100,7 @@ export function registerWebResearch(registry: ToolRegistry) {
         },
       });
       const timeout = AbortSignal.timeout(100_000);
-      const result = await new Runner({ tracingDisabled: true }).run(
+      const result = await new Runner({ tracingDisabled: true, modelProvider: new MeteredOpenAIProvider() }).run(
         agent,
         query,
         {

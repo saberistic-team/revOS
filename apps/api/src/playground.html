@@ -440,20 +440,55 @@
           font-size: 26px;
         }
       }
+      .run-modes {display:flex;gap:8px;margin:20px 32px;}
+      .run-modes a {padding:10px 18px;border-radius:8px;text-decoration:none;color:#284b3a;border:1px solid #ccdacf;}
+      .run-modes a[aria-current=page] {background:#245841;color:white;}
+      .execution-context {padding:18px 0;}
+      .build-progress {padding:20px;border-top:1px solid var(--line);background:#f7faf6;}
+      .build-progress h2 {margin:0;}
+      .build-progress-intro {margin:7px 0 14px;}
+      .build-card {padding:15px;border:1px solid var(--line);border-radius:9px;background:white;scroll-margin-top:24px;}
+      .build-card+.build-card {margin-top:12px;}
+      .build-card h3 {margin:0;}
+      .build-card .row {gap:10px;flex-wrap:wrap;}
+      .build-phase {display:inline-block;font-size:12px;font-weight:650;color:#365b45;}
+      .build-message {margin-top:9px;font-size:14px;overflow-wrap:anywhere;}
+      .build-meta {margin-top:5px;}
+      .build-lineage {margin:8px 0;font-size:12px;color:var(--muted);}
+      .build-lineage span {display:inline-block;padding:3px 8px;border:1px solid var(--line);border-radius:20px;background:#f7faf6;}
+      .build-links {display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;}
+      .build-links:empty {display:none;}
+      .build-card details {margin-top:12px;}
+      .build-chat-messages {position:relative;max-height:340px;overflow:auto;overscroll-behavior:contain;overflow-anchor:none;scrollbar-gutter:stable;margin-top:10px;}
+      .build-chat-message {padding:12px;border:1px solid var(--line);border-radius:8px;background:#f7faf6;}
+      .build-chat-message+.build-chat-message {margin-top:9px;}
+      .build-chat-message header {height:auto;padding:0;display:flex;justify-content:space-between;gap:10px;background:transparent;border:0;align-items:baseline;flex-wrap:wrap;font-size:12px;}
+      .build-chat-message time {font-size:11px;color:var(--muted);}
+      .build-chat-message p {white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;margin-top:7px;}
+      .build-chat-note {margin-top:9px;font-size:12px;}
+      .build-chat-jump {display:block;margin:9px 0 0 auto;padding:6px 10px;font-size:12px;}
+      .build-events,.build-files {max-height:220px;overflow:auto;overscroll-behavior:contain;margin:10px 0 0;padding-left:22px;font-size:12px;}
+      .build-events li {padding:6px 0;overflow-wrap:anywhere;}
+      .build-events time {display:block;color:var(--muted);font-size:11px;}
+      .build-files li {padding:4px 0;overflow-wrap:anywhere;}
+      .build-refresh-error {margin-top:10px;color:#936519;}
+      .engagement-mode #standalone-run-controls,.engagement-mode #run-detail>.intro {display:none;}
+      .engagement-mode .layout {grid-template-columns:minmax(0,1fr) 350px;}
+      [hidden] {display:none !important;}
+      @media(max-width:1000px) {.engagement-mode .layout {grid-template-columns:1fr;}}
     </style>
+    <link rel="stylesheet" href="/output-view.css" />
+    <script src="/output-view.js"></script>
   </head>
   <body>
-    <header>
-      <div class="brand">Agent Engine <span>/ Playground</span></div>
-      <div class="header-right">
-        <a href="/builder">Workflows & library</a>
-        <span class="badge"><span class="dot"></span>Durable execution</span
-        ><a href="http://localhost:8080" target="_blank" rel="noopener"
-          >Temporal UI ↗</a
-        >
-      </div>
-    </header>
-    <main>
+    <!-- APP_HEADER -->
+    <nav class="run-modes" aria-label="Run views">
+      <a id="mode-engagements" href="/?mode=engagements">Engagements</a>
+      <a id="mode-workflows" href="/?mode=workflows">Workflow runs</a>
+    </nav>
+    <div id="execution-context" class="execution-context" hidden></div>
+    <section id="engagement-workspace" data-mode="run"></section>
+    <main id="run-detail">
       <div class="intro">
         <div>
           <h1>See how your agent works.</h1>
@@ -465,7 +500,7 @@
         <span class="refresh-note" id="connection">Loading workflows…</span>
       </div>
       <div class="layout">
-        <aside class="panel">
+        <aside class="panel" id="standalone-run-controls">
           <div class="panel-head">
             <h2 style="margin: 0">Start an execution</h2>
           </div>
@@ -487,6 +522,14 @@
               >
             </div>
             <p class="muted" id="model" style="margin-bottom: 16px"></p>
+            <label for="customer">Customer organization</label
+            ><select id="customer">
+              <option value="">Detect from workflow input</option>
+            </select>
+            <p class="muted">
+              Unclear matches pause for confirmation before any customer
+              knowledge is read.
+            </p>
             <button class="primary" id="start" disabled>Run workflow →</button>
             <p class="error" role="alert" id="error"></p>
             <details>
@@ -502,7 +545,7 @@
         <section class="panel">
           <div class="panel-head">
             <div class="row">
-              <h2 style="margin: 0">Execution timeline</h2>
+              <h2 style="margin: 0" id="execution-heading">Workflow execution</h2>
               <span class="status" id="status">Ready</span>
             </div>
             <div class="run-id" id="run-id">
@@ -514,7 +557,36 @@
             ><select id="session-select"></select>
             <div id="step-status"></div>
           </div>
-          <div class="stats">
+          <div id="customer-resolution" class="panel-body"></div>
+          <section id="build-progress" class="build-progress" aria-labelledby="build-progress-title" hidden>
+            <h2 id="build-progress-title">OpenHands builds</h2>
+            <p class="muted build-progress-intro">Follow the coding work for this workflow run. Activity updates automatically.</p>
+            <div id="build-cards"></div>
+            <p id="build-refresh-error" class="muted build-refresh-error" role="status" hidden></p>
+          </section>
+          <div class="outputs-panel">
+            <label for="output-step">Step results</label
+            ><select id="output-step"></select>
+            <nav class="result-nav" aria-label="Step output views">
+              <button data-output-tab="result" aria-pressed="true">
+                Result
+              </button>
+              <button data-output-tab="artifacts" aria-pressed="false">
+                Artifacts
+              </button>
+              <button data-output-tab="execution" aria-pressed="false">
+                Execution
+              </button>
+            </nav>
+            <p>
+              <a id="knowledge-link" href="/knowledge"
+                >Explore results in Knowledge & assistant ↗</a
+              >
+            </p>
+            <div id="readable-output"></div>
+            <div id="artifact-output" class="hidden"></div>
+          </div>
+          <div class="stats execution-view hidden">
             <div class="stat">
               <strong id="turn-count">—</strong><span>MODEL TURNS</span>
             </div>
@@ -526,7 +598,7 @@
               ><span>KNOWLEDGE FETCHED</span>
             </div>
           </div>
-          <div id="timeline" aria-live="polite">
+          <div id="timeline" class="execution-view hidden" aria-live="polite">
             <div class="empty">
               <span class="empty-symbol">◎</span>
               <h3>From instructions to execution</h3>
@@ -552,19 +624,26 @@
           <div class="review hidden" id="review">
             <h3>Human review requested</h3>
             <p class="muted" id="review-request"></p>
+            <div id="review-material"></div>
+            <p id="review-effect"></p>
+            <p id="review-error" class="error" role="alert"></p>
             <textarea
               id="review-note"
               placeholder="Add a note for the agent"
               aria-label="Review note"
             ></textarea>
             <div class="row">
-              <button id="reject">Reject</button
+              <button id="request-revision">Request revision</button><button id="reject">Reject & stop</button
               ><button id="approve">Approve & continue →</button>
             </div>
           </div>
           <div class="output hidden" id="output-panel">
             <h3>Final result</h3>
-            <pre id="output"></pre>
+            <div id="final-presentation"></div>
+            <details>
+              <summary>Raw JSON</summary>
+              <pre id="output"></pre>
+            </details>
           </div>
         </section>
         <aside class="panel inspector">
@@ -593,15 +672,27 @@
     </main>
     <script>
       const $ = (id) => document.getElementById(id);
+      const pageParams = new URLSearchParams(location.search);
+      const engagementMode = pageParams.has("engagement") || pageParams.get("mode") === "engagements";
+      document.body.classList.toggle("engagement-mode", engagementMode);
+      document.getElementById("engagement-workspace").hidden = !engagementMode;
+      document.getElementById("run-detail").hidden = engagementMode;
+      document.getElementById(engagementMode ? "mode-engagements" : "mode-workflows").setAttribute("aria-current", "page");
       let selectedRun = null,
         session = null,
         selectedSessionId = null,
         pendingHumanQuestion = null,
+        pendingReview = null,
+        reviewSession = null,
         run = null,
         tab = "skills",
         workflows = [],
         history = null,
         polling = false;
+      window.assistantPageContext = () => {
+        const workflow = workflows.find(w=>w.id === $("workflow").value);
+        return {organizationId: workflow?.organizationId, workflowId: workflow?.id, runId: run?.executionDefinition?.workflow?.id === workflow?.id ? selectedRun : null, label: workflow?.name || "Run"};
+      };
       async function api(path, body) {
         const response = await fetch(
           path,
@@ -723,7 +814,7 @@
           $("connection").textContent = workflows.length
             ? "Connected · updates every 2 seconds"
             : "No published workflows yet";
-          const preferred = previousSelection || params.get("workflow");
+          const preferred = engagementMode ? params.get("workflow") : (previousSelection || params.get("workflow"));
           if (workflows.some((w) => w.id === preferred))
             $("workflow").value = preferred;
           if (workflows.length)
@@ -739,22 +830,541 @@
           loadingWorkflows = false;
         }
       }
+      window.showEngagementContext = (engagement) => {
+        if (!document.body.classList.contains("engagement-mode")) return;
+        const inspected = engagement?.attempts.find(a => a.run_id === new URLSearchParams(location.search).get("run"));
+        $("run-detail").hidden = !inspected;
+        const box = $("execution-context"); box.hidden = !inspected;
+        if (inspected) {
+          const stage = engagement.stages[inspected.stage_index];
+          box.replaceChildren(node("strong", `${engagement.name} · ${stage.name} · Attempt ${inspected.revision}`), node("p", "Below: this stage’s workflow execution, questions, and results. Chain approvals remain in the engagement panel above."));
+          $("execution-heading").textContent = stage.name + " · Workflow execution";
+          $("run-detail").prepend(box);
+        }
+      };
       async function chooseRun(id) {
         selectedRun = id;
         selectedSessionId = null;
+        outputStep = null;
+        outputSignature = "";
         run = null;
         history = null;
         session = null;
+        buildViews.clear();
+        $("build-cards").replaceChildren();
+        $("build-progress").hidden = true;
         await refresh();
         await recent();
       }
+      const buildViews = new Map();
+      function buildDuration(milliseconds) {
+        const seconds = Math.max(0, Math.floor(milliseconds / 1000));
+        if (seconds < 60) return seconds + "s";
+        if (seconds < 3600) return Math.floor(seconds / 60) + "m " + seconds % 60 + "s";
+        return Math.floor(seconds / 3600) + "h " + Math.floor(seconds % 3600 / 60) + "m";
+      }
+      function buildTimestamp(value) {
+        const parsed = Date.parse(value || "");
+        return Number.isFinite(parsed) ? parsed : null;
+      }
+      function renderBuildChat(view, progress) {
+        // Only the backend's explicitly public assistant messages belong here.
+        // Never derive chat from action thoughts, prompts, or raw tool outputs.
+        const seen = new Set();
+        const messages = (Array.isArray(progress.messages) ? progress.messages : []).filter(message => {
+          if (message?.role !== "assistant" || typeof message.text !== "string" || !message.text.trim()) return false;
+          if (typeof message.id !== "string" || seen.has(message.id)) return false;
+          seen.add(message.id);
+          return true;
+        });
+        const signature = JSON.stringify({messages,truncated:!!progress.messagesTruncated});
+        if (view.chatSignature === signature) return;
+        view.chatSignature = signature;
+        const list = view.chatMessages;
+        const wasFollowing = view.chatFollowing;
+        const previousTop = view.chat.open ? list.scrollTop : view.chatScrollTop;
+        const anchor = view.chat.open && !wasFollowing
+          ? [...list.children].find(item => item.offsetTop + item.offsetHeight > previousTop)
+          : null;
+        const anchorOffset = anchor ? anchor.offsetTop - previousTop : 0;
+        view.chatTitle.textContent = "OpenHands chat" + (messages.length ? " · " + messages.length + (messages.length === 1 ? " message" : " messages") : "");
+        view.chatTruncated.hidden = !progress.messagesTruncated;
+        view.chatEmpty.hidden = !!messages.length;
+        list.hidden = !messages.length;
+        for (const [id, item] of view.chatItems) {
+          if (!seen.has(id)) {item.element.remove();view.chatItems.delete(id);}
+        }
+        messages.forEach((message, index) => {
+          let item = view.chatItems.get(message.id);
+          if (!item) {
+            const element = node("article", undefined, "build-chat-message");
+            const heading = node("header");
+            const label = node("strong");
+            const time = node("time");
+            const body = node("p");
+            heading.append(label,time);
+            element.append(heading,body);
+            item = {element,label,time,body};
+            view.chatItems.set(message.id,item);
+          }
+          const itemSignature = JSON.stringify(message);
+          if (item.signature !== itemSignature) {
+            item.signature = itemSignature;
+            item.label.textContent = "OpenHands" + ({update:" · Update",summary:" · Summary"}[message.kind] || "");
+            item.body.textContent = message.text;
+            const at = buildTimestamp(message.at);
+            item.time.hidden = at === null;
+            if (at !== null) {
+              item.time.textContent = new Date(at).toLocaleTimeString();
+              item.time.dateTime = new Date(at).toISOString();
+              item.time.title = new Date(at).toLocaleString();
+            }
+          }
+          if (list.children[index] !== item.element) list.insertBefore(item.element,list.children[index] || null);
+        });
+        if (view.chat.open) {
+          if (wasFollowing) list.scrollTop = list.scrollHeight;
+          else list.scrollTop = anchor?.parentElement === list ? anchor.offsetTop - anchorOffset : previousTop;
+          view.chatScrollTop = list.scrollTop;
+        }
+        view.chatJump.hidden = !messages.length || wasFollowing;
+      }
+      function renderBuilds(builds, refreshError, fetchedAt = Date.now()) {
+        const root = $("build-cards");
+        const warning = $("build-refresh-error");
+        warning.hidden = !refreshError;
+        warning.textContent = refreshError ? "Build activity could not be refreshed. Retrying automatically…" : "";
+        if (!Array.isArray(builds)) {
+          $("build-progress").hidden = !buildViews.size;
+          return;
+        }
+        $("build-progress").hidden = !builds.length;
+        const ids = new Set(builds.map(build => build.id));
+        for (const [id, view] of buildViews) {
+          if (!ids.has(id)) {view.card.remove();buildViews.delete(id);}
+        }
+        builds.forEach((build, index) => {
+          let view = buildViews.get(build.id);
+          if (!view) {
+            const card = node("article", undefined, "build-card");
+            card.dataset.buildId = build.id;
+            card.id = "build-" + build.id;
+            card.tabIndex = -1;
+            const heading = node("div", undefined, "row");
+            const title = node("h3");
+            const state = node("span", undefined, "status");
+            heading.append(title, state);
+            const context = node("p", undefined, "muted build-meta");
+            const lineage = node("p", undefined, "build-lineage");
+            const phase = node("span", undefined, "build-phase");
+            const message = node("p", undefined, "build-message");
+            message.setAttribute("role", "status");
+            const meta = node("p", undefined, "muted build-meta");
+            const error = node("p", undefined, "error");
+            const links = node("div", undefined, "build-links");
+            const resume = node("button", "Resume build");
+            resume.type = "button";
+            const resumeStatus = node("p", undefined, "muted build-meta");
+            resumeStatus.setAttribute("role", "status");
+            const chat = node("details");
+            chat.open = ["pending", "running"].includes(build.state);
+            const chatTitle = node("summary", "OpenHands chat");
+            const chatTruncated = node("p", "Showing a limited view of the public conversation.", "muted build-chat-note");
+            chatTruncated.hidden = true;
+            const chatEmpty = node("p", "OpenHands has not posted a message yet. Tool activity appears below.", "muted build-chat-note");
+            const chatMessages = node("div", undefined, "build-chat-messages");
+            chatMessages.setAttribute("role", "log");
+            chatMessages.setAttribute("aria-label", "OpenHands public messages");
+            chatMessages.setAttribute("aria-live", "polite");
+            chatMessages.setAttribute("aria-relevant", "additions text");
+            const chatJump = node("button", "Jump to latest", "build-chat-jump");
+            chatJump.type = "button";
+            chatJump.hidden = true;
+            chat.append(chatTitle,chatTruncated,chatEmpty,chatMessages,chatJump);
+            const activity = node("details");
+            const activityTitle = node("summary", "Recent activity");
+            const events = node("ol", undefined, "build-events");
+            activity.append(activityTitle, events);
+            const files = node("details");
+            const filesTitle = node("summary", "Files");
+            const fileList = node("ul", undefined, "build-files");
+            files.append(filesTitle, fileList);
+            card.append(heading, context, lineage, phase, message, meta, error, links, resume, resumeStatus, chat, activity, files);
+            root.append(card);
+            view = {card,title,state,context,lineage,phase,message,meta,error,links,resume,resumeStatus,chat,chatTitle,chatTruncated,chatEmpty,chatMessages,chatJump,chatItems:new Map(),chatFollowing:true,chatScrollTop:0,activity,activityTitle,events,files,filesTitle,fileList};
+            buildViews.set(build.id, view);
+            chatMessages.onscroll = () => {
+              if (!chat.open) return;
+              view.chatScrollTop = chatMessages.scrollTop;
+              view.chatFollowing = chatMessages.scrollHeight - chatMessages.clientHeight - chatMessages.scrollTop < 40;
+              chatJump.hidden = view.chatFollowing || !view.chatItems.size;
+            };
+            chatJump.onclick = () => {
+              view.chatFollowing = true;
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+              view.chatScrollTop = chatMessages.scrollTop;
+              chatJump.hidden = true;
+            };
+            chat.ontoggle = () => {
+              if (!chat.open) return;
+              requestAnimationFrame(() => {
+                if (!chat.open || buildViews.get(build.id) !== view) return;
+                chatMessages.scrollTop = view.chatFollowing ? chatMessages.scrollHeight : view.chatScrollTop;
+              });
+            };
+            resume.onclick = async () => {
+              if (view.resumeInFlight || view.resumeAwaiting) return;
+              view.resumeRequestId ||= crypto.randomUUID();
+              view.resumeInFlight = true;
+              resume.disabled = true;
+              resume.textContent = "Resuming build…";
+              resumeStatus.textContent = "Requesting another coding session using the existing workspace…";
+              const runId = selectedRun;
+              try {
+                await api("/builds/" + build.id + "/resume", {requestId:view.resumeRequestId});
+                view.resumeRequestId = null;
+                view.resumeAwaiting = true;
+                view.resumeAcknowledgedAt = Date.now();
+                view.lastBuildState = "pending";
+                resumeStatus.textContent = "Build queued to continue. Waiting for the next activity update…";
+                if (selectedRun === runId) await refresh();
+              } catch (error) {
+                // Preserve the operation ID when a response is lost so retrying
+                // cannot accidentally request a second continuation.
+                resumeStatus.textContent = "Could not confirm that the build resumed: " + error.message + ". You can retry this request.";
+              } finally {
+                view.resumeInFlight = false;
+                resume.hidden = view.lastBuildState !== "failed" && !view.resumeAwaiting;
+                resume.disabled = !!view.resumeAwaiting || view.lastBuildState !== "failed";
+                resume.textContent = view.resumeAwaiting ? "Resuming build…" : "Resume build";
+              }
+            };
+          }
+          const progress = build.progress || {};
+          renderBuildChat(view,progress);
+          view.lastBuildState = build.state;
+          if (view.resumeAwaiting && fetchedAt > view.resumeAcknowledgedAt) {
+            view.resumeAwaiting = false;
+            view.resumeStatus.textContent = "";
+          }
+          const resuming = view.resumeInFlight || view.resumeAwaiting;
+          const displayState = resuming ? "pending" : build.state;
+          const live = ["pending", "running"].includes(displayState);
+          const definition = run?.executionDefinition?.steps?.find(step => step.id === build.workflowStepId || step.key === build.stepKey);
+          view.title.textContent = "Build " + (index + 1);
+          view.state.textContent = resuming ? "Resuming" : ({pending:"Queued",running:"Running",completed:"Completed",failed:"Failed"})[build.state] || build.state;
+          view.state.className = "status " + displayState;
+          view.context.textContent = [definition?.name || run?.executionDefinition?.workflow?.name, "Build " + build.id.slice(0,8)].filter(Boolean).join(" · ");
+          const parentId = build.parent_id || null;
+          const parentIndex = parentId ? builds.findIndex(item => item.id === parentId) : -1;
+          const parent = parentIndex >= 0 ? builds[parentIndex] : build.parent;
+          const lineageSignature = JSON.stringify({parentId,parentIndex,parentSummary:build.parent});
+          if (view.lineageSignature !== lineageSignature) {
+            view.lineageSignature = lineageSignature;
+            const badge = node("span");
+            view.lineage.replaceChildren(badge);
+            if (!parentId) badge.textContent = "New build";
+            else {
+              badge.textContent = "Revision of ";
+              const parentLabel = "Build " + (parentIndex >= 0 ? parentIndex + 1 : parentId.slice(0,8));
+              let parentHref = parentIndex >= 0 ? "#build-" + parentId : null;
+              if (!parentHref && build.parent?.runId && build.parent?.workflowId) {
+                const params = new URLSearchParams({mode:"workflows",workflow:build.parent.workflowId,run:build.parent.runId});
+                parentHref = "/?" + params.toString() + "#build-" + encodeURIComponent(parentId);
+              }
+              const parentLabelNode = node(parentHref ? "a" : "strong", parentLabel);
+              if (parentHref) parentLabelNode.href = parentHref;
+              badge.append(parentLabelNode);
+            }
+          }
+          view.phase.textContent = String(resuming ? "Resuming" : progress.phase || ({pending:"Queued",running:"Building",completed:"Completed",failed:"Failed"})[build.state] || "Build").replace(/[_-]/g, " ").replace(/^./, c => c.toUpperCase());
+          const message = resuming ? "Continuing the coding work using the existing workspace." : progress.message || ({pending:"Waiting for the build worker to start.",running:"OpenHands is working. Activity will appear here as it is reported.",completed:"Build completed.",failed:"The build stopped before completion."})[build.state] || "";
+          if (view.message.textContent !== message) view.message.textContent = message;
+          const now = Date.now();
+          const created = buildTimestamp(build.created_at || build.createdAt);
+          const lastEvent = buildTimestamp(progress.lastEventAt);
+          const updated = buildTimestamp(build.updated_at || build.updatedAt || progress.updatedAt);
+          const elapsed = created === null ? null : buildDuration((live ? now : updated ?? now) - created);
+          const activityAge = lastEvent === null ? null : buildDuration(now - lastEvent);
+          view.meta.textContent = [elapsed && (live ? "Elapsed " : "Duration ") + elapsed, activityAge && (live ? "Last activity " + activityAge + " ago" : "Last activity " + new Date(lastEvent).toLocaleTimeString()), live && lastEvent === null && "Waiting for the first activity update", Number.isFinite(progress.maxIterations) && "Coding limit " + progress.maxIterations + " turns"].filter(Boolean).join(" · ");
+          view.error.hidden = !build.error || !!resuming;
+          view.error.textContent = build.error || "";
+          view.resume.hidden = build.state !== "failed" && !resuming;
+          view.resume.disabled = !!resuming;
+          view.resume.textContent = resuming ? "Resuming build…" : "Resume build";
+          if (build.state !== "failed" && !resuming) view.resumeRequestId = null;
+          const linkData = [["Open preview ↗",build.result?.previewUrl],["View code in Forgejo ↗",build.result?.codeUrl || build.result?.repositoryUrl],...(parentId ? [["Parent preview ↗",parent?.result?.previewUrl || parent?.previewUrl],["Parent source ↗",parent?.result?.codeUrl || parent?.codeUrl]] : [])].filter(([,url]) => typeof url === "string" && /^https?:\/\//i.test(url));
+          const linkSignature = JSON.stringify(linkData);
+          if (view.linkSignature !== linkSignature) {
+            view.linkSignature = linkSignature;
+            view.links.replaceChildren();
+            for (const [label, url] of linkData) {
+              const link = node("a", label);link.href=url;link.target="_blank";link.rel="noopener noreferrer";view.links.append(link);
+            }
+          }
+          const events = Array.isArray(progress.events) ? progress.events : [];
+          view.activityTitle.textContent = "Recent activity" + (events.length ? " · " + events.length + " updates" : "");
+          const eventSignature = JSON.stringify(events);
+          if (view.eventSignature !== eventSignature) {
+            view.eventSignature = eventSignature;
+            const scrollTop = view.events.scrollTop;
+            view.events.replaceChildren();
+            for (const event of events) {
+              const item = node("li", event.message || String(event.kind || "Activity").replace(/[_-]/g," "));
+              const at = buildTimestamp(event.at);
+              if (at !== null) {
+                const time = node("time",new Date(at).toLocaleTimeString());time.dateTime=new Date(at).toISOString();item.append(time);
+              }
+              view.events.append(item);
+            }
+            if (!events.length) view.events.append(node("li", "No activity updates have been recorded yet.", "muted"));
+            view.events.scrollTop = scrollTop;
+          }
+          const files = Array.isArray(progress.files) && progress.files.length ? progress.files : (Array.isArray(build.result?.files) ? build.result.files.map(path => ({path})) : []);
+          view.filesTitle.textContent = "Files · " + files.length;
+          const fileSignature = JSON.stringify(files);
+          if (view.fileSignature !== fileSignature) {
+            view.fileSignature = fileSignature;
+            const scrollTop = view.fileList.scrollTop;
+            view.fileList.replaceChildren();
+            for (const file of files) view.fileList.append(node("li", file.path + (Number.isFinite(file.size) ? " · " + Math.max(1,Math.round(file.size / 1024)) + " KB" : "")));
+            if (!files.length) view.fileList.append(node("li", "Files will appear as OpenHands creates them.", "muted"));
+            view.fileList.scrollTop = scrollTop;
+          }
+        });
+      }
+      let outputData = { sources: [], jobs: [] },
+        outputStep = null,
+        outputTab = "result",
+        outputSignature = "",
+        artifactQueuedUntil = 0;
+      function renderOutputs() {
+        if (!run) return;
+        $("knowledge-link").href =
+          "/knowledge?run=" + run.id + "&workflow=" + $("workflow").value;
+        const definitions = run.executionDefinition?.steps || [];
+        if (!definitions.some((s) => s.id === outputStep))
+          outputStep = session?.workflowStepId || definitions.at(-1)?.id;
+        const signature = JSON.stringify({
+          outputData,
+          outputStep,
+          outputTab,
+          status: run.status,
+        });
+        if (signature === outputSignature) return;
+        outputSignature = signature;
+        const select = $("output-step");
+        select.replaceChildren();
+        for (const step of definitions) {
+          const o = node("option", step.name);
+          o.value = step.id;
+          select.append(o);
+        }
+        select.value = outputStep || "";
+        for (const b of document.querySelectorAll("[data-output-tab]"))
+          b.setAttribute(
+            "aria-pressed",
+            String(b.dataset.outputTab === outputTab),
+          );
+        $("readable-output").classList.toggle("hidden", outputTab !== "result");
+        $("artifact-output").classList.toggle(
+          "hidden",
+          outputTab !== "artifacts",
+        );
+        for (const n of document.querySelectorAll(".execution-view"))
+          n.classList.toggle("hidden", outputTab !== "execution");
+        const sources = outputData.sources.filter(
+          (s) => s.source.workflowStepId === outputStep,
+        );
+        const results = $("readable-output");
+        results.replaceChildren();
+        const stepSource = sources.find((s) => s.kind === "step");
+        if (stepSource) {
+          results.append(
+            node("h3", stepSource.title),
+            OutputView.render(
+              stepSource.output,
+              stepSource.settings.presentation,
+            ),
+            details("Raw JSON", stepSource.output),
+          );
+        } else
+          results.append(
+            node(
+              "p",
+              "The step result will appear when the step completes. Completed skill findings are shown below.",
+              "muted",
+            ),
+          );
+        for (const source of sources.filter((s) => s.kind === "skill")) {
+          const d = node("details", undefined, "output-source");
+          d.append(
+            node("summary", "Skill: " + source.title),
+            OutputView.render(source.output, source.settings.presentation),
+            details("Raw JSON", source.output),
+          );
+          results.append(d);
+        }
+        const artifacts = $("artifact-output");
+        artifacts.replaceChildren(
+          node(
+            "p",
+            "Files are generated from saved results. Skill files are collected here under their parent step.",
+            "muted",
+          ),
+        );
+        for (const source of sources) {
+          const card = node("section", undefined, "artifact-card");
+          card.append(
+            node(
+              "h3",
+              (source.kind === "skill" ? "Skill: " : "Step: ") + source.title,
+            ),
+          );
+          const formats = node("select");
+          formats.setAttribute(
+            "aria-label",
+            "Artifact format for " + source.title,
+          );
+          for (const [id, label] of [
+            ["pdf", "PDF report"],
+            ["xlsx", "Spreadsheet"],
+            ["pptx", "Slide deck"],
+            ["png", "Infographic image"],
+          ]) {
+            const o = node("option", label);
+            o.value = id;
+            formats.append(o);
+          }
+          const generate = node("button", "Generate artifact");
+          generate.onclick = async () => {
+            generate.disabled = true;
+            try {
+              await api("/outputs/generate", {
+                source: source.source,
+                settings: {
+                  ...source.settings,
+                  artifacts: {
+                    ...source.settings.artifacts,
+                    mode: "always",
+                    formats: [formats.value],
+                  },
+                },
+              });
+              artifactQueuedUntil = Date.now() + 60000;
+              generate.textContent = "Queued…";
+              await refresh();
+            } catch (e) {
+              generate.disabled = false;
+              card.append(node("p", e.message, "error"));
+            }
+          };
+          card.append(formats, generate);
+          const matching = outputData.jobs.filter(
+            (j) =>
+              j.workflowStepId === source.source.workflowStepId &&
+              (source.kind === "step"
+                ? !j.skillVersionId
+                : (j.sessionId ?? undefined) === source.source.sessionId &&
+                  (j.turn ?? undefined) === source.source.turn &&
+                  j.skillVersionId === source.skillVersionId),
+          );
+          if (matching.some((j) => ["pending", "running"].includes(j.state))) {
+            generate.disabled = true;
+            generate.textContent = "Generating…";
+          }
+          for (const job of matching) {
+            card.append(
+              node(
+                "p",
+                job.state +
+                  " · " +
+                  job.settings.artifacts.formats
+                    .map((x) => x.toUpperCase())
+                    .join(", "),
+                "muted",
+              ),
+            );
+            if (job.error) card.append(node("p", job.error, "error"));
+            if (job.state === "failed") {
+              const retry = node("button", "Retry generation");
+              retry.onclick = async () => {
+                retry.disabled = true;
+                try {
+                  await api("/artifacts/" + job.id + "/retry", {});
+                  artifactQueuedUntil = Date.now() + 60000;
+                  retry.textContent = "Queued…";
+                  await refresh();
+                } catch (e) {
+                  retry.disabled = false;
+                  card.append(node("p", e.message, "error"));
+                }
+              };
+              card.append(retry);
+            }
+            for (const file of job.files) {
+              const url = "/artifacts/files/" + file.id;
+              const link = node(
+                "a",
+                "Download " +
+                  file.filename +
+                  " (" +
+                  Math.ceil(file.byteSize / 1024) +
+                  " KB)",
+              );
+              link.href = url + "?download=1";
+              card.append(link);
+              if (["application/pdf", "image/png"].includes(file.mimeType)) {
+                const preview = node("details");
+                preview.append(node("summary", "Preview " + file.filename));
+                preview.ontoggle = () => {
+                  if (preview.open && preview.childNodes.length === 1) {
+                    const media = node(
+                      file.mimeType === "image/png" ? "img" : "iframe",
+                      undefined,
+                      "artifact-preview",
+                    );
+                    media.src = url;
+                    media.title = file.filename;
+                    if (file.mimeType === "image/png")
+                      media.alt = file.filename;
+                    preview.append(media);
+                  }
+                };
+                card.append(preview);
+              }
+            }
+          }
+          artifacts.append(card);
+        }
+        if (!sources.length)
+          artifacts.append(
+            node(
+              "p",
+              "Complete a skill or step to generate an artifact.",
+              "muted",
+            ),
+          );
+      }
+      $("output-step").onchange = () => {
+        outputStep = $("output-step").value;
+        renderOutputs();
+      };
+      for (const b of document.querySelectorAll("[data-output-tab]"))
+        b.onclick = () => {
+          outputTab = b.dataset.outputTab;
+          renderOutputs();
+        };
       async function refresh() {
         if (!selectedRun || polling) return;
         polling = true;
         try {
           const id = selectedRun;
+          const buildsFetchedAt = Date.now();
+          const buildsPromise = api("/runs/" + id + "/builds").then(builds => ({builds})).catch(error => ({error}));
           const current = await api("/runs/" + id);
           const list = await api("/runs/" + id + "/sessions");
+          const outputs = await api("/runs/" + id + "/outputs");
           list.sort(
             (a, b) =>
               (current.executionDefinition?.steps.findIndex(
@@ -767,6 +1377,9 @@
           const chosen =
             list.find((s) => s.id === selectedSessionId) || list.at(-1);
           const detail = chosen ? await api("/sessions/" + chosen.id) : null;
+          const waitingReview = list.find(s => s.status === "waiting" && s.reviewId);
+          const reviewDetail = waitingReview ? (waitingReview.id === chosen?.id ? detail : await api("/sessions/" + waitingReview.id)) : null;
+          if (id !== selectedRun) return;
           $("session-select").replaceChildren();
           for (const item of list) {
             const o = node(
@@ -787,13 +1400,27 @@
             line.append(node("summary", step.key + " · " + step.status));
             line.append(
               details("Input", step.input),
-              details("Result", step.output),
+              (() => {
+                const d = node("details");
+                d.append(
+                  node("summary", "Result"),
+                  OutputView.render(step.output),
+                  details("Raw JSON", step.output),
+                );
+                return d;
+              })(),
             );
             $("step-status").append(line);
           }
           if (id !== selectedRun) return;
           run = current;
           session = detail;
+          reviewSession = reviewDetail;
+          outputData = outputs;
+          const buildData = await buildsPromise;
+          if (id !== selectedRun) return;
+          renderBuilds(buildData.builds, buildData.error, buildsFetchedAt);
+          renderOutputs();
           const pending = (await api("/runs/" + id + "/question")).question;
           if (id !== selectedRun) return;
           if (pending?.questionId !== pendingHumanQuestion?.questionId) {
@@ -812,6 +1439,7 @@
             };
             $("question-options").append(b);
           }
+          renderCustomerResolution(run);
           $("status").textContent = run.status;
           $("status").className = "status " + run.status;
           $("run-id").textContent =
@@ -819,7 +1447,9 @@
           renderTimeline();
           if (tab === "history")
             history = await api("/runs/" + id + "/history");
+          if (id !== selectedRun) return;
           renderInspector();
+          $("error").textContent = "";
           $("connection").textContent = [
             "completed",
             "failed",
@@ -971,15 +1601,39 @@
           run.status !== "completed",
         );
         $("output").textContent = JSON.stringify(run.output, null, 2);
+        $("final-presentation").replaceChildren(OutputView.render(run.output));
         $("review").classList.toggle(
           "hidden",
-          run.status !== "waiting" || !!pendingHumanQuestion,
+          run.status !== "waiting" ||
+            !!pendingHumanQuestion ||
+            run.organizationResolution?.state === "awaiting",
         );
         const waitingStep = run.steps.find((s) => s.status === "waiting");
-        $("review-request").textContent = waitingStep
-          ? waitingStep.key +
-            " — Review this step’s input above before approving."
-          : turns.at(-1)?.decision.summary || "";
+        const reviewTurn = reviewSession?.turns.find(t => `${reviewSession.id}:${t.turn}` === reviewSession.reviewId && t.decision.action === "request_review" && !t.outcome);
+        const reviewKey = reviewTurn ? reviewSession.reviewId : (waitingStep && !reviewSession ? run.id + ":" + waitingStep.key : null);
+        if (pendingReview?.key !== reviewKey) {
+          $("review-note").value = "";
+          $("review-error").textContent = "";
+        }
+        pendingReview = reviewKey ? {key:reviewKey,runId:run.id,stepKey:waitingStep.key,reviewId:reviewTurn ? reviewSession.reviewId : null} : null;
+        $("review-material").replaceChildren();
+        const stepName = run.executionDefinition.steps.find(s => s.key === waitingStep?.key)?.name || waitingStep?.key;
+        if (reviewTurn) {
+          $("review-request").textContent = stepName + " — " + reviewTurn.decision.summary;
+          let material;
+          try {material=JSON.parse(reviewTurn.decision.payload);} catch {material=reviewTurn.decision.payload;}
+          $("review-material").append(OutputView.render(material,"report"),details("Raw review data",material));
+          $("review-effect").textContent = "Approve confirms the material above and lets this agent continue its current workflow step. It does not approve the next engagement stage. Request revision sends your feedback to the agent and brings back a new review. Reject stops this run.";
+        } else if (waitingStep) {
+          $("review-request").textContent = stepName + " — Workflow approval checkpoint";
+          $("review-material").append(OutputView.render(waitingStep.input,"report"));
+          $("review-effect").textContent = "Approve accepts the checkpoint input shown above and continues this workflow. Reject stops this run.";
+        }
+        $("request-revision").classList.toggle("hidden", !reviewTurn);
+        $("approve").textContent = "Approve this review & continue";
+        $("approve").disabled = !pendingReview;
+        $("reject").disabled = !pendingReview;
+
       }
       function asset(name, label, used, body) {
         const box = node("div", undefined, "asset"),
@@ -1124,6 +1778,87 @@
           }
         }
       }
+      let resolutionSignature = "";
+      function renderCustomerResolution(current) {
+        const signature = JSON.stringify([
+          current.id,
+          current.organizationResolution,
+          current.customerOrganizationId,
+        ]);
+        if (signature === resolutionSignature) return;
+        resolutionSignature = signature;
+        const root = $("customer-resolution");
+        root.replaceChildren();
+        if (current.customerOrganizationId) {
+          root.append(
+            node(
+              "p",
+              "Customer: " +
+                (current.executionDefinition?.customer?.name ||
+                  current.organizationResolution?.identity?.name ||
+                  current.customerOrganizationId),
+            ),
+          );
+          const link = node("a", "Open customer knowledge ↗");
+          link.href =
+            "/knowledge?organization=" + current.customerOrganizationId;
+          root.append(link);
+          return;
+        }
+        const r = current.organizationResolution;
+        if (r?.state !== "awaiting") {
+          if (r?.state === "pending")
+            root.append(node("p", "Identifying the customer organization…"));
+          return;
+        }
+        root.append(
+          node("h3", "Confirm the customer"),
+          node("p", r.identity?.reason || r.reason),
+        );
+        const select = document.createElement("select");
+        select.append(new Option("Create a new customer", ""));
+        for (const c of r.candidates || [])
+          select.append(
+            new Option(c.name + (c.domain ? " · " + c.domain : ""), c.id),
+          );
+        select.value = r.requestedOrganizationId || "";
+        const name = document.createElement("input");
+        name.placeholder = "Customer organization name";
+        name.value = r.identity?.name || "";
+        const domain = document.createElement("input");
+        domain.placeholder = "Website domain (optional)";
+        domain.value = r.identity?.domain || "";
+        const submit = node("button", "Confirm and continue");
+        submit.className = "primary";
+        select.setAttribute("aria-label", "Existing customer");
+        name.setAttribute("aria-label", "New customer name");
+        domain.setAttribute("aria-label", "Customer website");
+        submit.onclick = async () => {
+          submit.disabled = true;
+          try {
+            await api(
+              "/runs/" + current.id + "/organization",
+              select.value
+                ? { organizationId: select.value }
+                : { name: name.value, domain: domain.value || null },
+            );
+            root.append(node("p", "Customer confirmed. Resuming…"));
+          } catch (e) {
+            root.append(node("p", e.message, "error"));
+            submit.disabled = false;
+          }
+        };
+        select.onchange = () => {
+          name.hidden = domain.hidden = !!select.value;
+        };
+        select.onchange();
+        root.append(select, name, domain, submit);
+      }
+      api("/customers")
+        .then((items) => {
+          for (const c of items) $("customer").append(new Option(c.name, c.id));
+        })
+        .catch(() => {});
       $("start").onclick = async () => {
         try {
           $("error").textContent = "";
@@ -1131,7 +1866,12 @@
           $("start").disabled = true;
           const created = await api(
             "/workflows/" + $("workflow").value + "/runs",
-            { input },
+            {
+              input,
+              ...($("customer").value
+                ? { customerOrganizationId: $("customer").value }
+                : {}),
+            },
           );
           await chooseRun(created.id);
         } catch (e) {
@@ -1157,29 +1897,30 @@
             empty(e.message);
           }
         };
-      async function review(approved) {
+      async function review(approved, action) {
         if (!run || run.status !== "waiting") return;
         try {
-          const waiting = run.steps.find((s) => s.status === "waiting");
-          const step = run.executionDefinition.steps.find(
-            (s) => s.key === waiting?.key,
-          );
-          if (!step) return;
-          const sessions = await api("/runs/" + selectedRun + "/sessions");
-          const pending = sessions.find(
-            (s) => s.workflowStepId === step.id && s.status === "waiting",
-          );
-          await api("/runs/" + selectedRun + "/review", {
-            stepKey: step.key,
-            ...(pending?.reviewId ? { reviewId: pending.reviewId } : {}),
+          if (action === "revise" && !$("review-note").value.trim()) {
+            $("review-error").textContent = "Describe what should change in the review note first.";
+            $("review-note").focus(); return;
+          }
+          const displayed = pendingReview;
+          if (!displayed || displayed.runId !== selectedRun) return;
+          $("approve").disabled = true; $("reject").disabled = true;
+          await api("/runs/" + displayed.runId + "/review", {
+            stepKey: displayed.stepKey,
+            ...(action ? {action} : {}),
+            ...(displayed.reviewId ? {reviewId:displayed.reviewId} : {}),
             approved,
             note: $("review-note").value,
           });
           await refresh();
         } catch (e) {
-          $("error").textContent = e.message;
+          $("review-error").textContent = e.message;
+          $("approve").disabled = false; $("reject").disabled = false;
         }
       }
+      $("request-revision").onclick = () => review(false, "revise");
       $("session-select").onchange = () => {
         selectedSessionId = $("session-select").value;
         void refresh();
@@ -1208,14 +1949,10 @@
       $("approve").onclick = () => review(true);
       $("reject").onclick = () => review(false);
       setInterval(() => {
-        if (
-          selectedRun &&
-          (!run || !["completed", "failed", "cancelled"].includes(run.status))
-        )
-          void refresh();
+        if (selectedRun) void refresh();
       }, 2000);
       window.addEventListener("focus", () => void init());
       void init();
     </script>
-  </body>
+  <link rel="stylesheet" href="/engagements.css"><script src="/engagement-ui.js" defer></script></body>
 </html>

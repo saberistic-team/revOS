@@ -1,0 +1,62 @@
+# Isolated local preview controller: no access to original application/customer
+# namespaces and no permission to create/update workloads or secrets.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: product-ingress
+  namespace: product-ingress-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: revos-product-ingress-classes
+rules:
+  - apiGroups: ['']
+    resources: [nodes]
+    verbs: [get, list, watch]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingressclasses]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: revos-product-ingress-classes
+subjects:
+  - kind: ServiceAccount
+    name: product-ingress
+    namespace: product-ingress-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: revos-product-ingress-classes
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: revos-product-ingress
+  namespace: FIXTURE_NAMESPACE
+rules:
+  - apiGroups: ['']
+    resources: [services, endpoints, secrets]
+    verbs: [get, list, watch]
+  - apiGroups: [discovery.k8s.io]
+    resources: [endpointslices]
+    verbs: [get, list, watch]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: revos-product-ingress
+  namespace: FIXTURE_NAMESPACE
+subjects:
+  - kind: ServiceAccount
+    name: product-ingress
+    namespace: product-ingress-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: revos-product-ingress

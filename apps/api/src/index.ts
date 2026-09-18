@@ -1,3 +1,8 @@
+import { registerBuilds } from "./builds";
+import { registerEngagements } from "./engagements";
+import { createWorkflowRun } from "../../../packages/engine/src/run-service";
+import { organizationChoiceSchema } from "../../../packages/shared/src/organization";
+import { registerWorkspace } from "./workspace";
 import Fastify from "fastify";
 import { randomUUID } from "node:crypto";
 import {
@@ -8,6 +13,7 @@ import {
 import { eq, and, asc, desc, sql } from "drizzle-orm";
 import {
   db,
+  organizations,
   pool,
   workflows,
   workflowVersions,
@@ -30,19 +36,50 @@ import type { Json, Review } from "../../../packages/shared/src";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { registerBuilder } from "./builder";
+import { registerOutputs } from "./outputs";
+import { withAppShell } from "./app-shell";
+import { registerNext } from "./next";
+import { registerParticipation } from "./participation";
+import { registerProductPlatform } from "./product-platform";
+import { registerServiceDelivery } from "./service-delivery";
 async function main() {
   const connection = await connectWithRetry(() =>
     Connection.connect(connectionOptions()),
   );
   const client = new Client({ connection, namespace });
   const app = Fastify({ logger: true });
+  registerParticipation(app, client);
+  registerProductPlatform(app, client);
+  registerServiceDelivery(app, client);
+  registerNext(app);
+  registerOutputs(app, client);
+  registerWorkspace(app, client);
+  registerEngagements(app, client);
+  registerBuilds(app, client);
+  for (const [file, type] of [
+    ["output-view.js", "text/javascript"],
+    ["output-view.css", "text/css"],
+    ["knowledge.js", "text/javascript"],
+    ["section-assistant.js", "text/javascript"],
+    ["engagement-ui.js", "text/javascript"],
+    ["engagements.css", "text/css"],
+    ["section-assistant.css", "text/css"],
+    ["knowledge.css", "text/css"],
+  ]) {
+    const content = readFileSync(join(__dirname, file), "utf8");
+    app.get("/" + file, async (_req, reply) => reply.type(type).send(content));
+  }
   const playground = readFileSync(join(__dirname, "playground.html"), "utf8");
+  const knowledgePage = readFileSync(join(__dirname, "knowledge.html"), "utf8");
+  app.get("/knowledge", async (_req, reply) =>
+    reply.type("text/html").send(withAppShell(knowledgePage, "knowledge")),
+  );
   const builder = readFileSync(join(__dirname, "builder.html"), "utf8");
   app.get("/builder", async (_request, reply) =>
-    reply.type("text/html").send(builder),
+    reply.type("text/html").send(withAppShell(builder, "library")),
   );
   app.get("/", async (_request, reply) =>
-    reply.type("text/html").send(playground),
+    reply.type("text/html").send(withAppShell(playground, "run")),
   );
   const idParams = {
     type: "object",
@@ -107,7 +144,10 @@ async function main() {
       return { ...workflow, version, steps };
     },
   );
-  app.post<{ Params: { id: string }; Body: { input: Json; agentId?: string } }>(
+  app.post<{
+    Params: { id: string };
+    Body: { input: Json; agentId?: string; customerOrganizationId?: string };
+  }>(
     "/workflows/:id/runs",
     {
       schema: {
@@ -118,75 +158,22 @@ async function main() {
           additionalProperties: false,
           properties: {
             input: {},
+            customerOrganizationId: {
+              type: "string",
+              pattern: "^[0-9a-fA-F-]{36}$",
+            },
             agentId: { type: "string", pattern: "^[0-9a-fA-F-]{36}$" },
           },
         },
       },
     },
     async (request, reply) => {
-      const result = await db.transaction(async (tx) => {
-        const [workflow] = await tx
-          .select()
-          .from(workflows)
-          .where(eq(workflows.id, request.params.id));
-        if (!workflow?.currentVersionId)
-          return { error: "Published workflow not found", code: 404 } as const;
-        const [version] = await tx
-          .select()
-          .from(workflowVersions)
-          .where(eq(workflowVersions.id, workflow.currentVersionId));
-        try {
-          validate(version.inputSchema, request.body.input, "Workflow input");
-        } catch (e) {
-          return { error: String(e), code: 400 } as const;
-        }
-        const [firstStep] = await tx
-          .select()
-          .from(workflowSteps)
-          .where(eq(workflowSteps.workflowVersionId, version.id))
-          .orderBy(asc(workflowSteps.position))
-          .limit(1);
-        const chosenAgentId =
-          request.body.agentId ?? firstStep?.configuration.builderAgentId;
-        const candidates = await tx
-          .select()
-          .from(agents)
-          .where(
-            typeof chosenAgentId === "string"
-              ? and(
-                  eq(agents.organizationId, workflow.organizationId),
-                  eq(agents.id, chosenAgentId),
-                )
-              : eq(agents.organizationId, workflow.organizationId),
-          );
-        if (candidates.length !== 1)
-          return {
-            error:
-              "Specify a valid agentId when the organization has multiple agents",
-            code: 400,
-          } as const;
-        const [task] = await tx
-          .insert(tasks)
-          .values({
-            organizationId: workflow.organizationId,
-            agentId: candidates[0].id,
-            workflowId: workflow.id,
-            input: request.body.input,
-          })
-          .returning();
-        const id = randomUUID();
-        const [run] = await tx
-          .insert(runs)
-          .values({
-            id,
-            taskId: task.id,
-            workflowVersionId: version.id,
-            temporalWorkflowId: `run:${id}`,
-            input: request.body.input,
-          })
-          .returning();
-        return { run } as const;
-      });
+      const result = await createWorkflowRun(
+        request.params.id,
+        request.body.input,
+        request.body.agentId,
+        request.body.customerOrganizationId,
+      );
       if ("error" in result)
         return reply.code(result.code ?? 400).send({ error: result.error });
       // The persisted pending Run is a small durable dispatch queue; a periodic sweep repairs interrupted starts.
@@ -199,6 +186,68 @@ async function main() {
         );
       }
       return reply.code(202).send(result.run);
+    },
+  );
+  app.get("/customers", async () =>
+    db
+      .select({
+        id: organizations.id,
+        name: organizations.name,
+        domain: organizations.domain,
+      })
+      .from(organizations)
+      .where(eq(organizations.kind, "customer")),
+  );
+  app.post<{ Params: { id: string } }>(
+    "/runs/:id/organization",
+    async (request, reply) => {
+      const choice = organizationChoiceSchema.parse(request.body);
+      const run = await db.transaction(async (tx) => {
+        const r = (
+          await tx
+            .select()
+            .from(runs)
+            .where(eq(runs.id, request.params.id))
+            .for("update")
+        )[0];
+        if (
+          !r ||
+          r.customerOrganizationId ||
+          r.organizationResolution?.state !== "awaiting" ||
+          !["waiting", "running", "pending"].includes(r.status)
+        )
+          return null;
+        if (
+          "organizationId" in choice &&
+          !(
+            await tx
+              .select()
+              .from(organizations)
+              .where(
+                and(
+                  eq(organizations.id, choice.organizationId),
+                  eq(organizations.kind, "customer"),
+                ),
+              )
+          )[0]
+        )
+          throw Error("Customer not found");
+        await tx
+          .update(runs)
+          .set({
+            organizationResolution: { ...r.organizationResolution, choice },
+          })
+          .where(eq(runs.id, r.id));
+        return r;
+      });
+      if (!run)
+        return reply
+          .code(409)
+          .send({ error: "This run is not awaiting customer confirmation" });
+      await client.workflow
+        .getHandle(run.temporalWorkflowId)
+        .signal("organizationConfirmed");
+      return { accepted: true };
     },
   );
   app.get<{ Params: { id: string } }>(
@@ -339,6 +388,7 @@ async function main() {
           properties: {
             stepKey: { type: "string" },
             approved: { type: "boolean" },
+            action: { type: "string", enum: ["revise"] },
             note: { type: "string", maxLength: 2000 },
             reviewId: { type: "string", maxLength: 100 },
           },
@@ -384,6 +434,19 @@ async function main() {
         return reply.code(409).send({
           error: "A matching current reviewId is required for an agent session",
         });
+      if (
+        request.body.action === "revise" &&
+        (!session ||
+          !session.reviewId ||
+          request.body.approved ||
+          !request.body.note?.trim())
+      )
+        return reply
+          .code(400)
+          .send({
+            error:
+              "Request revision requires a pending agent review, feedback, and approved=false",
+          });
       await client.workflow
         .getHandle(run.temporalWorkflowId)
         .signal("humanReview", request.body);
@@ -473,6 +536,7 @@ async function main() {
   );
   let sweeping = false;
   const timer = setInterval(async () => {
+    if (process.env.DISABLE_BACKGROUND_DISPATCH === "true") return;
     if (sweeping) return;
     sweeping = true;
     try {

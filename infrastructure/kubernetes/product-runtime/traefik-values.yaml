@@ -1,0 +1,41 @@
+# Non-default class: existing applications and ingress rules are unaffected.
+# Chart oci://ghcr.io/traefik/helm/traefik --version 41.6.0 (Traefik 3.7.13)
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+  name: revos-products
+rbac:
+  enabled: false
+serviceAccount:
+  name: product-ingress
+providers:
+  kubernetesCRD:
+    enabled: false
+  kubernetesIngress:
+    enabled: true
+    ingressClass: revos-products
+    namespaces:
+      - product-fd704145-edb4-4cd9-a833-270d716b2c8d-preview
+    labelSelector: revos.product
+    allowExternalNameServices: false
+    publishedService:
+      enabled: false
+service:
+  spec:
+    type: ClusterIP
+ports:
+  websecure:
+    expose:
+      default: false
+ingressRoute:
+  dashboard:
+    enabled: false
+log:
+  level: WARN
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

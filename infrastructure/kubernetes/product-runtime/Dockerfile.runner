@@ -1,0 +1,7 @@
+FROM data.forgejo.org/forgejo/runner:13.1.0
+USER root
+RUN apk add --no-cache docker-cli nodejs python3 git ca-certificates
+WORKDIR /data
+# Local runner reuses the explicitly approved Docker Desktop socket. Its jobs
+# have no Kubernetes service-account token and run only local revos repositories.
+CMD ["forgejo-runner", "daemon", "-c", "/config/runner.json"]

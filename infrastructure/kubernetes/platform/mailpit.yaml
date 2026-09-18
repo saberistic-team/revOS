@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mailpit-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailpit
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: {app: mailpit}
+  template:
+    metadata:
+      labels: {app: mailpit}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: mailpit
+          image: axllent/mailpit:v1.31.1
+          env:
+            - {name: MP_DATABASE, value: /data/mailpit.db}
+            - {name: MP_MAX_MESSAGES, value: '1000'}
+            - {name: MP_DISABLE_VERSION_CHECK, value: 'true'}
+          ports:
+            - {name: smtp, containerPort: 1025}
+            - {name: web, containerPort: 8025}
+          readinessProbe:
+            httpGet: {path: /livez, port: web}
+          livenessProbe:
+            httpGet: {path: /livez, port: web}
+          resources:
+            requests: {cpu: 20m, memory: 64Mi}
+            limits: {memory: 256Mi}
+          volumeMounts:
+            - {name: data, mountPath: /data}
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: mailpit-data}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailpit
+spec:
+  selector: {app: mailpit}
+  ports:
+    - {name: smtp, port: 1025, targetPort: smtp}
+    - {name: web, port: 8025, targetPort: web}

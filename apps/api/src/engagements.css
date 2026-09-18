@@ -1,0 +1,102 @@
+#engagement-workspace {
+  margin: 20px 32px;
+  padding: 18px 22px;
+  background: white;
+  border: 1px solid #d8e2da;
+  border-radius: 12px;
+  color: #193c32;
+  font: 14px/1.5 system-ui;
+}
+#engagement-workspace h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+#engagement-workspace .eg-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+#engagement-workspace button {
+  padding: 8px 12px;
+  border: 1px solid #ccdbd0;
+  border-radius: 7px;
+  background: #eff5f0;
+  color: #245841;
+  cursor: pointer;
+  width: auto;
+}
+#engagement-workspace button:disabled {
+  opacity: 0.5;
+}
+#engagement-workspace textarea {
+  width: 100%;
+  min-height: 90px;
+}
+#engagement-workspace select,
+#engagement-workspace input,
+#engagement-workspace textarea {
+  font: 14px system-ui;
+  padding: 8px;
+  border: 1px solid #cbd9ce;
+  border-radius: 6px;
+  color: #193c32;
+  background: white;
+}
+#engagement-workspace .eg-stages {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+#engagement-workspace .eg-stage {
+  padding: 10px 15px;
+  border: 1px solid #d4dfd6;
+  border-radius: 9px;
+  background: #f5f8f3;
+}
+#engagement-workspace .eg-stage.current {
+  border: 2px solid #2b694c;
+}
+#engagement-workspace .eg-stage.approved {
+  background: #e5f3e8;
+}
+#engagement-workspace a {
+  color: #246148;
+  text-decoration: underline;
+}
+#engagement-workspace .eg-notice {
+  color: #8a472b;
+}
+#engagement-workspace details {
+  margin: 10px 0;
+}
+#engagement-workspace summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+#engagement-workspace [hidden] {
+  display: none !important;
+}
+#engagement-workspace .eg-output {
+  max-height: 450px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+#engagement-workspace label {
+  display: block;
+  font-size: 12px;
+  margin: 6px 0;
+}
+#engagement-workspace pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.eg-start-dialog { width:min(720px,90vw); max-height:85vh; overflow:auto; border:1px solid #cbd9ce; border-radius:14px; padding:24px; }
+.eg-start-dialog::backdrop { background:#10251b66; }
+#engagement-workspace .eg-field { display:flex; flex-direction:column; gap:6px; margin:16px 0; }
+#engagement-workspace .eg-field label { font-weight:600; }
+#engagement-workspace .eg-field small { color:#52665b; }
+#engagement-workspace .eg-field input[type=checkbox] { align-self:flex-start; }

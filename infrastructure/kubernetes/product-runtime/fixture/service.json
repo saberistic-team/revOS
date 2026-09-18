@@ -1,0 +1,1 @@
+{"port":8080,"healthPath":"/health","testCommand":["python","-m","unittest","discover","-s","tests"],"migrationCommand":["python","migrate.py"]}

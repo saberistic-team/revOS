@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Agent Engine · Workflow Builder</title>
+    <title>Agent Engine · Library</title>
     <style>
       :root {
         font-family: Inter, ui-sans-serif, system-ui, sans-serif;
@@ -261,29 +261,96 @@
           grid-template-columns: 1fr 90px 55px 30px;
         }
       }
+      .library-tabs {
+        max-width: 1500px;
+        margin: auto;
+        padding: 18px 30px 0;
+        gap: 8px;
+        border-bottom: 1px solid #dce4dc;
+      }
+      .library-tabs button {
+        border: 0;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        padding: 12px 18px;
+      }
+      .library-tabs button[aria-pressed="true"] {
+        border-bottom-color: #246148;
+        color: #246148;
+        font-weight: 700;
+      }
+      .layout {
+        min-height: calc(100vh - 140px);
+      }
+      .skill-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .skill-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+        border: 1px solid #c9ddcd;
+        background: #edf4ee;
+        border-radius: 20px;
+        padding: 4px 6px 4px 12px;
+        color: #244e3e;
+        font-size: 13px;
+      }
+      .skill-pill > span {
+        overflow-wrap: anywhere;
+        min-width: 0;
+      }
+      .skill-pill .skill-remove {
+        border: 0;
+        background: transparent;
+        border-radius: 50%;
+        padding: 2px;
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        font-size: 20px;
+        line-height: 1;
+      }
+      .skill-pill .skill-remove:hover {
+        background: #d6e6d9;
+      }
+      .skill-picker > .muted {
+        margin-top: 8px;
+      }
     </style>
+    <link rel="stylesheet" href="/output-view.css" />
   </head>
   <body>
-    <header>
-      <strong>Agent Engine <span class="muted">/ Build</span></strong>
-      <nav>
-        <button id="nav-workflows">Workflows</button
-        ><button id="nav-library">Library</button><a href="/">Runs ↗</a>
-      </nav>
-    </header>
-    <div class="layout">
+    <!-- APP_HEADER -->
+
+    <nav class="library-tabs" aria-label="Library sections">
+      <button id="nav-workflows" aria-pressed="true">Workflows</button>
+      <button id="nav-chains" aria-pressed="false">Workflow chains</button>
+      <button id="nav-knowledge" aria-pressed="false">Knowledge</button>
+      <button id="nav-skills" aria-pressed="false">Skills</button>
+      <button id="nav-tools" aria-pressed="false">Tools</button>
+    </nav>
+    <section id="engagement-workspace" data-mode="library" class="hidden"></section>
+    <div class="layout" id="library-layout">
       <aside>
         <label for="org">Organization</label
         ><select id="org"></select>
-        <div class="row" style="margin-top: 20px">
-          <h2>Workflows</h2>
-          <button id="new" class="small">+ New</button>
+        <div id="workflow-sidebar">
+          <div class="row" style="margin-top: 20px">
+            <h2>Workflows</h2>
+            <button id="new" class="small">+ New</button>
+          </div>
+          <div id="workflow-list"></div>
+          <p class="muted">
+            Drafts stay editable. Published versions and test snapshots stay
+            fixed.
+          </p>
         </div>
-        <div id="workflow-list"></div>
-        <p class="muted">
-          Drafts stay editable. Published versions and test snapshots stay
-          fixed.
-        </p>
       </aside>
       <main>
         <div id="message" class="notice" role="status" aria-live="polite"></div>
@@ -312,6 +379,7 @@
         dirty = false,
         busy = false,
         view = "workflows";
+      window.assistantPageContext = () => ({organizationId: $("org").value, workflowId: view === "workflows" ? current?.workflow?.id : null, label: view === "workflows" ? (current?.draft?.definition?.name || current?.workflow?.name || "Library · no workflow selected") : "Library · " + view, unsaved: dirty});
       const pretty = (v) => JSON.stringify(v, null, 2);
       function say(text, error = false) {
         $("message").textContent = text;
@@ -331,7 +399,7 @@
         return async () => {
           if (busy) return;
           const invalid = document.querySelector(
-            "textarea:invalid, input:invalid",
+            "#workspace:not(.hidden) textarea:invalid, #workspace:not(.hidden) input:invalid, #library:not(.hidden) textarea:invalid, #library:not(.hidden) input:invalid, #modal[open] textarea:invalid, #modal[open] input:invalid",
           );
           if (invalid) {
             invalid.reportValidity();
@@ -476,6 +544,7 @@
       async function open(id) {
         if (dirty) await save();
         current = await api("/builder/workflows/" + id);
+        $("org").value = current.workflow.organizationId;
         dirty = false;
         view = "workflows";
         showView();
@@ -483,8 +552,18 @@
         renderList();
       }
       function showView() {
+        $("engagement-workspace").classList.toggle("hidden", view !== "chains");
+        $("library-layout").classList.toggle("hidden", view === "chains");
         $("workspace").classList.toggle("hidden", view !== "workflows");
-        $("library").classList.toggle("hidden", view !== "library");
+        $("library").classList.toggle("hidden", view === "workflows");
+        $("workflow-sidebar").classList.toggle("hidden", view !== "workflows");
+        for (const key of ["workflows", "chains", "knowledge", "skills", "tools"])
+          $("nav-" + key).setAttribute("aria-pressed", String(view === key));
+        const url = new URL(location.href);
+        url.searchParams.set("tab", view);
+        if (view === "workflows" && current) url.searchParams.set("workflow", current.workflow.id);
+        else url.searchParams.delete("workflow");
+        history.replaceState(null, "", url);
       }
       async function save() {
         if (!current || !dirty) return;
@@ -723,6 +802,8 @@
             "muted",
           ),
         );
+        const assistantLink = button("Build or improve with Library assistant", () => document.getElementById("section-assistant-toggle").click());
+        root.append(assistantLink);
         const meta = E("div", "", "panel");
         const grid = E("div", "", "grid");
         field(grid, "Workflow name", d.name, (v) => (d.name = v));
@@ -745,6 +826,10 @@
           (v) => (d.instructions = v),
           "textarea",
         );
+        const kbLabel=E("label", "", "row"),kbCheck=E("input");
+        kbCheck.type="checkbox";kbCheck.style.width="auto";kbCheck.checked=d.steps.some(s=>s.configuration.captureKnowledge===true);
+        kbCheck.onchange=()=>{for(const s of d.steps)delete s.configuration.captureKnowledge;if(d.steps[0])d.steps[0].configuration.captureKnowledge=kbCheck.checked;changed();};
+        kbLabel.append(kbCheck,document.createTextNode("Add completed run findings to organization knowledge (Forgejo)"));meta.append(kbLabel);
         root.append(meta);
         const contracts = E("div", "", "grid");
         schemas(contracts, "Starting inputs", d, "inputSchema");
@@ -832,24 +917,81 @@
               const chosen = available.find((c) => c.id === s.skillVersionId);
               if (chosen) capability(p, chosen);
             } else {
-              p.append(E("label", "Skills the model may choose"));
-              for (const skill of available) {
-                const l = E("label", "", "check"),
-                  c = E("input");
-                c.type = "checkbox";
-                c.checked = (s.configuration.skillVersionIds || []).includes(
-                  skill.id,
+              const picker = E("div", "", "skill-picker");
+              const pickerId = "skills-" + crypto.randomUUID();
+              const pickerLabel = E("label", "Skills the model may choose");
+              pickerLabel.htmlFor = pickerId;
+              const dropdown = E("select");
+              dropdown.id = pickerId;
+              const pills = E("div", "", "skill-pills");
+              pills.setAttribute("aria-label", "Selected skills");
+              const status = E("p", "", "muted");
+              status.setAttribute("role", "status");
+              const drawPicker = () => {
+                const ids = [...new Set(s.configuration.skillVersionIds || [])];
+                const remaining = available.filter(
+                  (skill) => !ids.includes(skill.id),
                 );
-                c.onchange = () => {
-                  const ids = new Set(s.configuration.skillVersionIds || []);
-                  c.checked ? ids.add(skill.id) : ids.delete(skill.id);
-                  s.configuration.skillVersionIds = [...ids];
-                  changed();
-                };
-                l.append(c, E("span", `${skill.name} · v${skill.version}`));
-                p.append(l);
-                capability(p, skill);
-              }
+                dropdown.replaceChildren();
+                const placeholder = E(
+                  "option",
+                  remaining.length
+                    ? "Add a skill…"
+                    : "No more skills available",
+                );
+                placeholder.value = "";
+                dropdown.append(placeholder);
+                for (const skill of remaining) {
+                  const option = E(
+                    "option",
+                    `${skill.name} · v${skill.version}`,
+                  );
+                  option.value = skill.id;
+                  dropdown.append(option);
+                }
+                dropdown.disabled = !remaining.length;
+                pills.replaceChildren();
+                for (const id of ids) {
+                  const skill = available.find((skill) => skill.id === id);
+                  const name = skill
+                    ? `${skill.name} · v${skill.version}`
+                    : `Unavailable skill (${id})`;
+                  const pill = E("span", "", "skill-pill");
+                  const remove = button(
+                    "×",
+                    () => {
+                      s.configuration.skillVersionIds = ids.filter(
+                        (selected) => selected !== id,
+                      );
+                      changed();
+                      drawPicker();
+                      dropdown.focus();
+                    },
+                    "skill-remove",
+                  );
+                  remove.setAttribute("aria-label", `Remove ${name}`);
+                  remove.title = `Remove ${name}`;
+                  pill.append(E("span", name), remove);
+                  pills.append(pill);
+                }
+                status.textContent = ids.length
+                  ? `${ids.length} skill${ids.length === 1 ? "" : "s"} selected`
+                  : "No skills selected. Add a skill for this step.";
+              };
+              dropdown.onchange = () => {
+                if (!dropdown.value) return;
+                s.configuration.skillVersionIds = [
+                  ...new Set([
+                    ...(s.configuration.skillVersionIds || []),
+                    dropdown.value,
+                  ]),
+                ];
+                changed();
+                drawPicker();
+              };
+              picker.append(pickerLabel, dropdown, pills, status);
+              p.append(picker);
+              drawPicker();
               if (!available.length)
                 p.append(
                   E(
@@ -931,6 +1073,7 @@
               ),
             );
           }
+          outputSettings(p, s.configuration);
           root.append(p);
         });
         const add = E("div", "", "row");
@@ -1047,6 +1190,83 @@
           );
         root.append(versions);
       }
+      function outputSettings(root, configuration) {
+        const box = E("details", undefined, "output-settings");
+        box.append(E("summary", "Presentation & artifacts"));
+        const settings = structuredClone(
+          configuration.outputs || {
+            presentation: "auto",
+            artifacts: { mode: "manual", formats: [], instructions: "" },
+          },
+        );
+        const commit = () => {
+          configuration.outputs = settings;
+          if (!$("modal").contains(box)) changed();
+        };
+        select(
+          box,
+          "Result presentation",
+          settings.presentation,
+          [
+            ["auto", "Automatic report"],
+            ["report", "Report"],
+            ["cards", "Cards"],
+            ["table", "Table"],
+            ["diagram", "Diagram / sections"],
+          ],
+          (v) => {
+            settings.presentation = v;
+            commit();
+          },
+        );
+        select(
+          box,
+          "Artifact generation",
+          settings.artifacts.mode,
+          [
+            ["manual", "Generate on request"],
+            ["always", "Always generate selected formats"],
+            ["model", "Model chooses from selected formats"],
+          ],
+          (v) => {
+            settings.artifacts.mode = v;
+            commit();
+          },
+        );
+        checkedList(
+          box,
+          "Artifact formats",
+          [
+            { id: "pdf", name: "PDF report" },
+            { id: "xlsx", name: "Spreadsheet" },
+            { id: "pptx", name: "Slide deck" },
+            { id: "png", name: "Infographic / diagram image" },
+          ],
+          settings.artifacts.formats,
+          (v) => {
+            settings.artifacts.formats = v;
+            commit();
+          },
+        );
+        field(
+          box,
+          "Artifact instructions",
+          settings.artifacts.instructions,
+          (v) => {
+            settings.artifacts.instructions = v;
+            commit();
+          },
+          "textarea",
+        );
+        box.append(
+          E(
+            "p",
+            "Generated from the saved result with OpenAI Code Interpreter. Files appear under the step, including files from its completed skills. Generation can be retried separately from research.",
+            "muted",
+          ),
+        );
+        root.append(box);
+      }
       function checkedList(root, label, items, selected, onChange) {
         root.append(E("label", label));
         for (const item of items) {
@@ -1119,6 +1339,7 @@
             }
           };
         }
+        outputSettings(root, b.configuration);
         checkedList(
           root,
           "Allowed tools",
@@ -1202,41 +1423,68 @@
       function renderLibrary() {
         const root = $("library");
         root.replaceChildren(
-          E("h1", "Capability library"),
+          E(
+            "h1",
+            view === "tools"
+              ? "Tools"
+              : view === "knowledge"
+                ? "Knowledge"
+                : "Skills",
+          ),
           E(
             "p",
-            "Manage agent skills and reference knowledge. Tools are registered integrations provided by the engine.",
+            view === "tools"
+              ? "Registered integrations your agents can use through their skills."
+              : view === "knowledge"
+                ? "Reference material your agents can retrieve during a run."
+                : "Manage reusable agent skills and their allowed tools.",
             "muted",
           ),
         );
         const top = E("div", "", "row");
         top.append(
-          button("+ Agent skill", () => editSkill(), "primary"),
-          button("+ Knowledge", () => editKnowledge()),
+          view === "knowledge"
+            ? button("+ Knowledge", () => editKnowledge(), "primary")
+            : button("+ Agent skill", () => editSkill(), "primary"),
         );
-        root.append(top, E("h2", "Skills"));
-        for (const s of orgSkills()) {
-          const c = E("div", "", "library-card");
-          c.append(
-            E("h3", `${s.name} · v${s.version}`),
-            E("p", s.description, "muted"),
-          );
-          capability(c, s);
-          if (s.organizationId === $("org").value)
-            c.append(button("New version", () => editSkill(s), "small"));
-          root.append(c);
-        }
-        root.append(E("h2", "Knowledge"));
-        for (const k of catalog.knowledge.filter(
-          (k) => k.organizationId === $("org").value,
-        )) {
-          const c = E("div", "", "library-card");
-          c.append(E("h3", k.name));
-          details(c, "Read content", k.content);
-          c.append(button("Edit", () => editKnowledge(k), "small"));
-          root.append(c);
-        }
-        root.append(E("h2", "Registered tools"));
+        if (view !== "tools") root.append(top);
+        if (view === "skills")
+          for (const s of orgSkills()) {
+            const c = E("div", "", "library-card");
+            c.append(
+              E("h3", `${s.name} · v${s.version}`),
+              E("p", s.description, "muted"),
+            );
+            capability(c, s);
+            if (s.organizationId === $("org").value)
+              c.append(button("New version", () => editSkill(s), "small"));
+            root.append(c);
+          }
+        if (view === "knowledge")
+          for (const k of catalog.knowledge.filter(
+            (k) => k.organizationId === $("org").value,
+          )) {
+            const c = E("div", "", "library-card");
+            c.append(E("h3", k.name));
+            details(c, "Read content", k.content);
+            if (k.type === "repository") { const a=E("a", "Explain or correct in Knowledge"); a.href="/knowledge?organization="+k.organizationId+"&document="+k.id; c.append(a); } else c.append(button("Edit", () => editKnowledge(k), "small"));
+            root.append(c);
+          }
+        if (view !== "tools") return;
+        const artifactCard = E("div", "", "library-card");
+        artifactCard.append(
+          E("h3", "Generate artifacts · Built-in"),
+          E(
+            "p",
+            "Creates PDF reports, spreadsheets, slide decks, and infographic images using OpenAI Code Interpreter. Configure it under Presentation & artifacts on any step or skill. Temporal tracks generation independently.",
+          ),
+        );
+        root.append(artifactCard);
+        const knowledgeCard=E("div", "", "library-card");
+        knowledgeCard.append(E("h3", "Knowledge workspace · Built-in"),E("p", "Import results into Forgejo, capture corrections, explore reports and mind maps, listen to explanations, and propose workflow or skill updates. Reviewed actions run durably through Temporal."));
+        const ka=E("a", "Open knowledge & assistant");ka.href="/knowledge?organization="+$("org").value;knowledgeCard.append(ka);root.append(knowledgeCard);
+        if (!catalog.tools.length)
+          root.append(E("p", "No tools registered yet.", "muted"));
         for (const t of catalog.tools) {
           const c = E("div", "", "library-card");
           c.append(E("h3", t.name), E("p", t.description, "muted"));
@@ -1262,11 +1510,12 @@
         showView();
         render();
       };
-      $("nav-library").onclick = () => {
-        view = "library";
-        showView();
-        renderLibrary();
-      };
+      for (const key of ["chains", "knowledge", "skills", "tools"])
+        $("nav-" + key).onclick = () => {
+          view = key;
+          showView();
+          if (view !== "chains") renderLibrary();
+        };
       $("org").onchange = action(async () => {
         if (dirty) await save();
         current = null;
@@ -1291,11 +1540,16 @@
           }
           await reloadList();
           const id = new URLSearchParams(location.search).get("workflow");
+          const requestedTab = new URLSearchParams(location.search).get("tab");
           if (id) await open(id);
+          if (["chains", "knowledge", "skills", "tools"].includes(requestedTab))
+            view = requestedTab;
+          showView();
+          if (view !== "workflows" && view !== "chains") renderLibrary();
         } catch (e) {
           say(e.message, true);
         }
       })();
     </script>
-  </body>
+  <link rel="stylesheet" href="/engagements.css"><script src="/engagement-ui.js" defer></script></body>
 </html>

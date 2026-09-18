@@ -1,0 +1,62 @@
+# Independent coding executor only. No CI runner, Docker socket, GitOps/operator
+# permissions or delivery credentials are installed by this manifest.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: engine-platform-worker
+  namespace: agent-engine-local
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: product-builder
+  namespace: agent-engine-local
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: engine-platform-worker-builds
+  namespace: agent-engine-local
+subjects:
+  - kind: ServiceAccount
+    name: engine-platform-worker
+    namespace: agent-engine-local
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: engine-build-worker
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: engine-platform-kelos
+  namespace: agent-engine-local
+rules:
+  - apiGroups: [kelos.dev]
+    resources: [tasks]
+    verbs: [get, list, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: engine-platform-kelos
+  namespace: agent-engine-local
+subjects:
+  - kind: ServiceAccount
+    name: engine-platform-worker
+    namespace: agent-engine-local
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: engine-platform-kelos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kelos-platform-config
+  namespace: agent-engine-local
+data:
+  KELOS_ENABLED: 'true'
+  KELOS_OPENHANDS_IMAGE: agent-engine-openhands-kelos:platform-budget-v3
+  OPENHANDS_IMAGE: agent-engine-openhands:platform-budget-v2

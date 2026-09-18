@@ -1,0 +1,203 @@
+.nxl-content {
+  display: grid;
+  gap: 1.1rem;
+  max-width: 1160px;
+  margin-inline: auto;
+  width: 100%;
+  min-width: 0;
+}
+.nxl-index {
+  display: grid;
+  gap: 1rem;
+}
+.nxl-index > input {
+  max-width: 32rem;
+}
+.nxl-index-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-bottom: 1px solid var(--nx-line, #e0e6e1);
+}
+.nxl-index-row a {
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+.nxl-index-row p {
+  margin: 0.4rem 0 0;
+  max-width: 65ch;
+}
+.nxl-detail-head {
+  align-items: flex-start;
+}
+.nxl-detail-head h2 {
+  margin: 0.7rem 0 0.25rem;
+}
+.nxl-step-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+.nxl-step-outline {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.nxl-step-outline > button {
+  text-align: left;
+  justify-content: flex-start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.nxl-selected {
+  background: var(--nx-soft, #eaf4ed) !important;
+  border-color: var(--nx-accent, #28724b) !important;
+}
+.nxl-step-editor {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.nxl-picker {
+  display: grid;
+  gap: 0.65rem;
+  margin-block: 1rem;
+}
+.nxl-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.nxl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--nx-line, #dbe5de);
+  background: var(--nx-soft, #f2f6f3);
+  border-radius: 99px;
+  padding: 0.25rem 0.4rem 0.25rem 0.75rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.nxl-pill button {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  min-height: 30px;
+}
+.nxl-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-block: 0.8rem;
+  line-height: 1.5;
+}
+.nxl-check input {
+  width: auto;
+  min-width: 1rem;
+  margin-top: 0.3rem;
+}
+.nxl-schema-fields {
+  display: grid;
+  gap: 0.8rem;
+}
+.nxl-schema-fields > .nx-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+  padding: 1rem;
+}
+.nxl-schema-fields > .nx-card .nx-field {
+  margin: 0;
+}
+.nxl-schema-fields > .nx-card .nxl-check {
+  margin: 0.6rem 0;
+}
+.nxl-schema-fields > .nx-card > button {
+  justify-self: start;
+}
+.nxl-disclosure {
+  padding: 1rem;
+  border: 1px solid var(--nx-line, #dbe5de);
+  border-radius: 10px;
+}
+.nxl-disclosure > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.nxl-disclosure[open] > summary {
+  margin-bottom: 1rem;
+}
+.nxl-disclosure > button {
+  margin: 0.3rem;
+}
+.nxl-disclosure textarea {
+  width: 100%;
+  font-family: ui-monospace, monospace;
+}
+.nxl-readable {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  line-height: 1.65;
+  background: transparent;
+  padding: 0;
+}
+.nxl-content .nx-card > .nx-card {
+  margin-top: 0.75rem;
+}
+.nxl-content .nx-card > a {
+  display: inline-block;
+  margin: 0.3rem 0.6rem 0.3rem 0;
+}
+.nxl-content .nx-field {
+  min-width: 0;
+}
+.nxl-content input,
+.nxl-content select,
+.nxl-content textarea {
+  max-width: 100%;
+}
+.nxl-content .nx-status {
+  font-size: 0.85rem;
+}
+.nxl-content .nx-card h3:first-child {
+  margin-top: 0;
+}
+.nxl-content .nx-card {
+  min-width: 0;
+}
+@media (max-width: 850px) {
+  .nxl-step-layout {
+    grid-template-columns: 1fr;
+  }
+  .nxl-step-outline {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .nxl-step-outline > button {
+    max-width: 100%;
+  }
+  .nxl-step-outline > .nxl-disclosure {
+    flex-basis: 100%;
+  }
+  .nxl-detail-head {
+    flex-direction: column;
+  }
+  .nxl-index-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .nxl-schema-fields > .nx-card {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nxl-content * {
+    scroll-behavior: auto;
+  }
+}

@@ -76,6 +76,8 @@ export function validateDecision(
   snapshot: SessionSnapshot,
 ): Json {
   const { state } = request;
+  if (state.revisionPending && ["complete_skill", "final"].includes(decision.action))
+    throw Error("Address the review feedback and request_review again. Human approval is required before completing the revision.");
   const skill = snapshot.catalog.find((s) => s.id === state.activeSkillId);
   let value: Json;
   try {
@@ -106,6 +108,23 @@ export function validateDecision(
     );
     if (!tool) throw new Error("Tool missing from snapshot");
     validate(tool.inputSchema, value, "Agent tool input");
+    const completedBuilds = request.currentBuilds?.filter((build) => build.state === "completed") ?? [];
+    if (tool.handler === "openhands.start_build" && state.revisionPending && completedBuilds.length) {
+      throw Error(
+        `This review revision already has completed build ${completedBuilds[0].id}. ` +
+        "Do not start a fresh build. If code changes are needed, call openhands.revise_build " +
+        `with buildId \"${completedBuilds[0].id}\" and the requested changes. ` +
+        "If only review or explanation was requested, inspect/reuse the completed build and its existing preview, then request_review again. " +
+        "currentBuilds gives the current status; earlier tool outcomes are historical and may show an earlier failure.",
+      );
+    }
+    if (tool.handler === "openhands.revise_build" && value && typeof value === "object" && !Array.isArray(value)) {
+      const parent = request.currentBuilds?.find((build) => build.id === value.buildId);
+      if (parent && parent.state !== "completed")
+        throw Error(`Build ${parent.id} is currently ${parent.state}; revise_build requires a completed parent. Inspect this build or choose a completed build from currentBuilds.`);
+      // This bounded list is not a permission catalog. The tool handler checks
+      // same-customer ownership for valid parents outside the current session.
+    }
   } else if (decision.action === "fetch_knowledge") {
     const allowed = skill?.configuration.allowedKnowledgeIds;
     if (
@@ -166,4 +185,18 @@ export function checkPayloadSize(value: unknown, max: number) {
     throw new Error(
       `Reasoning context or result exceeds configured size limit: ${bytes} bytes supplied, ${max} bytes allowed. Shorten text while preserving required fields.`,
     );
+}
+
+/** Stored knowledge bodies are fetched on demand, not included in model context.
+ * Keep the immutable snapshot intact; fetched results in request still count.
+ */
+export function checkReasoningContextSize(request: unknown, snapshot: SessionSnapshot) {
+  const contextSnapshot = {
+    ...snapshot,
+    definition: {
+      ...snapshot.definition,
+      knowledge: snapshot.definition.knowledge.map(k => ({ id: k.id, name: k.name })),
+    },
+  };
+  checkPayloadSize({ request, snapshot: contextSnapshot }, snapshot.config.maxContextBytes);
 }

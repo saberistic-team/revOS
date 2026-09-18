@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: revos-products
+  namespace: argocd
+spec:
+  description: revOS approved immutable product releases
+  sourceRepos:
+    - http://forgejo.agent-engine-local.svc.cluster.local:3000/revos/delivery-*.git
+  destinations:
+    - namespace: product-*
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: apps
+      kind: Deployment
+    - group: ''
+      kind: Service
+    - group: batch
+      kind: Job
+    - group: networking.k8s.io
+      kind: Ingress
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: revos-product-applications
+  namespace: argocd
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [applications]
+    verbs: [get, create, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: revos-product-applications
+  namespace: argocd
+subjects:
+  - kind: ServiceAccount
+    name: agent-engine
+    namespace: agent-engine-local
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: revos-product-applications
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: revos-product-health
+rules:
+  - apiGroups: [apps]
+    resources: [deployments]
+    resourceNames: [app]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: revos-product-health
+subjects:
+  - kind: ServiceAccount
+    name: agent-engine
+    namespace: agent-engine-local
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: revos-product-health

@@ -19,6 +19,7 @@ export interface AgentDecision {
   summary: string;
 }
 export interface SessionState {
+  revisionPending?: boolean;
   fetchedKnowledgeIds: string[];
   activeSkillId: string | null;
   activeInput: Json;
@@ -50,7 +51,21 @@ export interface SessionEvent {
   decision: AgentDecision;
   result: Json;
 }
+/** Current execution summaries, separate from immutable historical tool results. */
+export interface CurrentSessionBuild {
+  id: string;
+  parentId: string | null;
+  state: string;
+  commit: string | null;
+  previewUrl: string | null;
+  codeUrl: string | null;
+  error: string | null;
+  updatedAt: string;
+}
 export interface ReasonRequest {
+  participantResponses?: Json[];
+  currentBuilds?: CurrentSessionBuild[];
+  humanFeedback?: { id: string; content: string; source: string }[];
   validationFeedback?: { error: string; previousDecision: AgentDecision };
   sessionId: string;
   turn: number;

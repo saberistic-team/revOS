@@ -1,5 +1,8 @@
 import {
   proxyActivities,
+  startChild,
+  ParentClosePolicy,
+  patched,
   defineSignal,
   setHandler,
   condition,
@@ -18,7 +21,12 @@ import type {
 import { bindInput } from "../../../shared/src/bindings";
 import type { HumanAnswer } from "../../../shared/src/session";
 import { runAgentLoop } from "./agent-loop";
-const activities = proxyActivities<Activities>({
+const activities = proxyActivities<
+  Activities & {
+    shouldImportRun(runId: string): Promise<boolean>;
+    requireCompletedBuild(runId: string): Promise<void>;
+  }
+>({
   startToCloseTimeout: "2 minutes",
   scheduleToCloseTimeout: "10 minutes",
   retry: {
@@ -56,7 +64,23 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
     )
       reviews[review.reviewId ?? review.stepKey] = review;
   });
+  let organizationConfirmed = false;
+  setHandler(defineSignal("organizationConfirmed"), () => {
+    organizationConfirmed = true;
+  });
   try {
+    if (patched("customer-organization-v1")) {
+      let resolved = await activities.resolveRunOrganization(args.runId);
+      while (resolved.state !== "resolved") {
+        await activities.markRunWaiting(args.runId);
+        if (!(await condition(() => organizationConfirmed, "7 days")))
+          throw ApplicationFailure.nonRetryable(
+            "Customer confirmation expired",
+          );
+        organizationConfirmed = false;
+        resolved = await activities.resolveRunOrganization(args.runId);
+      }
+    }
     const definition = await activities.loadExecutionDefinition(args);
     await activities.markRunRunning(args.runId);
     const context: StepContext = {
@@ -128,6 +152,8 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
         });
       } else
         throw ApplicationFailure.nonRetryable("Unsupported step definition");
+      if (step.configuration.requireCompletedBuild === true)
+        await activities.requireCompletedBuild(args.runId);
       await activities.saveRunStep({
         runId: args.runId,
         workflowStepId: step.id,
@@ -135,6 +161,37 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
         input: stepInput,
         output,
       });
+      if (patched("output-artifacts-v1")) {
+        for (const fixedSkill of [
+          false,
+          ...(step.type === "skill" && step.skill?.executionType !== "agent"
+            ? [true]
+            : []),
+        ]) {
+          const settings = (
+            fixedSkill
+              ? step.skill?.configuration.outputs
+              : step.configuration.outputs
+          ) as any;
+          if (
+            settings?.artifacts?.formats?.length &&
+            settings.artifacts.mode !== "manual"
+          )
+            await startChild("OutputArtifactWorkflow", {
+              workflowId: `artifact:${args.runId}:${step.id}:${fixedSkill ? "skill" : "step"}`,
+              parentClosePolicy: ParentClosePolicy.ABANDON,
+              args: [
+                {
+                  source: {
+                    runId: args.runId,
+                    workflowStepId: step.id,
+                    ...(fixedSkill ? { fixedSkill: true } : {}),
+                  },
+                },
+              ],
+            });
+        }
+      }
       context.steps[step.key] = output;
       context.previous = output;
       active = undefined;
@@ -144,6 +201,19 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
       output: context.previous,
       outputSchema: definition.workflow.outputSchema,
     });
+    if (
+      patched("organization-knowledge-v1") &&
+      (!patched("engagement-knowledge-gate-v1") ||
+        (await activities.shouldImportRun(args.runId))) &&
+      (!!definition.customer ||
+        definition.steps.some((s) => s.configuration.captureKnowledge === true))
+    ) {
+      await startChild("RunKnowledgeWorkflow", {
+        workflowId: `knowledge:${args.runId}`,
+        parentClosePolicy: ParentClosePolicy.ABANDON,
+        args: [args.runId],
+      });
+    }
     return context.previous;
   } catch (error) {
     const messages: string[] = [];
@@ -172,3 +242,18 @@ export async function AgentRunWorkflow(args: AgentRunInput): Promise<Json> {
     throw error;
   }
 }
+
+export { OutputArtifactWorkflow } from "./artifact";
+
+export {
+  WorkspaceJobWorkflow,
+  RunKnowledgeWorkflow,
+  MindmapJobWorkflow,
+} from "./workspace";
+
+export { EngagementWorkflow } from "./engagement";
+
+export { CodeBuildWorkflow } from "./code-build";
+export { ParticipationWorkflow, WaitForParticipationQuestionWorkflow } from "./participation";
+
+export { ServiceReleaseWorkflow } from "./service-release";

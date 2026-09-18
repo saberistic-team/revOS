@@ -1,16 +1,20 @@
-import { eq, and, asc } from "drizzle-orm";
+import { readReviewedParticipantResponses } from "../../../engine/src/participation";
+import { runFeedback } from "../../../database/src";
+import { desc, eq, and, asc, sql } from "drizzle-orm";
 import { ApplicationFailure, Context } from "@temporalio/activity";
 import {
   db,
   runs,
   reasoningSessions,
   reasoningTurns,
+  codeBuilds,
 } from "../../../database/src";
 import { ToolRegistry, validate } from "../../../engine/src";
 import {
   sessionConfig,
   validateDecision,
   checkPayloadSize,
+  checkReasoningContextSize,
 } from "../../../engine/src/agent-policy";
 import {
   OpenAIAgentPlanner,
@@ -140,10 +144,18 @@ export function createSessionActivities(
           args.review.reviewId !== `${args.sessionId}:${args.turn}`
         )
           throw ApplicationFailure.nonRetryable("Matching review is required");
-        if (!args.review.approved)
-          throw ApplicationFailure.nonRetryable("Human review rejected");
+        if (args.review.action === "revise") {
+          if (args.review.approved || !args.review.note?.trim())
+            throw ApplicationFailure.nonRetryable("Revision requires feedback and is not an approval");
+          state.revisionPending = true;
+        } else {
+          if (!args.review.approved)
+            throw ApplicationFailure.nonRetryable("Human review rejected");
+          state.revisionPending = false;
+        }
         result = {
-          approved: true,
+          action: args.review.action ?? "approve",
+          approved: args.review.approved,
           note: args.review.note ?? "",
           reviewId: args.review.reviewId,
         };
@@ -224,7 +236,7 @@ export function createSessionActivities(
             run.executionDefinition.workflow.outputSchema,
           config,
         };
-        checkPayloadSize({ snapshot, input }, config.maxContextBytes);
+        checkReasoningContextSize({ input }, snapshot);
         const [session] = await tx
           .insert(reasoningSessions)
           .values({ runId, workflowStepId, input, snapshot })
@@ -266,9 +278,46 @@ export function createSessionActivities(
           .orderBy(asc(reasoningTurns.turn));
         if (history.length !== turn || history.some((t) => !t.outcome))
           throw ApplicationFailure.nonRetryable("Previous turn is incomplete");
+        // Read current execution state only for a newly generated decision.
+        // Do not rewrite the immutable start/inspect outcomes in earlier turns.
+        const loadCurrentBuilds = (completedOnly = false) => tx
+          .select({
+            id: codeBuilds.id,
+            parentId: codeBuilds.parentId,
+            state: sql<string>`left(${codeBuilds.state}, 32)`,
+            commit: sql<string | null>`left(${codeBuilds.result}->>'commit', 128)`,
+            previewUrl: sql<string | null>`left(${codeBuilds.result}->>'previewUrl', 512)`,
+            codeUrl: sql<string | null>`left(${codeBuilds.result}->>'codeUrl', 512)`,
+            error: sql<string | null>`left(${codeBuilds.error}, 600)`,
+            updatedAt: codeBuilds.updatedAt,
+          })
+          .from(codeBuilds)
+          .innerJoin(runs, and(
+            eq(runs.id, codeBuilds.runId),
+            eq(runs.customerOrganizationId, codeBuilds.organizationId),
+          ))
+          .where(and(
+            eq(codeBuilds.runId, session.runId),
+            sql`split_part(${codeBuilds.sourceKey}, ':', 1) = ${sessionId}`,
+            completedOnly ? eq(codeBuilds.state, "completed") : undefined,
+          ))
+          .orderBy(desc(codeBuilds.updatedAt), desc(codeBuilds.id))
+          .limit(completedOnly ? 1 : 12);
+        const currentBuilds = await loadCurrentBuilds();
+        // Keep the last usable result visible even if many newer attempts failed.
+        if (!currentBuilds.some((build) => build.state === "completed"))
+          currentBuilds.push(...await loadCurrentBuilds(true));
         const request: ReasonRequest = {
           sessionId,
           turn,
+          participantResponses: await readReviewedParticipantResponses(sessionId, session.runId),
+          currentBuilds: currentBuilds.map((build) => ({ ...build, updatedAt: build.updatedAt.toISOString() })),
+          humanFeedback: await tx
+            .select()
+            .from(runFeedback)
+            .where(eq(runFeedback.runId, session.runId))
+            .orderBy(desc(runFeedback.createdAt))
+            .limit(8),
           input: session.input,
           state: history.at(-1)?.outcome?.state ?? initialSessionState(),
           events: history.map((t) => ({
@@ -277,10 +326,7 @@ export function createSessionActivities(
             result: t.outcome!.result,
           })),
         };
-        checkPayloadSize(
-          { request, snapshot: session.snapshot },
-          session.snapshot.config.maxContextBytes,
-        );
+        checkReasoningContextSize(request, session.snapshot);
         const decision = await validatedReasoning(
           planner,
           request,

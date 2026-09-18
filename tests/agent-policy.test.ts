@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { OpenAIAgentPlanner } from "../packages/engine/src/openai-agent";
 import {
   sessionConfig,
+  checkReasoningContextSize,
   validateDecision,
 } from "../packages/engine/src/agent-policy";
 import {
@@ -242,4 +243,20 @@ test("required evidence blocks completion until knowledge and a call by the acti
     result: { sources: ["recorded"] },
   });
   assert.deepEqual(validateDecision(complete, r, s), {});
+});
+
+test("unfetched knowledge does not consume reasoning budget, fetched evidence does", () => {
+  const large = structuredClone(snapshot);
+  large.definition.knowledge = [{ id: "large-doc", name: "Research", content: "x".repeat(200000) } as any];
+  assert.doesNotThrow(() => checkReasoningContextSize({ input: {} }, large));
+  assert.equal((large.definition.knowledge[0] as any).content.length, 200000);
+  assert.throws(() => checkReasoningContextSize({ events: [{ result: "x".repeat(200000) }] }, large), /size limit/);
+});
+
+test("revision feedback blocks completion until another human approval", () => {
+  const request = { sessionId: "s", turn: 1, input: {}, events: [], state: {...initialSessionState(), revisionPending: true} };
+  assert.throws(() => validateDecision({action:"final", target:null,payload:"{}",summary:"Done"}, request, snapshot), /Human approval/);
+  assert.throws(() => validateDecision({action:"complete_skill",target:null,payload:"{}",summary:"Done"}, request, snapshot), /Human approval/);
+  const reviewSnapshot=structuredClone(snapshot);reviewSnapshot.config.allowHumanReview=true;
+  assert.doesNotThrow(() => validateDecision({action:"request_review",target:null,payload:'{"revision":"Updated findings"}',summary:"Please review corrections"},request,reviewSnapshot));
 });

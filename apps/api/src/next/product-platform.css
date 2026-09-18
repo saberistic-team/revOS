@@ -1,0 +1,137 @@
+.pp-stack {
+  display: grid;
+  gap: 16px;
+}
+.pp-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+.pp-heading h2,
+.pp-heading h3 {
+  margin: 0;
+}
+.pp-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pp-card {
+  padding: 20px;
+  margin-bottom: 16px;
+  min-width: 0;
+}
+.pp-card p {
+  line-height: 1.55;
+}
+.pp-form {
+  display: grid;
+  gap: 14px;
+  max-width: 820px;
+}
+.pp-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.pp-field > span {
+  font-weight: 600;
+}
+.pp-field input,
+.pp-field select,
+.pp-field textarea,
+.pp-heading input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line, #dce2eb);
+  border-radius: 9px;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+.pp-field textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+.pp-field input[type="checkbox"] {
+  width: auto;
+}
+.pp-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pp-options .pp-field {
+  display: flex;
+  align-items: center;
+}
+.pp-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line, #dce2eb);
+  border-radius: 12px;
+}
+.pp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 650px;
+}
+.pp-table th,
+.pp-table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--line, #e8ecf2);
+  vertical-align: top;
+}
+.pp-table th {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted, #657083);
+}
+.pp-table td small {
+  display: block;
+  margin-top: 7px;
+  max-width: 340px;
+  color: var(--muted, #657083);
+}
+.pp-table tr:last-child td {
+  border-bottom: 0;
+}
+.pp-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pp-metrics .pp-card {
+  display: grid;
+  gap: 10px;
+}
+.pp-metrics strong {
+  font-size: 26px;
+  font-weight: 650;
+}
+.pp-measurement {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line, #e8ecf2);
+}
+.pp-measurement > span:first-child {
+  flex: 1;
+}
+.pp-prose {
+  white-space: pre-wrap;
+}
+.pp-card h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #657083);
+}

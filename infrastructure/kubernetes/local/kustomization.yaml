@@ -6,6 +6,9 @@ resources:
   - namespace.yaml
   - postgres.yaml
   - temporal.yaml
+  - forgejo.yaml
+  - openhands.yaml
+  - openhands-web.yaml
 configMapGenerator:
   - name: engine-config
     literals:
@@ -27,3 +30,34 @@ secretGenerator:
     literals:
       - POSTGRES_USER=temporal
       - POSTGRES_PWD=temporal-local-only
+
+patches:
+  - target:
+      kind: Deployment
+      name: worker
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value: [{name: OPENHANDS_IMAGE, value: "agent-engine-openhands:1.49.1-chat"}, {name: OPENHANDS_MODEL, value: "openai/gpt-6-astra"}, {name: OPENHANDS_MAX_ITERATIONS, value: "200"}]
+      - op: add
+        path: /spec/template/spec/serviceAccountName
+        value: engine-build-worker
+      - op: add
+        path: /spec/template/spec/securityContext
+        value: {fsGroup: 1000}
+      - op: add
+        path: /spec/template/spec/volumes
+        value: [{name: build-data, persistentVolumeClaim: {claimName: build-data}}]
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts
+        value: [{name: build-data, mountPath: /build-data}]
+  - target:
+      kind: Deployment
+      name: api
+    patch: |-
+      - op: add
+        path: /spec/template/spec/volumes
+        value: [{name: build-data, persistentVolumeClaim: {claimName: build-data}}]
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts
+        value: [{name: build-data, mountPath: /build-data}]

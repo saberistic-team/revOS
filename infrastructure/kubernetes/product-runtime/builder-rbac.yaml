@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: product-builder
+  namespace: agent-engine-local
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: revos-kelos-tasks
+  namespace: agent-engine-local
+rules:
+  - apiGroups: [kelos.dev]
+    resources: [tasks]
+    verbs: [get, list, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: revos-kelos-tasks
+  namespace: agent-engine-local
+subjects:
+  - kind: ServiceAccount
+    name: agent-engine
+    namespace: agent-engine-local
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: revos-kelos-tasks

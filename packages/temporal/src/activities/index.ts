@@ -1,7 +1,9 @@
+import { resolveRunOrganization } from "../../../engine/src/organization-resolution";
 import { eq, and, asc, sql } from "drizzle-orm";
 import { ApplicationFailure } from "@temporalio/activity";
 import {
   db,
+  organizations,
   runs,
   tasks,
   workflowVersions,
@@ -39,6 +41,7 @@ export function createActivities(
     });
   }
   const activities: Activities = {
+    resolveRunOrganization,
     async loadExecutionDefinition(args) {
       return db.transaction(
         async (tx) => {
@@ -84,7 +87,24 @@ export function createActivities(
             .orderBy(asc(workflowSteps.position));
           if (!steps.length)
             throw ApplicationFailure.nonRetryable("Workflow has no steps");
+          const customer = run.customerOrganizationId
+            ? (
+                await tx
+                  .select()
+                  .from(organizations)
+                  .where(eq(organizations.id, run.customerOrganizationId))
+              )[0]
+            : null;
           const definition: ExecutionDefinition = {
+            ...(customer
+              ? {
+                  customer: {
+                    id: customer.id,
+                    name: customer.name,
+                    domain: customer.domain,
+                  },
+                }
+              : {}),
             workflow: {
               id: version.workflowId,
               version: version.version,
@@ -101,7 +121,12 @@ export function createActivities(
                 content: knowledge.content,
               })
               .from(knowledge)
-              .where(eq(knowledge.organizationId, task.organizationId)),
+              .where(
+                eq(
+                  knowledge.organizationId,
+                  run.customerOrganizationId ?? task.organizationId,
+                ),
+              ),
             tools: [],
             steps: [],
           };
@@ -154,17 +179,37 @@ export function createActivities(
                   .from(skillVersions)
                   .innerJoin(skills, eq(skillVersions.skillId, skills.id))
                   .where(eq(skillVersions.id, id));
+                const shared =
+                  row?.owner.organizationId &&
+                  (
+                    await tx
+                      .select()
+                      .from(organizations)
+                      .where(eq(organizations.id, row.owner.organizationId))
+                  )[0]?.kind === "platform";
                 if (
                   !row ||
                   (row.owner.organizationId !== null &&
-                    row.owner.organizationId !== task.organizationId) ||
+                    row.owner.organizationId !== task.organizationId &&
+                    !shared) ||
                   row.version.executionType !== "agent"
                 )
                   throw ApplicationFailure.nonRetryable(
                     "Selected agent skill is missing or outside the organization",
                   );
+                const configuration = { ...row.version.configuration };
+                if (customer) {
+                  const ids = definition.knowledge.map((k) => k.id!);
+                  configuration.allowedKnowledgeIds = ids;
+                  configuration.requiredKnowledgeIds = (
+                    Array.isArray(configuration.requiredKnowledgeIds)
+                      ? configuration.requiredKnowledgeIds
+                      : []
+                  ).filter((id) => ids.includes(String(id)));
+                }
                 catalog.push({
                   ...row.version,
+                  configuration,
                   name: row.owner.name,
                   description: row.owner.description,
                 });

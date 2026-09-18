@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>revOS · Workspaces</title>
+    <link rel="stylesheet" href="/output-view.css" />
+    <link rel="stylesheet" href="/next/assets/app.css" />
+    <link rel="stylesheet" href="/next/assets/run.css" />
+    <link rel="stylesheet" href="/next/assets/library.css" />
+    <link rel="stylesheet" href="/next/assets/organizations.css" />
+    <link rel="stylesheet" href="/next/assets/people.css" />
+    <link rel="stylesheet" href="/next/assets/product-platform.css" />
+  </head>
+  <body>
+    <a class="nx-skip" href="#nx-main">Skip to content</a>
+    <div id="nx-app">
+      <aside id="nx-sidebar">
+        <a href="/next/run" class="nx-brand">revOS <span>Preview</span></a>
+        <nav id="nx-navigation" aria-label="Main navigation"></nav>
+        <div class="nx-sidebar-bottom">
+          <button id="nx-search-button" class="nx-button">
+            Find anything <kbd>⌘ K</kbd>
+          </button>
+          <details id="nx-services">
+            <summary>Services</summary>
+            <a href="http://localhost:8080" target="_blank" rel="noopener"
+              >Temporal</a
+            ><a href="http://localhost:3003" target="_blank" rel="noopener"
+              >OpenHands</a
+            ><a href="http://localhost:3001" target="_blank" rel="noopener"
+              >Forgejo</a
+            ><a href="http://localhost:8025" target="_blank" rel="noopener">Mailpit</a>
+          </details>
+          <a
+            href="http://localhost:3000"
+            target="_blank"
+            rel="noopener"
+            class="nx-muted nx-small"
+            >Open current UI ↗</a
+          >
+        </div>
+      </aside>
+      <div class="nx-workspace">
+        <header id="nx-header">
+          <div id="nx-breadcrumb">Workspace</div>
+          <div class="nx-actions">
+            <span id="nx-connection" role="status"></span
+            ><button
+              id="nx-assistant-toggle"
+              class="nx-button"
+              aria-controls="nx-assistant"
+              aria-expanded="false"
+            >
+              Assistant
+            </button>
+          </div>
+        </header>
+        <div id="nx-workarea">
+          <main id="nx-main" tabindex="-1"></main>
+          <aside
+            id="nx-assistant"
+            aria-label="Contextual assistant"
+            hidden
+          ></aside>
+        </div>
+      </div>
+    </div>
+    <div id="nx-notifications" aria-live="polite"></div>
+    <dialog id="nx-search">
+      <div class="nx-row">
+        <h2>Find anything</h2>
+        <button id="nx-search-close" class="nx-button">Close</button>
+      </div>
+      <label class="nx-sr-only" for="nx-search-input"
+        >Search organizations, workflows and work</label
+      ><input
+        id="nx-search-input"
+        placeholder="Organization, workflow, engagement…"
+        autocomplete="off"
+      />
+      <div id="nx-search-results"></div>
+    </dialog>
+    <script src="/output-view.js"></script>
+    <script type="module" src="/next/assets/app.js"></script>
+  </body>
+</html>

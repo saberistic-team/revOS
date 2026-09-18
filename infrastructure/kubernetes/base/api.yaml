@@ -23,6 +23,9 @@ spec:
                 name: engine-config
             - secretRef:
                 name: engine-secrets
+            - secretRef:
+                name: forgejo-secrets
+                optional: true
           resources:
             requests:
               cpu: 100m

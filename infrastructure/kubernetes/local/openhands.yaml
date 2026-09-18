@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: build-data
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: engine-build-worker
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: engine-build-worker
+rules:
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [get, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: engine-build-worker
+subjects:
+  - kind: ServiceAccount
+    name: engine-build-worker
+roleRef:
+  kind: Role
+  name: engine-build-worker
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: previews
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: previews
+  template:
+    metadata:
+      labels:
+        app: previews
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+        - name: prepare
+          image: busybox:1.37
+          command: [sh, -c, 'mkdir -p /data/previews /data/jobs && chown 1000:1000 /data /data/previews /data/jobs']
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: previews
+          image: nginx:1.28-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/nginx/html
+              subPath: previews
+              readOnly: true
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 20m
+            limits:
+              memory: 128Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: build-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: previews
+spec:
+  selector:
+    app: previews
+  ports:
+    - port: 80
+      targetPort: 80

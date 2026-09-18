@@ -1,0 +1,197 @@
+# Local Docker Desktop OpenHands deployment.
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolumeClaim",
+  "metadata": {
+    "name": "openhands-web-data"
+  },
+  "spec": {
+    "accessModes": [
+      "ReadWriteOnce"
+    ],
+    "resources": {
+      "requests": {
+        "storage": "5Gi"
+      }
+    }
+  }
+}
+---
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "openhands-web"
+  },
+  "spec": {
+    "replicas": 1,
+    "strategy": {
+      "type": "Recreate"
+    },
+    "selector": {
+      "matchLabels": {
+        "app": "openhands-web"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "openhands-web"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "nodeSelector": {
+          "kubernetes.io/hostname": "desktop-worker"
+        },
+        "initContainers": [
+          {
+            "name": "settings",
+            "image": "docker.openhands.dev/openhands/openhands:1.8",
+            "command": [
+              "/app/.venv/bin/python",
+              "-c",
+              "import json,os,pathlib\nfrom openhands.sdk.settings import default_agent_settings\np=pathlib.Path('/data/settings.json')\nif not p.exists():\n a=default_agent_settings().model_dump(mode='json')\n a['llm'].update(model='openai/gpt-6-astra',api_key=os.environ['OPENAI_API_KEY'],reasoning_effort='medium',model_canonical_name='openai/gpt-5.5',temperature=None,max_input_tokens=18000,max_output_tokens=6000)\n p.write_text(json.dumps({'agent_settings':a,'user_consents_to_analytics':False,'v1_enabled':True,'language':'en'}))\n p.chmod(0o600)\n\ns=json.loads(p.read_text())\na=s.setdefault(\"agent_settings\",{}).setdefault(\"agent_context\",{})\nold=a.get(\"system_message_suffix\") or \"\"\nmarker=\"\\n\\n## Local Forgejo repositories\"\na[\"system_message_suffix\"]=old.split(marker)[0]+'\\n\\n## Local Forgejo repositories\\nYou have Git and Forgejo access through the preinstalled forgejo command. Run `forgejo repos` to discover repositories; `forgejo clone revos/NAME` to work on one. Browser URLs use http://localhost:3001; from the sandbox the configured endpoint is http://host.docker.internal:3001. Git authentication is automatic. Never print credentials, environment secrets, or put tokens in URLs/files/prompts. Default to a new openhands/ descriptive branch, test changes, commit, and push that branch. Use `forgejo pr NAME --head BRANCH --title TITLE --body-file FILE` to open a pull request when requested. Do not merge or push to the default branch unless the user explicitly asks. Repositories with knowledge records are organization knowledge bases: preserve citations and record provenance; edits in Forgejo do not automatically synchronize the engine database or regenerate its mindmap. The native repository picker supports Forgejo after running the connector setup. Existing conversations without a selected repository can use terminal Git commands. Ask which repository when the intended one is unclear.\\n'\np.write_text(json.dumps(s))\np.chmod(0o600)\n"
+            ],
+            "env": [
+              {
+                "name": "OPENAI_API_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "openai-secrets",
+                    "key": "OPENAI_API_KEY"
+                  }
+                }
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "data",
+                "mountPath": "/data"
+              }
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "name": "openhands-web",
+            "image": "docker.openhands.dev/openhands/openhands:1.8",
+            "env": [
+              {
+                "name": "ALLOW_INSECURE_GIT_ACCESS",
+                "value": "true"
+              },
+              {
+                "name": "DOCKER_CONTAINER",
+                "value": "true"
+              },
+              {
+                "name": "OH_PERSISTENCE_DIR",
+                "value": "/data"
+              },
+              {
+                "name": "OH_WEB_URL",
+                "value": "http://host.docker.internal:3003"
+              },
+              {
+                "name": "SANDBOX_HOST_PORT",
+                "value": "3003"
+              },
+              {
+                "name": "AGENT_SERVER_IMAGE_REPOSITORY",
+                "value": "revos-openhands-canvas"
+              },
+              {
+                "name": "AGENT_SERVER_IMAGE_TAG",
+                "value": "1.27.0-forgejo1"
+              },
+              {
+                "name": "SANDBOX_USER_ID",
+                "value": "0"
+              },
+              {
+                "name": "OH_AGENT_SERVER_ENV",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "openhands-forgejo",
+                    "key": "OH_AGENT_SERVER_ENV"
+                  }
+                }
+              },
+              {
+                "name": "OH_PERMITTED_CORS_ORIGINS_0",
+                "value": "http://localhost:3003"
+              }
+            ],
+            "ports": [
+              {
+                "containerPort": 3000
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "data",
+                "mountPath": "/data"
+              },
+              {
+                "name": "socket",
+                "mountPath": "/var/run/docker.sock"
+              }
+            ],
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/",
+                "port": 3000
+              },
+              "initialDelaySeconds": 15,
+              "periodSeconds": 5
+            },
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "512Mi"
+              },
+              "limits": {
+                "memory": "2Gi"
+              }
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "name": "data",
+            "persistentVolumeClaim": {
+              "claimName": "openhands-web-data"
+            }
+          },
+          {
+            "name": "socket",
+            "hostPath": {
+              "path": "/var/lib/revos-docker/docker.sock",
+              "type": "Socket"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+---
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "openhands-web"
+  },
+  "spec": {
+    "selector": {
+      "app": "openhands-web"
+    },
+    "ports": [
+      {
+        "port": 3000,
+        "targetPort": 3000
+      }
+    ]
+  }
+}

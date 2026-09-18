@@ -1,0 +1,18 @@
+const {Pool}=require('pg');const {randomUUID}=require('crypto');
+(async()=>{const original=process.env.DATABASE_URL;const admin=new Pool({connectionString:original});const schema='map_verify_'+randomUUID().replaceAll('-','');let isolated;
+try{await admin.query('CREATE SCHEMA '+schema);for(const table of ['organization','kb_document','workspace_job'])await admin.query('CREATE TABLE '+schema+'.'+table+' (LIKE public.'+table+' INCLUDING ALL)');
+const url=new URL(original);url.searchParams.set('options','-c search_path='+schema+',public');process.env.DATABASE_URL=url.toString();
+const {queueMindmap,mindmapState}=require(process.cwd()+'/dist/packages/engine/src/mindmap');isolated=require(process.cwd()+'/dist/packages/database/src').pool;
+const org=randomUUID(),doc=randomUUID();await isolated.query("INSERT INTO organization(id,name) VALUES($1,'Synthetic map scheduling test')",[org]);
+await isolated.query("INSERT INTO kb_document(id,organization_id,title,category,content,evidence,updated_at) VALUES($1,$2,'Synthetic operations','business','Uses a synthetic storefront','unverified',now()-interval '1 minute')",[doc,org]);
+await queueMindmap(org);await queueMindmap(org);let jobs=(await isolated.query('SELECT * FROM workspace_job')).rows;if(jobs.length!==1)throw Error('Duplicate scheduling');const first=jobs[0];
+const graph={title:'Synthetic',summary:'Verification only',nodes:[{id:'storefront',label:'Storefront',theme:'Operations',summary:'Synthetic storefront',evidence:'unverified',sourceIds:[doc]}],edges:[]};
+await isolated.query("UPDATE workspace_job SET state='completed',result=$1 WHERE id=$2",[JSON.stringify({graph}),first.id]);
+if((await mindmapState(org)).stale)throw Error('Completed snapshot marked stale');
+await isolated.query("UPDATE kb_document SET content='Synthetic storefront now has a CRM',revision=2,updated_at=now()-interval '1 minute' WHERE id=$1",[doc]);
+await queueMindmap(org);jobs=(await isolated.query('SELECT * FROM workspace_job')).rows;if(jobs.length!==2)throw Error('Edit did not queue new map');let state=await mindmapState(org);if(!state.stale||!state.graph)throw Error('Prior map not retained during update');
+await isolated.query("UPDATE workspace_job SET state='completed',result=$1 WHERE id<>$2",[JSON.stringify({graph}),first.id]);
+await isolated.query("UPDATE kb_document SET content='Uses a synthetic storefront',revision=1,updated_at=now()-interval '1 minute' WHERE id=$1",[doc]);
+state=await mindmapState(org);if(state.stale)throw Error('Previously completed exact snapshot not reused');
+console.log('PASS deduplication, knowledge-edit rescheduling, prior-map retention, and exact-snapshot reuse; no model calls');
+}finally{if(isolated)await isolated.end();await admin.query('DROP SCHEMA '+schema+' CASCADE');await admin.end();}})().catch(e=>{console.error(e.message);process.exitCode=1});

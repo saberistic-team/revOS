@@ -1,3 +1,4 @@
+import { recordModelResponse } from "./model-usage";
 import type { ModelProvider, ModelRequest, ModelResponse } from "./index";
 import { MockModelProvider } from "./index";
 export class OpenAIModelProvider implements ModelProvider {
@@ -31,7 +32,9 @@ export class OpenAIModelProvider implements ModelProvider {
       throw new Error(`Model request failed (${response.status})`);
     const body = (await response.json()) as {
       choices: { message: { content: string } }[];
+      id?: string; usage?: unknown;
     };
+    await recordModelResponse(body, process.env.OPENAI_MODEL ?? "gpt-4.1-mini");
     return { output: JSON.parse(body.choices[0].message.content) };
   }
 }

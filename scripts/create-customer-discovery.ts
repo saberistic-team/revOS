@@ -58,7 +58,11 @@ async function main() {
       (x: any) => x.name === s.name && x.organizationId === organization.id,
     );
     const skill =
-      (existing?.configuration.requiredKnowledgeIds ? existing : undefined) ??
+      (existing?.configuration.requiredKnowledgeIds &&
+      JSON.stringify(existing.configuration.outputs) ===
+        JSON.stringify(s.outputs)
+        ? existing
+        : undefined) ??
       (await api("/builder/skills", {
         ...(existing ? { skillId: existing.skillId } : {}),
         organizationId: organization.id,
@@ -68,6 +72,7 @@ async function main() {
         inputSchema: { type: "object" },
         outputSchema: { type: "object", minProperties: 1 },
         configuration: {
+          outputs: s.outputs,
           allowedToolIds: s.research ? [tool.id] : [],
           allowedKnowledgeIds: knowledgeIds,
           requiredKnowledgeIds: knowledgeIds,
@@ -96,12 +101,14 @@ async function main() {
     inputSchema: config.inputSchema,
     outputSchema: config.outputSchema,
     steps: [
-      ...config.steps.map((s: any) => ({
+      ...config.steps.map((s: any, index: number) => ({
         key: s.key,
         name: s.name,
         type: "agent_loop",
         skillVersionId: null,
         configuration: {
+          captureKnowledge: index === 0 && config.captureKnowledge === true,
+          outputs: s.outputs,
           inputFrom: "context",
           provider: "openai",
           model: "gpt-4.1",

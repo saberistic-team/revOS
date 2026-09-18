@@ -5,7 +5,7 @@ import {
   REASONING_MAX_ATTEMPTS,
   decisionByteLimit,
 } from "../../shared/src/reasoning-limits";
-import { checkPayloadSize, validateDecision } from "./agent-policy";
+import { checkPayloadSize, checkReasoningContextSize, validateDecision } from "./agent-policy";
 
 export async function validatedReasoning(
   planner: AgentPlanner,
@@ -16,7 +16,7 @@ export async function validatedReasoning(
 ) {
   for (let attempt = 0; attempt < REASONING_MAX_ATTEMPTS; attempt++) {
     cancellationSignal.throwIfAborted();
-    checkPayloadSize({ request, snapshot }, snapshot.config.maxContextBytes);
+    checkReasoningContextSize(request, snapshot);
     // A schema correction gets its own request budget. Earlier model calls must
     // not consume the time available to generate the corrected response.
     const deadline = AbortSignal.timeout(callTimeoutMs);

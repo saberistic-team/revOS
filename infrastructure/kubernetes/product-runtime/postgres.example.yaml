@@ -1,0 +1,57 @@
+# Apply separately to ONE product/environment namespace after providing its
+# product-database Secret. Neither generated releases nor code agents create or
+# delete this database. Backups and production HA must be configured separately.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: product-database
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: product-database
+spec:
+  serviceName: product-database
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-database
+  template:
+    metadata:
+      labels:
+        app: product-database
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: postgres
+          image: postgres:17
+          ports: [{containerPort: 5432, name: postgres}]
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: {name: product-database, key: POSTGRES_PASSWORD}
+            - {name: POSTGRES_USER, value: product}
+            - {name: POSTGRES_DB, value: product}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: '1', memory: 512Mi}
+          readinessProbe:
+            exec: {command: [pg_isready, -U, product]}
+          volumeMounts: [{name: data, mountPath: /var/lib/postgresql/data}]
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: product-database}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-database
+spec:
+  selector: {app: product-database}
+  ports: [{port: 5432, targetPort: postgres}]

@@ -1,0 +1,164 @@
+#section-assistant-toggle {
+  position: fixed;
+  right: 24px;
+  bottom: 20px;
+  z-index: 40;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 24px;
+  background: #245841;
+  color: white;
+  box-shadow: 0 4px 18px #193b3026;
+  font: 600 14px system-ui;
+  cursor: pointer;
+}
+#section-assistant {
+  position: fixed;
+  right: 16px;
+  top: 88px;
+  bottom: 16px;
+  width: min(440px, calc(100vw - 32px));
+  z-index: 50;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #d5dfd8;
+  border-radius: 16px;
+  box-shadow: 0 12px 50px #102a3326;
+  font: 14px/1.5 system-ui;
+  color: #183b30;
+  overflow: hidden;
+}
+#section-assistant[hidden],
+#section-assistant [hidden] {
+  display: none !important;
+}
+#section-assistant * {
+  box-sizing: border-box;
+}
+#section-assistant h2 {
+  font: 650 19px system-ui;
+  margin: 0;
+}
+#section-assistant p {
+  margin: 0;
+}
+#section-assistant #sa-purpose,
+#section-assistant #sa-context {
+  font-size: 12px;
+  color: #5b7065;
+}
+#section-assistant .sa-heading,
+#section-assistant .sa-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#section-assistant label {
+  display: block;
+  font-size: 12px;
+  margin: 0;
+}
+#section-assistant .sa-controls label {
+  flex: 1;
+  min-width: 0;
+}
+#section-assistant button {
+  padding: 7px 11px;
+  border: 1px solid #ccd9ce;
+  border-radius: 7px;
+  background: #f3f7f2;
+  color: #234b39;
+  font: 600 12px system-ui;
+  cursor: pointer;
+  width: auto;
+}
+#section-assistant button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+#section-assistant select,
+#section-assistant textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #cbd7cd;
+  background: #fff;
+  color: #193b30;
+  border-radius: 7px;
+  padding: 8px;
+  font: 14px system-ui;
+  margin: 0;
+}
+#section-assistant textarea {
+  resize: none;
+  min-height: 65px;
+}
+#section-assistant #sa-messages {
+  flex: 1;
+  min-height: 80px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+}
+#section-assistant .sa-message {
+  white-space: pre-wrap;
+  padding: 12px;
+  margin: 0 0 10px;
+  background: #f3f6f1;
+  border-radius: 10px;
+}
+#section-assistant .sa-message.user {
+  background: #e5f0e9;
+}
+#section-assistant .sa-message strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+#section-assistant #sa-proposals {
+  max-height: 25%;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+#section-assistant details {
+  padding: 8px;
+  border: 1px solid #d9e2d9;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+#section-assistant pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  max-height: 200px;
+  overflow: auto;
+}
+#section-assistant #sa-status {
+  font-size: 12px;
+  color: #795630;
+  max-height: 55px;
+  overflow: auto;
+}
+#section-assistant #sa-form {
+  display: grid;
+  gap: 6px;
+  flex-shrink: 0;
+}
+#section-assistant #sa-send {
+  background: #245841;
+  color: #fff;
+  justify-self: end;
+}
+#section-assistant a {
+  color: #245841;
+  text-decoration: underline;
+}
+#section-assistant :focus-visible {
+  outline: 2px solid #327d59;
+  outline-offset: 2px;
+}

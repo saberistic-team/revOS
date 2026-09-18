@@ -37,6 +37,7 @@ export interface StepDefinition {
   catalog?: CatalogSkill[];
 }
 export interface ExecutionDefinition {
+  customer?: { id: string; name: string; domain: string | null };
   workflow: {
     id: string;
     version: number;
@@ -69,12 +70,16 @@ export interface StepResult {
   error?: string;
 }
 export interface Review {
+  action?: "revise";
   stepKey: string;
   approved: boolean;
   note?: string;
   reviewId?: string;
 }
 export interface Activities {
+  resolveRunOrganization(
+    runId: string,
+  ): Promise<{ state: string; organizationId?: string }>;
   loadExecutionDefinition(input: AgentRunInput): Promise<ExecutionDefinition>;
   markRunRunning(runId: string): Promise<void>;
   markRunWaiting(runId: string): Promise<void>;

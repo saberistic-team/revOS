@@ -225,3 +225,147 @@ recover a stale running reasoning activity. This requires exactly one pending
 `reason` activity and rechecks the stored turn count under a session lock. It
 refuses to restart pending tool actions or reasoning that has already advanced.
 Resetting an in-flight model request may incur another provider charge.
+
+## Step presentations and downloadable artifacts
+
+Each workflow step and skill version has **Presentation & artifacts** settings in Library.
+Choose a report, cards, table, or ordered diagram for readable results. Artifact generation
+can be manual, automatic for selected formats, or let the model choose among allowed
+PDF, XLSX, PPTX, and PNG formats. The existing saved JSON remains the source of truth.
+
+In Run, select a step and use **Result**, **Artifacts**, or **Execution**. Completed skill
+outputs and files appear beneath their parent step. PDF and PNG have inline previews;
+all files can be downloaded. Existing runs can generate artifacts from saved outputs.
+
+Artifacts use the OpenAI Agents SDK hosted Code Interpreter in a separate Temporal
+activity and child workflow. Set `OPENAI_API_KEY` on the worker; optionally set
+`OPENAI_ARTIFACT_MODEL` (default `gpt-4.1`). Generating artifacts sends that saved output
+to OpenAI and incurs model/tool usage. Each requested automatic file format is generated
+separately for completeness. Research does not run again when an artifact is retried.
+Artifact jobs are cached by source and settings, bounded to 15 MB/file and 30 MB/batch,
+and persisted in Postgres before download. Completed runs may still have artifact jobs
+running. Failed jobs expose a retry button. Generated layouts should be reviewed before
+external sharing.
+
+The Customer Opportunity Discovery configuration enables deliverables for its skills
+and a final PDF/slide brief. `scripts/update-discovery-outputs.ts <workflow-id> --publish`
+updates an existing workflow through the authoring API; older runs retain their pinned
+skill/workflow versions. Apply database migrations before starting the updated API/worker.
+
+## Organization knowledge and workflow assistant
+
+Use **Knowledge** to explore saved research, review corrections, browse the private Forgejo repository, and ask the assistant to explain findings or propose workflow and skill changes. See [Knowledge workspace](docs/knowledge-workspace.md) for setup, voice support, durable execution, and verification.
+
+### OpenHands canvas and workflow builds
+
+OpenHands workflow builds use `openai/gpt-6-astra` with medium reasoning. The
+worker's `OPENHANDS_MODEL` environment variable controls new builds; existing
+workflow reasoning models are unchanged. Build the isolated executor image with:
+
+```sh
+docker build -f apps/openhands/Dockerfile -t agent-engine-openhands:1.49.1-chat .
+```
+
+The separate OpenHands web canvas runs as the `openhands-web` Kubernetes
+Deployment with persistent settings/conversations. On this Docker Desktop kind
+cluster, initialize it with `python3 scripts/setup-openhands-web.py`, then expose
+it with `sh scripts/forward-local-service.sh openhands-web 3003 3000`.
+Open http://localhost:3003.
+The service stays running while Docker Desktop/Kubernetes is running; restart
+the forwarder after a terminal restart; it reconnects after pod restarts.
+For Forgejo use `sh scripts/forward-local-service.sh forgejo 3001 3000`.
+
+The setup creates a `revos-docker-socket` relay container with automatic restart.
+It relays a Unix socket into a dedicated subdirectory of the existing
+`desktop-worker` node volume. No TCP Docker API is exposed and no cluster
+recreation is needed. This intentionally grants the OpenHands service broad
+local Docker control. It is a local-only setup, not a production deployment.
+GUI coding sandboxes are Docker containers; workflow builds remain bounded
+Kubernetes Jobs. GUI conversations and workflow build sessions are separate.
+The initial model key comes from `openai-secrets`; settings are preserved on
+subsequent setup runs. Forgejo login is stored in `forgejo-local-login`.
+
+Workflow builds produce static browser tools, save source to private customer
+Forgejo repositories, and publish previews at http://localhost:3002. They do not
+deploy arbitrary backend services. Stage approvals and customer engagement
+chaining remain controlled by Temporal.
+
+The Run page shows an **OpenHands builds** panel with the build phase, elapsed
+time, latest activity, recent tool events, and generated filenames. **OpenHands chat**
+shows public action summaries, assistant messages, and the final response. Chat
+updates with the run, follows new messages when you are at the bottom, and keeps
+your place when you scroll back. It preserves expanded chat/activity/file lists.
+The API reads bounded, allowlisted messages and event metadata from the build
+volume, including already running builds, without
+exposing SDK reasoning, raw commands, prompts, or tool output. New executor images
+also write atomic progress snapshots and a heartbeat. Messages are deduplicated,
+credentials are redacted, and a notice identifies truncated history. Coding-turn limit failures
+are explained explicitly; build progress does not imply a verified preview.
+
+Coding attempts allow 200 turns by default, configurable with the worker's
+`OPENHANDS_MAX_ITERATIONS` (1–1,000). Each Kubernetes Job has a two-hour deadline.
+Long conversations use the SDK's context condenser. Build instructions request
+focused checks with concise output and a completion checklist; unavailable browser
+validation must be reported as a limitation. **Resume build** continues a
+failed build from its saved conversation and files, archives the previous attempt's
+progress, and uses a new durable execution. Repeated requests are idempotent and old
+attempts cannot overwrite the new attempt. Resuming does not approve a workflow
+review or restart its research steps.
+
+Review revisions refresh current build status before each new reasoning decision.
+Earlier tool results remain historical records. If a review already has a completed
+build, the engine rejects a fresh `start_build`; the agent can inspect the existing
+result or call `revise_build` with that build ID and the requested changes.
+Revisions pin the parent's Forgejo commit, seed its committed files, and branch
+from that commit. They use a new coding conversation and preview while preserving
+the previous version. The Run page shows the parent build and its preview/source
+links. Human approval is still required after the revised material is presented.
+
+#### Forgejo access from the OpenHands canvas
+
+Build `revos-openhands-canvas:1.27.0-forgejo1` with
+`docker build -f apps/openhands-canvas/Dockerfile -t revos-openhands-canvas:1.27.0-forgejo1 .`,
+then run `python3 scripts/connect-openhands-forgejo.py`. This creates a dedicated
+`openhands-canvas` Forgejo token with `write:repository,read:user` permissions for
+the local `revos` account and stores it in Kubernetes secret `openhands-forgejo`.
+The canvas passes it to new coding sandboxes; it is never baked into the image.
+This intentionally allows access to all repositories owned by `revos`.
+
+Start a **new conversation** after setup. The agent can use `forgejo repos`,
+`forgejo clone revos/REPOSITORY`, normal Git branch/commit/push commands, and
+`forgejo pr REPOSITORY --head BRANCH --title TITLE --body-file FILE`.
+The Git credential helper releases the token only for the exact local Forgejo
+endpoint. Browser links remain http://localhost:3001; sandbox Git commands use
+http://host.docker.internal:3001, so keep the Forgejo forwarder running.
+The setup also enables the native Forgejo provider in persistent OpenHands settings.
+The local web deployment sets `ALLOW_INSECURE_GIT_ACCESS=true` because this
+Forgejo instance uses HTTP. Use HTTPS and remove that exception for remote deployments.
+Refresh OpenHands, select a repository and branch under **Open Repository**, then
+launch a new conversation. Existing conversations keep their original repository
+association. New conversations are instructed to use branches for review.
+Forgejo knowledge-file edits do not automatically update the engine database or
+its mindmap; that synchronization is separate from this Git connection.
+
+### Organizations and products
+
+The former Knowledge tab is now **Organizations** (existing `/knowledge` links
+and conversations still work). Select a customer and open Products to inspect
+build versions, source commits, and inline previews. The organization assistant
+can propose new static products or revisions; applying a proposal queues an
+idempotent Temporal build and publishes its completed preview. Previous versions
+remain available. A pending/failed build retains the last working preview.
+
+Capture feedback with a selected product to store one canonical knowledge record
+visible in both the organization and product. Approved notes/corrections are
+committed to the organization’s Forgejo knowledge repository with product
+provenance. Feedback capture does not silently change code; apply a product
+revision proposal to implement it. Product access and parent builds are checked
+against the selected organization. Stale revision proposals are rejected.
+
+#### GPT-6 Astra API compatibility
+
+The canvas uses `openai/gpt-6-astra` with medium reasoning. SDK 1.27 does not
+recognize GPT-6 in its Responses API registry, so `model_canonical_name` is set
+to `openai/gpt-5.5` as a capability compatibility profile. This selects Responses
+and reasoning support; the model sent to OpenAI remains GPT-6 Astra. Remove the
+profile override when the SDK recognizes GPT-6 directly.

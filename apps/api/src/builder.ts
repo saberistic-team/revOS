@@ -26,6 +26,7 @@ import { sessionConfig } from "../../../packages/engine/src/agent-policy";
 import { validate } from "../../../packages/engine/src";
 import { webResearchDefinition } from "../../../packages/engine/src/web-research";
 import type { Json } from "../../../packages/shared/src";
+import { outputSettingsSchema } from "../../../packages/shared/src/outputs";
 const ajv = new Ajv({ strict: false });
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 function fail(message: string, statusCode = 400): never {
@@ -46,7 +47,7 @@ function contract(s: unknown) {
     fail(`Invalid JSON schema: ${String(e)}`);
   }
 }
-async function check(tx: Tx, org: string, d: WorkflowDraft) {
+export async function check(tx: Tx, org: string, d: WorkflowDraft) {
   if (!d.goal.trim() || !d.instructions.trim() || !d.steps.length)
     fail("Add a goal, instructions, and at least one step");
   contract(d.inputSchema);
@@ -58,6 +59,7 @@ async function check(tx: Tx, org: string, d: WorkflowDraft) {
   if (!agent) fail("Choose an agent belonging to this organization");
   const seen = new Set<string>();
   for (const s of d.steps) {
+    parse(outputSettingsSchema, s.configuration.outputs ?? {});
     if (seen.has(s.key)) fail(`Duplicate step key: ${s.key}`);
     const source = s.configuration.inputFrom ?? "previous";
     if (
@@ -90,9 +92,19 @@ async function check(tx: Tx, org: string, d: WorkflowDraft) {
         .from(skillVersions)
         .innerJoin(skills, eq(skills.id, skillVersions.skillId))
         .where(eq(skillVersions.id, id));
+      const shared =
+        row?.skill.organizationId &&
+        (
+          await tx
+            .select()
+            .from(organizations)
+            .where(eq(organizations.id, row.skill.organizationId))
+        )[0]?.kind === "platform";
       if (
         !row ||
-        (row.skill.organizationId && row.skill.organizationId !== org)
+        (row.skill.organizationId &&
+          row.skill.organizationId !== org &&
+          !shared)
       )
         fail("Skill is outside the organization catalog");
       if (row.skill_version.executionType !== "agent")
@@ -101,7 +113,11 @@ async function check(tx: Tx, org: string, d: WorkflowDraft) {
         );
       contract(row.skill_version.inputSchema);
       contract(row.skill_version.outputSchema);
-      await checkPermissions(tx, org, row.skill_version.configuration);
+      await checkPermissions(
+        tx,
+        shared ? row.skill.organizationId! : org,
+        row.skill_version.configuration,
+      );
     }
     if (s.type !== "human_review") {
       if (s.configuration.provider !== "openai")
@@ -111,7 +127,12 @@ async function check(tx: Tx, org: string, d: WorkflowDraft) {
     }
   }
 }
-async function checkPermissions(tx: Tx, org: string, c: Record<string, any>) {
+export async function checkPermissions(
+  tx: Tx,
+  org: string,
+  c: Record<string, any>,
+) {
+  parse(outputSettingsSchema, c.outputs ?? {});
   for (const [required, allowed] of [
     ["requiredKnowledgeIds", "allowedKnowledgeIds"],
     ["requiredToolIds", "allowedToolIds"],
@@ -663,6 +684,15 @@ export function registerBuilder(
       )
         fail("Organization not found");
       if (b.id) {
+        const [existing] = await db
+          .select()
+          .from(knowledge)
+          .where(eq(knowledge.id, b.id));
+        if (existing?.type === "repository")
+          fail(
+            "Repository knowledge must be corrected through the Knowledge workspace so its commit history remains consistent",
+            409,
+          );
         const [k] = await db
           .update(knowledge)
           .set({ name: b.name, content: b.content, updatedAt: new Date() })

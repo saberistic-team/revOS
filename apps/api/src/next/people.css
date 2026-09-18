@@ -1,0 +1,158 @@
+.nx-people-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+.nx-people-heading h2 {
+  margin: 0;
+}
+.nx-people-heading p {
+  margin: 8px 0 0;
+}
+.nx-people-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.nx-people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+.nx-people-card,
+.nx-people-answer {
+  border: 1px solid var(--border, #dde4e8);
+  border-radius: 12px;
+  padding: 22px;
+  background: var(--surface, #fff);
+  min-width: 0;
+}
+.nx-people-card h3 {
+  margin: 0;
+}
+.nx-people-card p {
+  overflow-wrap: anywhere;
+}
+.nx-people-form {
+  max-width: 700px;
+  margin: 26px 0;
+}
+.nx-people-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 17px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.nx-people-field input,
+.nx-people-field select,
+.nx-people-field textarea {
+  border: 1px solid var(--border, #d5dfe3);
+  border-radius: 8px;
+  padding: 11px;
+  font: inherit;
+  background: var(--surface, #fff);
+  color: inherit;
+  max-width: 100%;
+  width: 100%;
+}
+.nx-people-field textarea {
+  resize: vertical;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.nx-people-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 20px 0;
+}
+.nx-people-checkbox input {
+  width: auto;
+}
+.nx-people-detail {
+  max-width: 900px;
+  margin-top: 25px;
+}
+.nx-people-detail h2 {
+  margin-top: 24px;
+}
+.nx-people-answer {
+  margin: 18px 0;
+}
+.nx-people-content {
+  white-space: pre-wrap;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.nx-people-review {
+  border-bottom: 1px solid var(--border, #dde4e8);
+  padding: 15px 0;
+}
+.nx-people-review small {
+  margin-left: 10px;
+}
+.nx-people-card details,
+.nx-people-detail details {
+  margin: 20px 0 8px;
+}
+.nx-people-card summary,
+.nx-people-detail summary {
+  cursor: pointer;
+  font-size: 14px;
+}
+.nx-people-question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nx-people-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid var(--border, #d9e3e7);
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: left;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.nx-people-question:hover {
+  border-color: #23857a;
+}
+.nx-people-question strong {
+  display: block;
+}
+.nx-people-question small {
+  display: block;
+  margin-top: 6px;
+}
+.nx-people-question .nx-people-actions {
+  margin: 0;
+  flex-shrink: 0;
+}
+.nx-people-card input[readonly] {
+  width: 100%;
+  padding: 8px;
+  user-select: all;
+}
+@media (max-width: 700px) {
+  .nx-people-grid {
+    grid-template-columns: 1fr;
+  }
+  .nx-people-question {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .nx-people-heading {
+    align-items: center;
+  }
+}
